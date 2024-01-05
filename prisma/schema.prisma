@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model admin {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model customer {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  cart      cart[]
+}
+
+model product {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  price     Float
+  stock     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  cart      cart[]
+  order     order[]
+}
+
+model category {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model cart {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  product    product   @relation(fields: [productId], references: [id])
+  productId  String    @db.ObjectId
+  quantity   Int
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  customer   customer? @relation(fields: [customerId], references: [id])
+  customerId String?   @db.ObjectId
+}
+
+model order {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  product       product  @relation(fields: [productId], references: [id])
+  productId     String   @db.ObjectId
+  quantity      Int
+  paymentMethod String
+  paymentStatus String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model shipmentStatus {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model payment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
