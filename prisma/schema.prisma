@@ -11,42 +11,98 @@ datasource db {
 }
 
 model admin {
+  id              String            @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  email           String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  adminCredential adminCredential[]
+}
+
+model adminCredential {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  email     String
+  admin     admin    @relation(fields: [adminId], references: [id])
+  adminId   String   @db.ObjectId
+  token     String?
   password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model tempotp {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  otp       String
+  otpRef    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model customer {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  email     String
-  password  String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  cart      cart[]
-  order     order[]
-  payment   payment[]
+  id                 String               @id @default(auto()) @map("_id") @db.ObjectId
+  name               String
+  email              String
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  cart               cart[]
+  order              order[]
+  payment            payment[]
+  customerCredential customerCredential[]
+  adress             adress[]
+}
+
+model adress {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  customer   customer @relation(fields: [customerId], references: [id])
+  customerId String   @db.ObjectId
+  address    String
+  isDefault  Boolean
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model customerCredential {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  customer   customer @relation(fields: [customerId], references: [id])
+  customerId String   @db.ObjectId
+  token      String?
+  password   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model product {
+  id              String            @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  description     String
+  price           Float
+  stock           Int
+  size            String
+  category        category          @relation(fields: [categoryId], references: [id])
+  categoryId      String            @db.ObjectId
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  cart            cart[]
+  order           order[]
+  product_variant product_variant[]
+}
+
+model product_variant {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  price     Float
+  product   product  @relation(fields: [productId], references: [id])
+  productId String   @db.ObjectId
+  size      String
   stock     Int
+  price     Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  cart      cart[]
-  order     order[]
 }
 
 model category {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
   name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  product   product[]
 }
 
 model cart {
@@ -54,6 +110,7 @@ model cart {
   product    product   @relation(fields: [productId], references: [id])
   productId  String    @db.ObjectId
   quantity   Int
+  totalPrice Float
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   customer   customer? @relation(fields: [customerId], references: [id])
@@ -61,16 +118,22 @@ model cart {
 }
 
 model order {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  product       product  @relation(fields: [productId], references: [id])
-  productId     String   @db.ObjectId
-  customer      customer @relation(fields: [customerId], references: [id])
-  customerId    String   @db.ObjectId
-  quantity      Int
-  paymentMethod String
-  paymentStatus String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id             String         @id @default(auto()) @map("_id") @db.ObjectId
+  product        product        @relation(fields: [productId], references: [id])
+  productId      String         @db.ObjectId
+  customer       customer       @relation(fields: [customerId], references: [id])
+  customerId     String         @db.ObjectId
+  quantity       Int
+  totalPrice     Float
+  payment        payment        @relation(fields: [paymentId], references: [id])
+  paymentId      String         @db.ObjectId
+  paymentMethod  String
+  paymentStatus  String
+  orderDate      DateTime       @default(now())
+  shipmentStatus shipmentStatus @relation(fields: [shipmentId], references: [id])
+  shipmentId     String         @db.ObjectId
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 }
 
 model shipmentStatus {
@@ -78,6 +141,7 @@ model shipmentStatus {
   status    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  order     order[]
 }
 
 model payment {
@@ -87,4 +151,5 @@ model payment {
   customerId String   @db.ObjectId
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  order      order[]
 }
