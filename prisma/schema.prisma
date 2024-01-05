@@ -20,13 +20,15 @@ model admin {
 }
 
 model customer {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   email     String
   password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   cart      cart[]
+  order     order[]
+  payment   payment[]
 }
 
 model product {
@@ -62,6 +64,8 @@ model order {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
   product       product  @relation(fields: [productId], references: [id])
   productId     String   @db.ObjectId
+  customer      customer @relation(fields: [customerId], references: [id])
+  customerId    String   @db.ObjectId
   quantity      Int
   paymentMethod String
   paymentStatus String
@@ -71,14 +75,16 @@ model order {
 
 model shipmentStatus {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
+  status    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model payment {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  pymentCred String
+  customer   customer @relation(fields: [customerId], references: [id])
+  customerId String   @db.ObjectId
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
