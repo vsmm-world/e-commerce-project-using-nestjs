@@ -6,9 +6,10 @@ import { CustomerModule } from './customer/customer.module';
 import { ProductsModule } from './products/products.module';
 import { CategoryModule } from './category/category.module';
 import { PaymentModule } from './payment/payment.module';
+import { UserModule } from './user/user.module';
 
 @Module({
-  imports: [AdminModule, PrismaModule, AuthModule, CustomerModule, ProductsModule, CategoryModule, PaymentModule],
+  imports: [AdminModule, PrismaModule, AuthModule, CustomerModule, ProductsModule, CategoryModule, PaymentModule, UserModule],
   controllers: [],
   providers: [],
 })

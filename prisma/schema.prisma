@@ -14,6 +14,7 @@ model admin {
   id              String            @id @default(auto()) @map("_id") @db.ObjectId
   name            String
   email           String
+  isdeleted       Boolean           @default(false)
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   adminCredential adminCredential[]
@@ -25,6 +26,7 @@ model adminCredential {
   adminId   String   @db.ObjectId
   token     String?
   password  String
+  isdeleted Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -33,6 +35,7 @@ model tempotp {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   otp       String
   otpRef    String
+  isdeleted Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -43,21 +46,12 @@ model customer {
   email              String
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
+  isdeleted          Boolean              @default(false)
   cart               cart[]
   order              order[]
   payment            payment[]
   customerCredential customerCredential[]
   adress             adress[]
-}
-
-model adress {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  customer   customer @relation(fields: [customerId], references: [id])
-  customerId String   @db.ObjectId
-  address    String
-  isDefault  Boolean
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
 }
 
 model customerCredential {
@@ -68,6 +62,18 @@ model customerCredential {
   password   String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  isdeleted  Boolean  @default(false)
+}
+
+model adress {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  customer   customer @relation(fields: [customerId], references: [id])
+  customerId String   @db.ObjectId
+  address    String
+  isDefault  Boolean
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  isdeleted  Boolean  @default(false)
 }
 
 model product {
@@ -84,6 +90,7 @@ model product {
   cart            cart[]
   order           order[]
   product_variant product_variant[]
+  isdeleted       Boolean           @default(false)
 }
 
 model product_variant {
@@ -95,6 +102,7 @@ model product_variant {
   price     Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  isdeleted Boolean  @default(false)
 }
 
 model category {
@@ -103,6 +111,7 @@ model category {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   product   product[]
+  isdeleted Boolean   @default(false)
 }
 
 model cart {
@@ -115,6 +124,7 @@ model cart {
   updatedAt  DateTime  @updatedAt
   customer   customer? @relation(fields: [customerId], references: [id])
   customerId String?   @db.ObjectId
+  isdeleted  Boolean   @default(false)
 }
 
 model order {
@@ -134,6 +144,7 @@ model order {
   shipmentId     String         @db.ObjectId
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
+  isdeleted      Boolean        @default(false)
 }
 
 model shipmentStatus {
@@ -142,6 +153,7 @@ model shipmentStatus {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   order     order[]
+  isdeleted Boolean  @default(false)
 }
 
 model payment {
@@ -152,4 +164,6 @@ model payment {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   order      order[]
+  isdeleted  Boolean  @default(false)
 }
+
