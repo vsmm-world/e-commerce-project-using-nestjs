@@ -4,6 +4,12 @@ import { UpdateAuthDto } from './dto/update-auth.dto';
 
 @Injectable()
 export class AuthService {
+  login(createAuthDto: CreateAuthDto) {
+    throw new Error('Method not implemented.');
+  }
+  logout(req: any) {
+    throw new Error('Method not implemented.');
+  }
   create(createAuthDto: CreateAuthDto) {
     return 'This action adds a new auth';
   }

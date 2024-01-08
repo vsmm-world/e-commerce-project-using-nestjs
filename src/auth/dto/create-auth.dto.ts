@@ -1,1 +1,22 @@
-export class CreateAuthDto {}
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, Validate } from 'class-validator';
+import {
+  CustomEmailValidator,
+  PasswordValidator,
+} from 'src/validator/custom-validator';
+
+export class CreateAuthDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @Validate(CustomEmailValidator, {
+    message: 'Email is not valid',
+  })
+  email: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @Validate(PasswordValidator, {
+    message: 'Password is not valid',
+  })
+  password: string;
+}
