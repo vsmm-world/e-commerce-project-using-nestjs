@@ -1,7 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { UserService } from '../../user/user.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -9,33 +8,58 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private prisma: PrismaService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: 'jwtSecretData.secret',
+      secretOrKey: 'RavindraValand',
     });
   }
 
   async validate(payload: { sub: string }, req) {
     if (!payload) throw new UnauthorizedException();
-    return await this.prisma.admin
-      .findFirst({
+    const admin = await this.prisma.admin
+      .findUnique({
         where: { id: payload.sub },
-      })
-      .then(async (res) => {
-        return await this.prisma.adminCredential
-          .findFirst({
-            where: {
-              adminId: payload.sub,
-              expiresAt: {
-                gte: new Date(Date.now()),
-              },
-            },
-          })
-          .then((session) => {
-            if (!session) throw new UnauthorizedException();
-            return res;
-          });
       })
       .catch((err) => {
         throw new UnauthorizedException();
       });
+    if (admin) {
+      const adminCred = await this.prisma.adminCredential.findFirst({
+        where: {
+          adminId: admin.id,
+          expiresAt: {
+            gt: new Date(Date.now()),
+          },
+        },
+      });
+      if (adminCred) {
+        req.user = admin;
+        return admin;
+      } else {
+        throw new UnauthorizedException();
+      }
+    }
+
+    const customer = await this.prisma.customer
+      .findUnique({
+        where: { id: payload.sub },
+      })
+      .catch((err) => {
+        throw new UnauthorizedException();
+      });
+    if (customer) {
+      const customerCred = await this.prisma.customerCredential.findFirst({
+        where: {
+          customerId: customer.id,
+          expiresAt: {
+            gt: new Date(Date.now()),
+          },
+        },
+      });
+      if (customerCred) {
+        req.user = customer;
+        return customer;
+      } else {
+        throw new UnauthorizedException();
+      }
+    }
   }
 }

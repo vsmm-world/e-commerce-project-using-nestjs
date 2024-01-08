@@ -100,7 +100,75 @@ export class AuthService {
   }
 
   async logout(req: any) {
-    throw new Error('Method not implemented.');
+    const { user } = req;
+
+    const admin = await this.prisma.admin.findFirst({
+      where: {
+        id: user.id,
+      },
+    });
+
+    if (admin) {
+      const adminCred = await this.prisma.adminCredential.findFirst({
+        where: {
+          adminId: admin.id,
+        },
+      });
+
+      await this.prisma.adminCredential
+        .update({
+          where: {
+            id: adminCred.id,
+          },
+          data: {
+            token: null,
+            expiresAt: null,
+          },
+        })
+        .catch((err) => {
+          throw new Error('Error updating token');
+        });
+      return {
+        statusCode: 200,
+        message: 'Logout successful',
+      };
+    }
+
+    const customer = await this.prisma.customer.findFirst({
+      where: {
+        id: user.id,
+      },
+    });
+
+    if (customer) {
+      const customerCred = await this.prisma.customerCredential.findFirst({
+        where: {
+          customerId: customer.id,
+        },
+      });
+
+      await this.prisma.customerCredential
+        .update({
+          where: {
+            id: customerCred.id,
+          },
+          data: {
+            token: null,
+            expiresAt: null,
+          },
+        })
+        .catch((err) => {
+          throw new Error('Error updating token');
+        });
+      return {
+        statusCode: 200,
+        message: 'Logout successful',
+      };
+    }
+    return {
+      statusCode: 400,
+      message: 'Could not logout',
+    };
   }
 
   generatejwtToken(userId: string): string {
