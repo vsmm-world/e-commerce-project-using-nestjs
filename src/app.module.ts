@@ -11,6 +11,7 @@ import { UserModule } from './user/user.module';
 @Module({
   imports: [AdminModule, PrismaModule, AuthModule, CustomerModule, ProductsModule, CategoryModule, PaymentModule, UserModule],
   controllers: [],
-  providers: [],
+  providers: [PrismaModule],
+  exports: [PrismaModule],
 })
 export class AppModule {}

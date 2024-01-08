@@ -21,14 +21,15 @@ model admin {
 }
 
 model adminCredential {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  admin     admin    @relation(fields: [adminId], references: [id])
-  adminId   String   @db.ObjectId
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  admin     admin     @relation(fields: [adminId], references: [id])
+  adminId   String    @db.ObjectId
   token     String?
+  expiresAt DateTime?
   password  String
-  isdeleted Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  isdeleted Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model tempotp {
@@ -55,14 +56,15 @@ model customer {
 }
 
 model customerCredential {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  customer   customer @relation(fields: [customerId], references: [id])
-  customerId String   @db.ObjectId
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  customer   customer  @relation(fields: [customerId], references: [id])
+  customerId String    @db.ObjectId
   token      String?
+  expiresAt  DateTime?
   password   String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  isdeleted  Boolean  @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  isdeleted  Boolean   @default(false)
 }
 
 model adress {
@@ -166,4 +168,3 @@ model payment {
   order      order[]
   isdeleted  Boolean  @default(false)
 }
-
