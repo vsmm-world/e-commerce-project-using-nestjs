@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -9,6 +10,8 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto) {
     const { name, email, password, role } = createUserDto;
+    const hash = await bcrypt.hash(password, 10);
+
     if (role === 'admin') {
       const admin = await this.prisma.admin.findFirst({
         where: { email },
@@ -27,7 +30,7 @@ export class UserService {
       });
       const cred = await this.prisma.adminCredential.create({
         data: {
-          password,
+          password: hash,
           admin: {
             connect: {
               id: newAdmin.id,
@@ -37,45 +40,46 @@ export class UserService {
       });
       return newAdmin;
     }
-    if (role === 'user') {
+    if (role === 'customer') {
       const user = await this.prisma.customer.findFirst({
         where: { email },
       });
       if (user) {
         throw new Error('Email already exists');
       }
-      const newUser = await this.prisma.customer.create({
-        data: {
-          name,
-          email,
-        },
-      });
-      const cred = await this.prisma.customerCredential.create({
-        data: {
-          password,
-          customer: {
-            connect: {
-              id: newUser.id,
+      const newUser = await this.prisma.customer
+        .create({
+          data: {
+            name,
+            email,
+          },
+        })
+        .catch((err) => {
+          throw new Error('Error creating user');
+        });
+      const cred = await this.prisma.customerCredential
+        .create({
+          data: {
+            password: hash,
+            customer: {
+              connect: {
+                id: newUser.id,
+              },
             },
           },
-        },
-      });
+        })
+        .catch((err) => {
+          throw new Error('Error creating user');
+        });
 
       return newUser;
     }
   }
 
   async findAll() {
-    return await this.prisma.customer
+    const users = await this.prisma.customer
       .findMany({
         where: { isdeleted: false },
-      })
-      .then((res) => {
-        return {
-          statusCode: 200,
-          message: 'Success',
-          data: res,
-        };
       })
       .catch((err) => {
         return {
@@ -83,17 +87,63 @@ export class UserService {
           message: err.message,
         };
       });
+    if (!users) {
+      return {
+        statusCode: 400,
+        message: 'No users found',
+      };
+    }
+    return users;
   }
 
   async findOne(id: string) {
-    return `This action returns a #${id} user`;
+    const user = await this.prisma.customer
+      .findUnique({
+        where: { id },
+      })
+      .catch((err) => {
+        throw new Error('User not found');
+      });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return user;
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+    const { name, email, password } = updateUserDto;
+    const hash = await bcrypt.hash(password, 10);
+    const user = await this.prisma.customer
+      .update({
+        where: { id },
+        data: {
+          name,
+          email,
+        },
+      })
+      .catch((err) => {
+        throw new Error('User not found');
+      });
   }
 
   async remove(id: string) {
-    return `This action removes a #${id} user`;
+    const user = await this.prisma.customer
+      .update({
+        where: { id },
+        data: {
+          isdeleted: true,
+        },
+      })
+      .catch((err) => {
+        throw new Error('User not found');
+      });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return {
+      statusCode: 200,
+      message: 'User deleted successfully',
+    };
   }
 }
