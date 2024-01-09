@@ -99,11 +99,13 @@ model product_variant {
   product   product  @relation(fields: [productId], references: [id])
   productId String   @db.ObjectId
   size      String
+  color     String
   stock     Int
   price     Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   isdeleted Boolean  @default(false)
+  cart      cart[]
 }
 
 model category {
@@ -116,16 +118,20 @@ model category {
 }
 
 model cart {
-  id         String    @id @default(auto()) @map("_id") @db.ObjectId
-  product    product   @relation(fields: [productId], references: [id])
-  productId  String    @db.ObjectId
-  quantity   Int
-  totalPrice Float
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  customer   customer? @relation(fields: [customerId], references: [id])
-  customerId String?   @db.ObjectId
-  isdeleted  Boolean   @default(false)
+  id                String           @id @default(auto()) @map("_id") @db.ObjectId
+  productIds        String[]
+  products          String[]
+  totalItems        Int
+  totalPrice        Float
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  customer          customer?        @relation(fields: [customerId], references: [id])
+  customerId        String?          @db.ObjectId
+  isdeleted         Boolean          @default(false)
+  product           product?         @relation(fields: [productId], references: [id])
+  productId         String?          @db.ObjectId
+  product_variant   product_variant? @relation(fields: [product_variantId], references: [id])
+  product_variantId String?          @db.ObjectId
 }
 
 model order {
@@ -167,5 +173,3 @@ model payment {
   order      order[]
   isdeleted  Boolean  @default(false)
 }
-
-
