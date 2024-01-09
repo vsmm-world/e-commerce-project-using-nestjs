@@ -36,6 +36,7 @@
     "otp-generator": "^4.0.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
+    "postmark": "^4.0.2",
     "prisma": "^5.7.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1"

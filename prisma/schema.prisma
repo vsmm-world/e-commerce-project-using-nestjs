@@ -36,6 +36,8 @@ model tempotp {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   otp       String
   otpRef    String
+  expiresAt DateTime
+  tempId    String
   isdeleted Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -82,17 +84,14 @@ model product {
   id              String            @id @default(auto()) @map("_id") @db.ObjectId
   name            String
   description     String
-  price           Float
-  stock           Int
-  size            String
   category        category          @relation(fields: [categoryId], references: [id])
   categoryId      String            @db.ObjectId
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   cart            cart[]
   order           order[]
-  product_variant product_variant[]
   isdeleted       Boolean           @default(false)
+  product_variant product_variant[]
 }
 
 model product_variant {
@@ -168,3 +167,5 @@ model payment {
   order      order[]
   isdeleted  Boolean  @default(false)
 }
+
+

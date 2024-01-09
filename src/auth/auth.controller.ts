@@ -10,7 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
+import { CreateAuthDto, verifyOTPDto } from './dto/create-auth.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -22,6 +22,11 @@ export class AuthController {
   @Post('login')
   login(@Body() createAuthDto: CreateAuthDto) {
     return this.authService.login(createAuthDto);
+  }
+
+  @Post('validate-otp')
+  validateOtp(@Body() verifyOTPDto: verifyOTPDto) {
+    return this.authService.validateOtp(verifyOTPDto);
   }
 
   @UseGuards(AuthGuard('jwt'))
