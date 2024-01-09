@@ -6,9 +6,10 @@ import { ProductsModule } from './products/products.module';
 import { CategoryModule } from './category/category.module';
 import { ProductVariantModule } from './product_variant/product_variant.module';
 import { CartModule } from './cart/cart.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UserModule, ProductsModule, CategoryModule, ProductVariantModule, CartModule],
+  imports: [PrismaModule, AuthModule, UserModule, ProductsModule, CategoryModule, ProductVariantModule, CartModule, PaymentModule],
   controllers: [],
   providers: [PrismaModule],
   exports: [PrismaModule],

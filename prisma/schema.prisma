@@ -165,7 +165,8 @@ model shipmentStatus {
 
 model payment {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  pymentCred String
+  COD        Boolean
+  pymentCred String?
   customer   customer @relation(fields: [customerId], references: [id])
   customerId String   @db.ObjectId
   createdAt  DateTime @default(now())
