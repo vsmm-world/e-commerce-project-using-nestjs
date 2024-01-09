@@ -9,8 +9,8 @@ import { env } from 'process';
   imports: [
     PrismaModule,
     RazorpayModule.forRoot({
-      key_id: env.RAZORPAY_KEY_ID,
-      key_secret: env.RAZORPAY_KEY_SECRET,
+      key_id: 'rzp_test_NWQuG4HubVCcEp',
+      key_secret: 'xVEVYZqrMbmyRbslvdK1J956',
     }),
   ],
   controllers: [PaymentController],
