@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import * as postmark from 'postmark';
 import * as otpGenerator from 'otp-generator';
 import { JwtService } from '@nestjs/jwt';
 import { env } from 'process';
+import { ForgetPasswordDto } from './dto/forget-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -14,6 +15,216 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
   ) {}
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const { token, password, confirPassword } = resetPasswordDto;
+    const tempToken = await this.prisma.tempResetToken.findFirst({
+      where: {
+        token,
+        expiresAt: {
+          gte: new Date(Date.now()),
+        },
+      },
+    });
+
+    if (!tempToken) {
+      return {
+        statusCode: 400,
+        message: 'Invalid token',
+      };
+    }
+
+    if (password !== confirPassword) {
+      return {
+        statusCode: 400,
+        message: 'Confirm Password does not match',
+      };
+    }
+
+    const admin = await this.prisma.admin.findFirst({
+      where: {
+        id: tempToken.tempId,
+      },
+    });
+    if (!admin) {
+      const customer = await this.prisma.customer.findFirst({
+        where: {
+          id: tempToken.tempId,
+        },
+      });
+      if (!customer) {
+        return {
+          statusCode: 400,
+          message: 'User not found',
+        };
+      }
+      const customerCred = await this.prisma.customerCredential.findFirst({
+        where: {
+          customerId: customer.id,
+        },
+      });
+      if (!customerCred) {
+        return {
+          statusCode: 400,
+          message: 'User not found',
+        };
+      }
+      const hashedPassword = await bcrypt.hash(password, 10);
+      await this.prisma.customerCredential.update({
+        where: {
+          id: customerCred.id,
+        },
+        data: {
+          password: hashedPassword,
+        },
+      });
+      await this.prisma.tempResetToken.delete({
+        where: {
+          id: tempToken.id,
+        },
+      });
+      return {
+        statusCode: 200,
+        message: 'Password reset successfully',
+      };
+    }
+    const adminCred = await this.prisma.adminCredential.findFirst({
+      where: {
+        adminId: admin.id,
+      },
+    });
+    if (!adminCred) {
+      return {
+        statusCode: 400,
+        message: 'User not found',
+      };
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await this.prisma.adminCredential.update({
+      where: {
+        id: adminCred.id,
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+    await this.prisma.tempResetToken.delete({
+      where: {
+        id: tempToken.id,
+      },
+    });
+    return {
+      statusCode: 200,
+      message: 'Password reset successfully',
+    };
+  }
+
+  async forgotPassword(forgotPasswordDto: ForgetPasswordDto) {
+    const { email } = forgotPasswordDto;
+    const customer = await this.prisma.customer.findFirst({
+      where: {
+        email,
+      },
+    });
+
+    if (!customer) {
+      const admin = await this.prisma.admin.findFirst({
+        where: {
+          email,
+        },
+      });
+      if (!admin) {
+        return {
+          statusCode: 400,
+          message: 'your email is not registered',
+        };
+      }
+      const token = otpGenerator.generate(10, {
+        upperCase: false,
+        specialChars: false,
+        alphabets: false,
+      });
+
+      try {
+        await this.prisma.tempResetToken.create({
+          data: {
+            tempId: admin.id,
+            token,
+            expiresAt: new Date(Date.now() + 5 * 60 * 600000),
+          },
+        });
+      } catch (err) {
+        return {
+          statusCode: 400,
+          message: 'something went wrong',
+        };
+      }
+      const client = new postmark.ServerClient(env.POST_MARK_API_KEY);
+      const mail = {
+        From: 'rushi@syscreations.com',
+        To: admin.email,
+        Subject: 'Reset Password',
+        TextBody: `Your reset password token is ${token}
+        This token will expire in 5 minutes`,
+      };
+
+      try {
+       await client.sendEmail(mail);
+      } catch (err) {
+        return {
+          statusCode: 400,
+          message: 'something went wrong while sending email',
+        };
+      }
+      return {
+        statusCode: 200,
+        message: 'Reset token sent successfully',
+      };
+    }
+
+    const token = otpGenerator.generate(10, {
+      upperCase: false,
+      specialChars: false,
+      alphabets: false,
+    });
+
+    try {
+      await this.prisma.tempResetToken.create({
+        data: {
+          tempId: customer.id,
+          token,
+          expiresAt: new Date(Date.now() + 5 * 60 * 600000),
+        },
+      });
+    } catch (err) {
+      return {
+        statusCode: 400,
+        message: 'something went wrong',
+      };
+    }
+    const client = new postmark.ServerClient(env.POST_MARK_API_KEY);
+    const mail = {
+      From: 'rushi@syscreations.com',
+      To: customer.email,
+      Subject: 'Reset Password',
+      TextBody: `Your reset password token is ${token}
+      This token will expire in 5 minutes`,
+    };
+
+    try {
+     await client.sendEmail(mail);
+    } catch (err) {
+      return {
+        statusCode: 400,
+        message: 'something went wrong while sending email',
+      };
+    }
+
+    return {
+      statusCode: 200,
+      message: 'Reset token sent successfully',
+    };
+  }
 
   async whoami(req: any) {
     const { user } = req;
@@ -105,9 +316,7 @@ export class AuthService {
             To: admin.email,
           };
 
-          client.sendEmailWithTemplate(mail).catch((err) => {
-            throw new Error('Error sending email');
-          });
+          client.sendEmailWithTemplate(mail);
 
           return {
             statusCode: 200,
@@ -159,10 +368,7 @@ export class AuthService {
             From: 'rushi@syscreations.com',
             To: customer.email,
           };
-          client.sendEmailWithTemplate(mail).catch((err) => {
-            throw new Error('Error sending email');
-          });
-
+          client.sendEmailWithTemplate(mail);
           return {
             statusCode: 200,
             message: 'OTP sent successfully',
@@ -179,18 +385,14 @@ export class AuthService {
 
   async validateOtp(validateOtp) {
     const { otp, otpRef } = validateOtp;
-    const tempOtp = await this.prisma.tempotp
-      .findFirst({
-        where: {
-          otpRef,
-          expiresAt: {
-            gte: new Date(Date.now()),
-          },
+    const tempOtp = await this.prisma.tempotp.findFirst({
+      where: {
+        otpRef,
+        expiresAt: {
+          gte: new Date(Date.now()),
         },
-      })
-      .catch((err) => {
-        throw new Error('Error validating otp');
-      });
+      },
+    });
 
     if (tempOtp) {
       if (tempOtp.otp === otp) {
@@ -285,19 +487,15 @@ export class AuthService {
         },
       });
 
-      await this.prisma.adminCredential
-        .update({
-          where: {
-            id: adminCred.id,
-          },
-          data: {
-            token: null,
-            expiresAt: null,
-          },
-        })
-        .catch((err) => {
-          throw new Error('Error updating token');
-        });
+      await this.prisma.adminCredential.update({
+        where: {
+          id: adminCred.id,
+        },
+        data: {
+          token: null,
+          expiresAt: null,
+        },
+      });
       return {
         statusCode: 200,
         message: 'Logout successful',
@@ -317,19 +515,15 @@ export class AuthService {
         },
       });
 
-      await this.prisma.customerCredential
-        .update({
-          where: {
-            id: customerCred.id,
-          },
-          data: {
-            token: null,
-            expiresAt: null,
-          },
-        })
-        .catch((err) => {
-          throw new Error('Error updating token');
-        });
+      await this.prisma.customerCredential.update({
+        where: {
+          id: customerCred.id,
+        },
+        data: {
+          token: null,
+          expiresAt: null,
+        },
+      });
       return {
         statusCode: 200,
         message: 'Logout successful',

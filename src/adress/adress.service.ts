@@ -7,6 +7,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class AdressService {
   constructor(private prisma: PrismaService) {}
 
+  //
+
   async create(createAdressDto: CreateAdressDto, req) {
     const { name, street, city, state, zip, phone, isDefault } =
       createAdressDto;
@@ -34,26 +36,28 @@ export class AdressService {
       }
     }
 
-    const address = this.prisma.adress
-      .create({
-        data: {
-          customer: {
-            connect: {
-              id: user.id,
-            },
+    const address = this.prisma.adress.create({
+      data: {
+        customer: {
+          connect: {
+            id: user.id,
           },
-          name,
-          street,
-          city,
-          state,
-          pincode: zip,
-          phone,
-          isDefault,
         },
-      })
-      .catch((err) => {
-        throw new Error('error in creating address');
-      });
+        name,
+        street,
+        city,
+        state,
+        pincode: zip,
+        phone,
+        isDefault,
+      },
+    });
+    if (!address) {
+      return {
+        statusCode: 400,
+        message: 'Error in creating address',
+      };
+    }
 
     return {
       statusCode: 201,
@@ -62,23 +66,22 @@ export class AdressService {
     };
   }
 
+  //
+
   async findAll(req) {
     const { user } = req;
-    const address = await this.prisma.adress
-      .findMany({
-        where: {
-          isdeleted: false,
-          customer: {
-            id: user.id,
-          },
+    const address = await this.prisma.adress.findMany({
+      where: {
+        isdeleted: false,
+        customer: {
+          id: user.id,
         },
-      })
-      .catch((err) => {
-        throw new Error('error in fetching address');
-      });
+      },
+    });
 
     if (address.length === 0) {
       return {
+        statusCode: 400,
         message: 'No address found',
       };
     }
@@ -89,21 +92,19 @@ export class AdressService {
     };
   }
 
+  //
+
   async findOne(id: string, req) {
     const { user } = req;
-    const address = await this.prisma.adress
-      .findFirst({
-        where: {
-          id,
-          isdeleted: false,
-          customer: {
-            id: user.id,
-          },
+    const address = await this.prisma.adress.findFirst({
+      where: {
+        id,
+        isdeleted: false,
+        customer: {
+          id: user.id,
         },
-      })
-      .catch((err) => {
-        throw new Error('error in fetching address');
-      });
+      },
+    });
 
     if (!address) {
       return {
@@ -119,23 +120,21 @@ export class AdressService {
     };
   }
 
+  //
+
   async update(id: string, updateAdressDto: UpdateAdressDto, req) {
     const { name, street, city, state, zip, phone, isDefault } =
       updateAdressDto;
     const { user } = req;
-    const address = await this.prisma.adress
-      .findFirst({
-        where: {
-          id,
-          isdeleted: false,
-          customer: {
-            id: user.id,
-          },
+    const address = await this.prisma.adress.findFirst({
+      where: {
+        id,
+        isdeleted: false,
+        customer: {
+          id: user.id,
         },
-      })
-      .catch((err) => {
-        throw new Error('error in fetching address');
-      });
+      },
+    });
 
     if (!address) {
       return {
@@ -167,25 +166,21 @@ export class AdressService {
       }
     }
 
-    const updatedAddress = await this.prisma.adress
-      .update({
-        where: {
-          id,
-          isdeleted: false,
-        },
-        data: {
-          name,
-          street,
-          city,
-          state,
-          pincode: zip,
-          phone,
-          isDefault,
-        },
-      })
-      .catch((err) => {
-        throw new Error('error in updating address');
-      });
+    const updatedAddress = await this.prisma.adress.update({
+      where: {
+        id,
+        isdeleted: false,
+      },
+      data: {
+        name,
+        street,
+        city,
+        state,
+        pincode: zip,
+        phone,
+        isDefault,
+      },
+    });
 
     return {
       statusCode: 201,
@@ -194,21 +189,19 @@ export class AdressService {
     };
   }
 
+  //
+
   async remove(id: string, req) {
     const { user } = req;
-    const address = await this.prisma.adress
-      .findFirst({
-        where: {
-          id,
-          isdeleted: false,
-          customer: {
-            id: user.id,
-          },
+    const address = await this.prisma.adress.findFirst({
+      where: {
+        id,
+        isdeleted: false,
+        customer: {
+          id: user.id,
         },
-      })
-      .catch((err) => {
-        throw new Error('error in fetching address');
-      });
+      },
+    });
 
     if (!address) {
       return {
@@ -217,18 +210,14 @@ export class AdressService {
       };
     }
 
-    const deletedAddress = await this.prisma.adress
-      .update({
-        where: {
-          id,
-        },
-        data: {
-          isdeleted: true,
-        },
-      })
-      .catch((err) => {
-        throw new Error('error in deleting address');
-      });
+    const deletedAddress = await this.prisma.adress.update({
+      where: {
+        id,
+      },
+      data: {
+        isdeleted: true,
+      },
+    });
 
     return {
       statusCode: 201,

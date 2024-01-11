@@ -10,16 +10,12 @@ export class CartService {
   async create(createCartDto: CreateCartDto, req: any) {
     const { product_variant_id, quantity } = createCartDto;
     const { user } = req;
-    const admin = await this.prisma.admin
-      .findUnique({
-        where: {
-          id: user.id,
-          isdeleted: false,
-        },
-      })
-      .catch((err) => {
-        throw new Error('Error in finding admin');
-      });
+    const admin = await this.prisma.admin.findUnique({
+      where: {
+        id: user.id,
+        isdeleted: false,
+      },
+    });
 
     if (admin) {
       return {
@@ -40,6 +36,13 @@ export class CartService {
         message: 'Product not found',
       };
     }
+    if (product.stock < quantity) {
+      return {
+        statusCode: 400,
+        message: 'Product out of stock',
+      };
+    }
+
     let stock = product.stock;
 
     const cart = await this.prisma.cart.findFirst({
@@ -60,26 +63,20 @@ export class CartService {
       total_price = total_price + product.price * quantity;
       let totalItems = Products.length;
 
-      const newCart = await this.prisma.cart
-        .update({
-          where: {
-            id: cart.id,
-            isdeleted: false,
-          },
-          data: {
-            customerId: user.id,
-            productIds: ProductIds,
-            products: Products,
-            totalItems: totalItems,
-            totalPrice: total_price,
-          },
-        })
-        .catch((err) => {
-          return {
-            statusCode: 400,
-            message: 'Error in updating cart',
-          };
-        });
+      const newCart = await this.prisma.cart.update({
+        where: {
+          id: cart.id,
+          isdeleted: false,
+        },
+        data: {
+          customerId: user.id,
+          productIds: ProductIds,
+          products: Products,
+          totalItems: totalItems,
+          totalPrice: total_price,
+        },
+      });
+
       const newProduct = await this.prisma.product_variant.update({
         where: {
           id: product_variant_id,
@@ -99,10 +96,10 @@ export class CartService {
       const totalItems = Products.length;
       const newCart = await this.prisma.cart.create({
         data: {
-          customer:{
-            connect:{
-              id:user.id
-            }
+          customer: {
+            connect: {
+              id: user.id,
+            },
           },
           productIds: ProductIds,
           products: Products,

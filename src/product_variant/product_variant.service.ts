@@ -16,8 +16,12 @@ export class ProductVariantService {
         isdeleted: false,
       },
     });
+
     if (!admin) {
-      throw new Error('Admin not found');
+      return {
+        statusCode: 400,
+        message: 'Only admin can create product variant',
+      };
     }
     const product = await this.prisma.product.findUnique({
       where: {
@@ -26,22 +30,21 @@ export class ProductVariantService {
       },
     });
     if (!product) {
-      throw new Error('Product not found');
+      return {
+        statusCode: 400,
+        message: 'Product not found',
+      };
     }
 
-    const productVariant = await this.prisma.product_variant
-      .create({
-        data: {
-          product: { connect: { id: product_id } },
-          size,
-          color,
-          stock,
-          price,
-        },
-      })
-      .catch((err) => {
-        throw new Error('Failed to create product variant');
-      });
+    const productVariant = await this.prisma.product_variant.create({
+      data: {
+        product: { connect: { id: product_id } },
+        size,
+        color,
+        stock,
+        price,
+      },
+    });
 
     return {
       statusCode: 200,
@@ -51,15 +54,21 @@ export class ProductVariantService {
   }
 
   async findAll() {
-    const productVariants = await this.prisma.product_variant
-      .findMany({
-        where: {
-          isdeleted: false,
+    const productVariants = await this.prisma.product_variant.findMany({
+      where: {
+        isdeleted: false,
+        stock: {
+          gt: 0,
         },
-      })
-      .catch((err) => {
-        throw new Error('Failed to fetch product variants');
-      });
+      },
+    });
+    if (productVariants[0] == null) {
+      return {
+        statusCode: 400,
+        message: 'Product variants not found',
+      };
+    }
+
     return {
       statusCode: 200,
       message: 'Product variants fetched successfully',
@@ -68,19 +77,21 @@ export class ProductVariantService {
   }
 
   async findOne(id: string) {
-    const productVariant = await this.prisma.product_variant
-      .findFirst({
-        where: {
-          id,
-          isdeleted: false,
+    const productVariant = await this.prisma.product_variant.findFirst({
+      where: {
+        id,
+        isdeleted: false,
+        stock: {
+          gt: 0,
         },
-      })
-      .catch((err) => {
-        throw new Error('Failed to fetch product variant');
-      });
+      },
+    });
 
     if (!productVariant) {
-      throw new Error('Product variant not found');
+      return {
+        statusCode: 400,
+        message: 'Product variant not found',
+      };
     }
 
     return {
@@ -97,35 +108,41 @@ export class ProductVariantService {
   ) {
     const { size, color, stock, price } = updateProductVariantDto;
     const { user } = req;
-    const admin = await this.prisma.admin
-      .findUnique({
-        where: {
-          id: user.id,
-          isdeleted: false,
-        },
-      })
-      .catch((err) => {
-        throw new Error('Admin not found');
-      });
+    const admin = await this.prisma.admin.findUnique({
+      where: {
+        id: user.id,
+        isdeleted: false,
+      },
+    });
     if (!admin) {
-      throw new Error('You are not admin');
+      return {
+        statusCode: 400,
+        message: 'Only admin can update product variant',
+      };
     }
-    const productVariant = await this.prisma.product_variant
-      .update({
-        where: {
-          id,
-        },
-        data: {
-          size,
-          color,
-          stock,
-          price,
-        },
-      })
-      .catch((err) => {
-        throw new Error('Failed to update product variant');
-      });
-
+    const productVariantCheck = await this.prisma.product_variant.findFirst({
+      where: {
+        id,
+        isdeleted: false,
+      },
+    });
+    if (!productVariantCheck) {
+      return {
+        statusCode: 400,
+        message: 'Product variant not found',
+      };
+    }
+    const productVariant = await this.prisma.product_variant.update({
+      where: {
+        id,
+      },
+      data: {
+        size,
+        color,
+        stock,
+        price,
+      },
+    });
     return {
       statusCode: 200,
       message: 'Product variant updated successfully',
@@ -135,38 +152,45 @@ export class ProductVariantService {
 
   async remove(id: string, req: any) {
     const { user } = req;
-    const admin = await this.prisma.admin
-      .findUnique({
-        where: {
-          id: user.id,
-          isdeleted: false,
-        },
-      })
-      .catch((err) => {
-        throw new Error('Admin not found');
-      });
+    const admin = await this.prisma.admin.findUnique({
+      where: {
+        id: user.id,
+        isdeleted: false,
+      },
+    });
+
     if (!admin) {
-      throw new Error('You are not admin');
+      return {
+        statusCode: 400,
+        message: 'Only admin can delete product variant',
+      };
+    }
+    const productVariantCheck = await this.prisma.product_variant.findFirst({
+      where: {
+        id,
+        isdeleted: false,
+      },
+    });
+    if (!productVariantCheck) {
+      return {
+        statusCode: 400,
+        message: 'Product variant not found',
+      };
     }
 
-    const productVariant = await this.prisma.product_variant
-      .update({
-        where: {
-          id,
-          isdeleted: false,
-        },
-        data: {
-          isdeleted: true,
-        },
-      })
-      .catch((err) => {
-        throw new Error('Failed to delete product variant');
-      });
+    const productVariant = await this.prisma.product_variant.update({
+      where: {
+        id,
+        isdeleted: false,
+      },
+      data: {
+        isdeleted: true,
+      },
+    });
 
     return {
       statusCode: 200,
       message: 'Product variant deleted successfully',
-      data: productVariant,
     };
   }
 }

@@ -48,11 +48,12 @@ export class PaymentService {
           COD: CashOnDelivery,
         },
       });
-      await this.createOrder(req);
+      const order = await this.createOrder(req);
       return {
         statusCode: 200,
         message: 'Payment created successfully',
         data: { id: 'CashOnDelivery' },
+        order,
       };
     }
     const options = {
@@ -70,7 +71,7 @@ export class PaymentService {
         COD: CashOnDelivery,
       },
     });
-   const order =  await this.createOrder(req);
+    const order = await this.createOrder(req);
     return {
       statusCode: 200,
       message: 'Payment created successfully',
@@ -98,53 +99,9 @@ export class PaymentService {
     });
 
     const productsfromCart = cart.products;
-
-    // const getProducts = async (products) => {
-    //   let productDetails = [];
-    //   for (let i = 0; i < products.length; i++) {
-    //     const product =  this.prisma.product_variant.findUnique({
-    //       where: {
-    //         id: products[i].id,
-    //       },
-    //     });
-    //     productDetails.push(product);
-    //   }
-    //   return productDetails;
-    // };
-    async function getProducts(products){
-      let productDetails = [];
-      for (let i = 0; i < products.length; i++) {
-        const product =  this.prisma.product_variant.findUnique({
-          where: {
-            id: products[i].id,
-          },
-        });
-        productDetails.push(product);
-      }
-      return productDetails;
-    };
-
-    
-    const products = await getProducts(productsfromCart);
-
-    function calculateTotalPrice(products) {
-      let totalPrice = 0;
-      for (let i = 0; i < products.length; i++) {
-        totalPrice += products[i].price;
-      }
-      return totalPrice;
-    }
-
-    function getProductIds(products) {
-      let productIds = [];
-      for (let i = 0; i < products.length; i++) {
-        productIds.push(products[i].id);
-      }
-      return productIds;
-    }
-
-    const productIds = getProductIds(products);
-    const totalPrice = calculateTotalPrice(products);
+    const products = await this.getProducts(productsfromCart);
+    const productIds = this.getProductIds(products);
+    const totalPrice = this.calculateTotalPrice(products);
     const totalItems = products.length;
 
     const payment = await this.prisma.payment.findFirst({
@@ -155,7 +112,10 @@ export class PaymentService {
     });
 
     if (!payment) {
-      throw new Error('Payment not found');
+      return{
+        statusCode: 404,
+        message: 'Payment not found',
+      }
     }
 
     let PaymentStatus = 'Pending';
@@ -218,5 +178,34 @@ export class PaymentService {
       data: order,
       shippmentstatus,
     };
+  }
+
+  // Some Fuctions used for calculating total price and getting product details
+
+  getProducts(products) {
+    let productDetails = products.map(async (product) => {
+      return await this.prisma.product_variant.findUnique({
+        where: {
+          id: product.id,
+        },
+      });
+    });
+    return productDetails;
+  }
+
+  getProductIds(products) {
+    let productIds = [];
+    for (let i = 0; i < products.length; i++) {
+      productIds.push(products[i].id);
+    }
+    return productIds;
+  }
+
+  calculateTotalPrice(products) {
+    let totalPrice = 0;
+    for (let i = 0; i < products.length; i++) {
+      totalPrice += products[i].price;
+    }
+    return totalPrice;
   }
 }

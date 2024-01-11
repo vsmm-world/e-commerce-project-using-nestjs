@@ -9,33 +9,24 @@ export class ShipmentService {
 
   async findAll(req: any) {
     const { user } = req;
-    const admin = await this.prisma.admin
-      .findUnique({
-        where: {
-          id: user.id,
-          isdeleted: false,
-        },
-      })
-      .catch((err) => {
-        throw new Error(' Admin not found');
-      });
-
-    if (!admin) {
-      throw new Error(' Admin not found');
+    const isAdmin = await this.isAdmin(user);
+    if (!isAdmin) {
+      return {
+        statusCode: 400,
+        message: 'Admin not found',
+      };
     }
+    const shipments = this.prisma.shipmentStatus.findMany({
+      where: {
+        isdeleted: false,
+      },
+    });
 
-    const shipments = this.prisma.shipmentStatus
-      .findMany({
-        where: {
-          isdeleted: false,
-        },
-      })
-      .catch((err) => {
-        throw new Error(' Shipments not found');
-      });
-
-    if (!shipments) {
-      throw new Error(' Shipments not found');
+    if (shipments[0] == null) {
+      return {
+        statusCode: 400,
+        message: 'Shipments not found',
+      };
     }
 
     return {
@@ -46,19 +37,18 @@ export class ShipmentService {
   }
 
   async findOne(id: string) {
-    const shipment = await this.prisma.shipmentStatus
-      .findFirst({
-        where: {
-          id: id,
-          isdeleted: false,
-        },
-      })
-      .catch((err) => {
-        throw new Error(' Shipment not found');
-      });
+    const shipment = await this.prisma.shipmentStatus.findFirst({
+      where: {
+        id: id,
+        isdeleted: false,
+      },
+    });
 
     if (!shipment) {
-      throw new Error(' Shipment not found');
+      return {
+        statusCode: 400,
+        message: 'Shipment not found',
+      };
     }
 
     return {
@@ -70,38 +60,70 @@ export class ShipmentService {
 
   async update(id: string, updateShipmentDto: UpdateShipmentDto, req: any) {
     const { user } = req;
-    const admin = await this.prisma.admin
-      .findUnique({
-        where: {
-          id: user.id,
-          isdeleted: false,
-        },
-      })
-      .catch((err) => {
-        throw new Error(' Admin not found');
-      });
-
-    if (!admin) {
-      throw new Error(' Admin not found');
+    const isAdmin = await this.isAdmin(user);
+    if (!isAdmin) {
+      return {
+        statusCode: 400,
+        message: 'Admin not found',
+      };
     }
+    const shiopmentCheck = await this.prisma.shipmentStatus.findFirst({
+      where: {
+        id: id,
+        isdeleted: false,
+      },
+    });
+    if (!shiopmentCheck) {
+      return {
+        statusCode: 400,
+        message: 'Shipment not found',
+      };
+    }
+    const shipment = await this.prisma.shipmentStatus.update({
+      where: {
+        id: id,
+      },
+      data: {
+        ...updateShipmentDto,
+      },
+    });
 
-    const shipment = await this.prisma.shipmentStatus
-      .update({
+    if (shipment.status == 'Delivered') {
+      const order = await this.prisma.order.findUnique({
         where: {
-          id: id,
+          id: shipment.orderId,
+        },
+      });
+      const customer = await this.prisma.customer.findUnique({
+        where: {
+          id: order.customerId,
+        },
+      });
+      let history = customer.orderHistory;
+      history.push(order.id);
+      await this.prisma.customer.update({
+        where: {
+          id: order.customerId,
         },
         data: {
-          ...updateShipmentDto,
+          orderHistory: history,
         },
-      })
-      .catch((err) => {
-        throw new Error(' Shipment not found');
+      });
+      const payment = await this.prisma.payment.findUnique({
+        where: {
+          id: order.paymentId,
+        },
       });
 
-    if (!shipment) {
-      throw new Error(' Shipment not found');
+      await this.prisma.order.update({
+        where: {
+          id: shipment.orderId,
+        },
+        data: {
+          isdeleted: true,
+        },
+      });
     }
-
     return {
       statusCode: 200,
       message: 'Shipment updated successfully',
@@ -111,42 +133,51 @@ export class ShipmentService {
 
   async remove(id: string, req: any) {
     const { user } = req;
-    const admin = await this.prisma.admin
-      .findUnique({
-        where: {
-          id: user.id,
-          isdeleted: false,
-        },
-      })
-      .catch((err) => {
-        throw new Error(' Admin not found');
-      });
-
-    if (!admin) {
-      throw new Error(' Admin not found');
+    const isAdmin = await this.isAdmin(user);
+    if (!isAdmin) {
+      return {
+        statusCode: 400,
+        message: 'Admin not found',
+      };
     }
-
-    const shipment = await this.prisma.shipmentStatus
-      .update({
-        where: {
-          id: id,
-        },
-        data: {
-          isdeleted: true,
-        },
-      })
-      .catch((err) => {
-        throw new Error(' Shipment not found');
-      });
-
-    if (!shipment) {
-      throw new Error(' Shipment not found');
+    const shiopmentCheck = await this.prisma.shipmentStatus.findFirst({
+      where: {
+        id: id,
+        isdeleted: false,
+      },
+    });
+    if (!shiopmentCheck) {
+      return {
+        statusCode: 400,
+        message: 'Shipment not found',
+      };
     }
+    const shipment = await this.prisma.shipmentStatus.update({
+      where: {
+        id: id,
+      },
+      data: {
+        isdeleted: true,
+      },
+    });
 
     return {
       statusCode: 200,
       message: 'Shipment deleted successfully',
-      shipment: shipment,
     };
+  }
+
+  // fucntion for detecting admin
+  async isAdmin(user: any) {
+    const admin = await this.prisma.admin.findUnique({
+      where: {
+        id: user.id,
+        isdeleted: false,
+      },
+    });
+    if (admin) {
+      return true;
+    }
+    return false;
   }
 }

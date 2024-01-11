@@ -11,49 +11,47 @@ export class ProductsService {
     const { name, description, categoryId } = createProductDto;
     const { user } = req;
 
-    const admin = await this.prisma.admin
-      .findFirst({
-        where: {
-          id: user.id,
-        },
-      })
-      .catch((err) => {
-        throw new Error('Error creating product');
-      });
+    const admin = await this.prisma.admin.findFirst({
+      where: {
+        id: user.id,
+        isdeleted: false,
+      },
+    });
 
-    if (admin) {
-      const product = await this.prisma.product
-        .create({
-          data: {
-            name,
-            description,
-            category: { connect: { id: categoryId } },
-          },
-        })
-        .catch((err) => {
-          throw new Error('Error creating product');
-        });
-
+    if (!admin) {
       return {
-        statusCode: 201,
-        message: 'Product created successfully',
-        data: product,
+        statusCode: 400,
+        message: 'Only admin can create product',
       };
-    } else {
-      throw new Error('You are not authorized to perform this action');
     }
+
+    const product = await this.prisma.product.create({
+      data: {
+        name,
+        description,
+        category: { connect: { id: categoryId } },
+      },
+    });
+
+    return {
+      statusCode: 201,
+      message: 'Product created successfully',
+      data: product,
+    };
   }
 
   async findAll() {
-    const products = await this.prisma.product
-      .findMany({
-        where: {
-          isdeleted: false,
-        },
-      })
-      .catch((err) => {
-        throw new Error('Error fetching products');
-      });
+    const products = await this.prisma.product.findMany({
+      where: {
+        isdeleted: false,
+      },
+    });
+    if (products[0] == null) {
+      return {
+        statusCode: 400,
+        message: 'Products not found',
+      };
+    }
 
     return {
       statusCode: 200,
@@ -63,17 +61,18 @@ export class ProductsService {
   }
 
   async findOne(id: string) {
-    const product = await this.prisma.product
-      .findFirst({
-        where: {
-          id: id,
-          isdeleted: false,
-        },
-      })
-      .catch((err) => {
-        throw new Error('Error fetching product');
-      });
-
+    const product = await this.prisma.product.findFirst({
+      where: {
+        id: id,
+        isdeleted: false,
+      },
+    });
+    if (!product) {
+      return {
+        statusCode: 400,
+        message: 'Product not found',
+      };
+    }
     return {
       statusCode: 200,
       message: 'Product retrieved successfully',
@@ -84,71 +83,95 @@ export class ProductsService {
   async update(id: string, updateProductDto: UpdateProductDto, req: any) {
     const { name, description, categoryId } = updateProductDto;
     const { user } = req;
-    const admin = await this.prisma.admin
-      .findFirst({
-        where: {
-          id: user.id,
-        },
-      })
-      .catch((err) => {
-        throw new Error('Error updating product');
-      });
+    const admin = await this.prisma.admin.findFirst({
+      where: {
+        id: user.id,
+        isdeleted: false,
+      },
+    });
 
-    if (admin) {
-      const product = await this.prisma.product
-        .update({
-          where: {
-            id: id,
-          },
-          data: {
-            name,
-            description,
-            category: { connect: { id: categoryId } },
-          },
-        })
-        .catch((err) => {
-          throw new Error('Error updating product');
-        });
-
+    if (!admin) {
       return {
-        statusCode: 200,
-        message: 'Product updated successfully',
-        data: product,
+        statusCode: 400,
+        message: 'Only admin can update product',
       };
     }
+
+    const productchek = await this.prisma.product.findFirst({
+      where: {
+        id: id,
+        isdeleted: false,
+      },
+    });
+
+    if (!productchek) {
+      return {
+        statusCode: 400,
+        message: 'Product not found',
+      };
+    }
+
+    const product = await this.prisma.product.update({
+      where: {
+        id: id,
+        isdeleted: false,
+      },
+      data: {
+        name,
+        description,
+        category: { connect: { id: categoryId } },
+      },
+    });
+    return {
+      statusCode: 200,
+      message: 'Product updated successfully',
+      data: product,
+    };
   }
 
-  remove(id: string, req: any) {
+  async remove(id: string, req: any) {
     const { user } = req;
-    const admin = this.prisma.admin
-      .findFirst({
-        where: {
-          id: user.id,
-        },
-      })
-      .catch((err) => {
-        throw new Error('Error deleting product');
-      });
+    const admin = await this.prisma.admin.findFirst({
+      where: {
+        id: user.id,
+      },
+    });
 
-    if (admin) {
-      const product = this.prisma.product
-        .update({
-          where: {
-            id: id,
-          },
-          data: {
-            isdeleted: true,
-          },
-        })
-        .catch((err) => {
-          throw new Error('Error deleting product');
-        });
-
+    if (!admin) {
       return {
-        statusCode: 200,
-        message: 'Product deleted successfully',
-        data: product,
+        statusCode: 400,
+        message: 'Only admin can delete product',
       };
     }
+
+    const productchek = await this.prisma.product.findFirst({
+      where: {
+        id: id,
+        isdeleted: false,
+      },
+    });
+
+    if (!productchek) {
+      return {
+        statusCode: 400,
+        message: 'Product not found',
+      };
+    }
+
+    const product = this.prisma.product.update({
+      where: {
+        id: id,
+        isdeleted: false,
+      },
+      data: {
+        isdeleted: true,
+      },
+    });
+
+    return {
+      statusCode: 200,
+      message: 'Product deleted successfully',
+      data: product,
+    };
   }
 }

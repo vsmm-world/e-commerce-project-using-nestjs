@@ -47,6 +47,7 @@ model customer {
   id                 String               @id @default(auto()) @map("_id") @db.ObjectId
   name               String
   email              String
+  orderHistory       Json[]               @default([])
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   isdeleted          Boolean              @default(false)
@@ -180,4 +181,14 @@ model payment {
   updatedAt  DateTime @updatedAt
   order      order[]
   isdeleted  Boolean  @default(false)
+}
+
+model tempResetToken {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  token     String
+  expiresAt DateTime
+  tempId    String
+  isdeleted Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

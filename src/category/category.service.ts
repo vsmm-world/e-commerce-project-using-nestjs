@@ -10,42 +10,41 @@ export class CategoryService {
   async create(createCategoryDto: CreateCategoryDto, req: any) {
     const { name } = createCategoryDto;
     const { user } = req;
-    const admin = await this.prisma.admin
-      .findFirst({
-        where: {
-          id: user.id,
-        },
-      })
-      .catch((err) => {
-        throw new Error('Error creating category');
-      });
-    if (admin) {
-      await this.prisma.category
-        .create({
-          data: {
-            name,
-          },
-        })
-        .catch((err) => {
-          throw new Error('Error creating category');
-        });
+    const admin = await this.prisma.admin.findFirst({
+      where: {
+        id: user.id,
+      },
+    });
 
+    if (!admin) {
       return {
-        statusCode: 200,
-        message: 'Category created successfully',
+        statusCode: 400,
+        message: 'Only admin can create category',
       };
     }
+    const category = await this.prisma.category.create({
+      data: {
+        name,
+      },
+    });
+
+    return {
+      statusCode: 200,
+      message: 'Category created successfully',
+      data: category,
+    };
   }
 
   async findAll() {
-    const category = await this.prisma.category
-      .findMany({
-        where: { isdeleted: false },
-      })
-      .catch((err) => {
-        throw new Error('Error fetching category');
-      });
-
+    const category = await this.prisma.category.findMany({
+      where: { isdeleted: false },
+    });
+    if (category[0] == null) {
+      return {
+        statusCode: 400,
+        message: 'Category not found',
+      };
+    }
     return {
       statusCode: 200,
       message: 'Category fetched successfully',
@@ -54,14 +53,16 @@ export class CategoryService {
   }
 
   async findOne(id: string) {
-    const category = await this.prisma.category
-      .findFirst({
-        where: { id: id, isdeleted: false },
-      })
-      .catch((err) => {
-        throw new Error('Error fetching category');
-      });
+    const category = await this.prisma.category.findFirst({
+      where: { id: id, isdeleted: false },
+    });
 
+    if (!category) {
+      return {
+        statusCode: 400,
+        message: 'Category not found',
+      };
+    }
     return {
       statusCode: 200,
       message: 'Category fetched successfully',
@@ -69,74 +70,92 @@ export class CategoryService {
     };
   }
 
-  update(id: string, updateCategoryDto: UpdateCategoryDto, req: any) {
+  async update(id: string, updateCategoryDto: UpdateCategoryDto, req: any) {
     const { name } = updateCategoryDto;
     const { user } = req;
-    const admin = this.prisma.admin
-      .findFirst({
-        where: {
-          id: user.id,
-          isdeleted: false,
-        },
-      })
-      .catch((err) => {
-        throw new Error('Error updating category');
-      });
+    const admin = this.prisma.admin.findFirst({
+      where: {
+        id: user.id,
+        isdeleted: false,
+      },
+    });
 
-    if (admin) {
-      this.prisma.category
-        .update({
-          where: {
-            id: id,
-            isdeleted: false,
-          },
-          data: {
-            name,
-          },
-        })
-        .catch((err) => {
-          throw new Error('Error updating category');
-        });
-
+    if (!admin) {
       return {
-        statusCode: 200,
-        message: 'Category updated successfully',
+        statusCode: 400,
+        message: 'Only admin can update category',
       };
     }
+    const chekCategory = await this.prisma.category.findFirst({
+      where: {
+        id: id,
+        isdeleted: false,
+      },
+    });
+    if (!chekCategory) {
+      return {
+        statusCode: 400,
+        message: 'Category not found',
+      };
+    }
+    const category = await this.prisma.category.update({
+      where: {
+        id: id,
+        isdeleted: false,
+      },
+      data: {
+        name,
+      },
+    });
+
+    return {
+      statusCode: 200,
+      message: 'Category updated successfully',
+      data: category,
+    };
   }
 
-  remove(id: string, req: any) {
+  async remove(id: string, req: any) {
     const { user } = req;
-    const admin = this.prisma.admin
-      .findFirst({
-        where: {
-          id: user.id,
-          isdeleted: false,
-        },
-      })
-      .catch((err) => {
-        throw new Error('Error deleting category');
-      });
-
-    if (admin) {
-      this.prisma.category
-        .update({
-          where: {
-            id: id,
-            isdeleted: false,
-          },
-          data: {
-            isdeleted: true,
-          },
-        })
-        .catch((err) => {
-          throw new Error('Error deleting category');
-        });
-
+    const admin = this.prisma.admin.findFirst({
+      where: {
+        id: user.id,
+        isdeleted: false,
+      },
+    });
+    if (!admin) {
       return {
-        statusCode: 200,
-        message: 'Category deleted successfully',
+        statusCode: 400,
+        message: 'Only admin can delete category',
       };
     }
+
+    const chekCategory = await this.prisma.category.findFirst({
+      where: {
+        id: id,
+        isdeleted: false,
+      },
+    });
+    if (!chekCategory) {
+      return {
+        statusCode: 400,
+        message: 'Category not found',
+      };
+    }
+
+    await this.prisma.category.update({
+      where: {
+        id: id,
+        isdeleted: false,
+      },
+      data: {
+        isdeleted: true,
+      },
+    });
+
+    return {
+      statusCode: 200,
+      message: 'Category deleted successfully',
+    };
   }
 }
