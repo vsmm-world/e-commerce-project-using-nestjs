@@ -40,6 +40,7 @@ export class AuthController {
   @ApiBearerAuth()
   @Get('whoami')
   whoami(@Request() req) {
-    return req.user;
+    
+    return this.authService.whoami(req);
   }
 }

@@ -15,6 +15,52 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  async whoami(req: any) {
+    const { user } = req;
+    const admin = await this.prisma.admin.findFirst({
+      where: {
+        id: user.id,
+      },
+    });
+    if (admin) {
+      const adminCred = await this.prisma.adminCredential.findFirst({
+        where: {
+          adminId: admin.id,
+        },
+      });
+      return {
+        statusCode: 200,
+        message: 'Admin found',
+        admin,
+        adminCred,
+      };
+    }
+
+    const customer = await this.prisma.customer.findFirst({
+      where: {
+        id: user.id,
+      },
+    });
+    if (customer) {
+      const customerCred = await this.prisma.customerCredential.findFirst({
+        where: {
+          customerId: customer.id,
+        },
+      });
+      return {
+        statusCode: 200,
+        message: 'Customer found',
+        customer,
+        customerCred,
+      };
+    }
+
+    return {
+      statusCode: 400,
+      message: 'User not found',
+    };
+  }
+
   async login(createAuthDto: CreateAuthDto) {
     const { email, password } = createAuthDto;
 

@@ -27,22 +27,20 @@ export class CartService {
         message: 'Admin cannot add to cart, its your own product',
       };
     }
-    const product = await this.prisma.product_variant
-      .findUnique({
-        where: {
-          id: product_variant_id,
-          isdeleted: false,
-        },
-      })
-      .catch((err) => {
-        throw new Error('Error in finding product');
-      });
+    const product = await this.prisma.product_variant.findUnique({
+      where: {
+        id: product_variant_id,
+        isdeleted: false,
+      },
+    });
+
     if (!product) {
       return {
         statusCode: 400,
         message: 'Product not found',
       };
     }
+    let stock = product.stock;
 
     const cart = await this.prisma.cart.findFirst({
       where: {
@@ -77,8 +75,20 @@ export class CartService {
           },
         })
         .catch((err) => {
-          throw new Error('Error in updating cart');
+          return {
+            statusCode: 400,
+            message: 'Error in updating cart',
+          };
         });
+      const newProduct = await this.prisma.product_variant.update({
+        where: {
+          id: product_variant_id,
+          isdeleted: false,
+        },
+        data: {
+          stock: stock - quantity,
+        },
+      });
     }
 
     if (!cart) {
@@ -87,19 +97,29 @@ export class CartService {
       Products.push(product);
       ProductIds.push(product.id);
       const totalItems = Products.length;
-      const newCart = await this.prisma.cart
-        .create({
-          data: {
-            customerId: user.id,
-            productIds: ProductIds,
-            products: Products,
-            totalItems: totalItems,
-            totalPrice: product.price,
+      const newCart = await this.prisma.cart.create({
+        data: {
+          customer:{
+            connect:{
+              id:user.id
+            }
           },
-        })
-        .catch((err) => {
-          throw new Error('Error in creating cart');
-        });
+          productIds: ProductIds,
+          products: Products,
+          totalItems: totalItems,
+          totalPrice: product.price,
+        },
+      });
+
+      const newProduct = await this.prisma.product_variant.update({
+        where: {
+          id: product_variant_id,
+          isdeleted: false,
+        },
+        data: {
+          stock: stock - quantity,
+        },
+      });
     }
 
     return {
@@ -144,16 +164,12 @@ export class CartService {
         message: 'Cart not found',
       };
     }
-    const product = await this.prisma.product_variant
-      .findUnique({
-        where: {
-          id: product_variant_id,
-          isdeleted: false,
-        },
-      })
-      .catch((err) => {
-        throw new Error('Error in finding product');
-      });
+    const product = await this.prisma.product_variant.findUnique({
+      where: {
+        id: product_variant_id,
+        isdeleted: false,
+      },
+    });
     if (!product) {
       return {
         statusCode: 400,
@@ -169,23 +185,29 @@ export class CartService {
     ProductIds.push(product.id);
     total_price = total_price + product.price * quantity;
     let totalItems = Products.length;
-    const newCart = await this.prisma.cart
-      .update({
-        where: {
-          id: cart.id,
-          isdeleted: false,
-        },
-        data: {
-          customerId: user.id,
-          productIds: ProductIds,
-          products: Products,
-          totalItems: totalItems,
-          totalPrice: total_price,
-        },
-      })
-      .catch((err) => {
-        throw new Error('Error in updating cart');
-      });
+    const newCart = await this.prisma.cart.update({
+      where: {
+        id: cart.id,
+        isdeleted: false,
+      },
+      data: {
+        customerId: user.id,
+        productIds: ProductIds,
+        products: Products,
+        totalItems: totalItems,
+        totalPrice: total_price,
+      },
+    });
+
+    const newProduct = await this.prisma.product_variant.update({
+      where: {
+        id: product_variant_id,
+        isdeleted: false,
+      },
+      data: {
+        stock: quantity,
+      },
+    });
   }
 
   async remove(id: string, req: any) {
@@ -202,16 +224,12 @@ export class CartService {
         message: 'Cart not found',
       };
     }
-    const product = await this.prisma.product_variant
-      .findUnique({
-        where: {
-          id: id,
-          isdeleted: false,
-        },
-      })
-      .catch((err) => {
-        throw new Error('Error in finding product');
-      });
+    const product = await this.prisma.product_variant.findUnique({
+      where: {
+        id: id,
+        isdeleted: false,
+      },
+    });
 
     if (!product) {
       return {
@@ -235,23 +253,28 @@ export class CartService {
     }
     total_price = total_price - product.price;
     totalItems = totalItems - 1;
-    const newCart = await this.prisma.cart
-      .update({
-        where: {
-          id: cart.id,
-          isdeleted: false,
-        },
-        data: {
-          customerId: user.id,
-          productIds: ProductIds,
-          products: Products,
-          totalItems: totalItems,
-          totalPrice: total_price,
-        },
-      })
-      .catch((err) => {
-        throw new Error('Error in updating cart');
-      });
+    const newCart = await this.prisma.cart.update({
+      where: {
+        id: cart.id,
+        isdeleted: false,
+      },
+      data: {
+        customerId: user.id,
+        productIds: ProductIds,
+        products: Products,
+        totalItems: totalItems,
+        totalPrice: total_price,
+      },
+    });
+    const newProduct = await this.prisma.product_variant.update({
+      where: {
+        id: id,
+        isdeleted: false,
+      },
+      data: {
+        stock: product.stock + 1,
+      },
+    });
 
     return {
       statusCode: 200,

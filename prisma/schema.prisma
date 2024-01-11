@@ -70,14 +70,20 @@ model customerCredential {
 }
 
 model adress {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  customer   customer @relation(fields: [customerId], references: [id])
-  customerId String   @db.ObjectId
-  address    String
-  isDefault  Boolean
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  isdeleted  Boolean  @default(false)
+  id             String           @id @default(auto()) @map("_id") @db.ObjectId
+  customer       customer         @relation(fields: [customerId], references: [id])
+  customerId     String           @db.ObjectId
+  name           String
+  street         String
+  city           String
+  state          String
+  phone          String
+  pincode        String
+  isDefault      Boolean
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  isdeleted      Boolean          @default(false)
+  shipmentStatus shipmentStatus[]
 }
 
 model product {
@@ -89,7 +95,6 @@ model product {
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   cart            cart[]
-  order           order[]
   isdeleted       Boolean           @default(false)
   product_variant product_variant[]
 }
@@ -119,8 +124,8 @@ model category {
 
 model cart {
   id                String           @id @default(auto()) @map("_id") @db.ObjectId
-  productIds        String[]
-  products          String[]
+  productIds        Json[]
+  products          Json[]
   totalItems        Int
   totalPrice        Float
   createdAt         DateTime         @default(now())
@@ -135,23 +140,22 @@ model cart {
 }
 
 model order {
-  id             String         @id @default(auto()) @map("_id") @db.ObjectId
-  product        product        @relation(fields: [productId], references: [id])
-  productId      String         @db.ObjectId
-  customer       customer       @relation(fields: [customerId], references: [id])
-  customerId     String         @db.ObjectId
-  quantity       Int
+  id             String           @id @default(auto()) @map("_id") @db.ObjectId
+  productIds     Json[]
+  products       Json[]
+  customer       customer         @relation(fields: [customerId], references: [id])
+  customerId     String           @db.ObjectId
+  tatalItems     Int
   totalPrice     Float
-  payment        payment        @relation(fields: [paymentId], references: [id])
-  paymentId      String         @db.ObjectId
+  payment        payment          @relation(fields: [paymentId], references: [id])
+  paymentId      String           @db.ObjectId
   paymentMethod  String
   paymentStatus  String
-  orderDate      DateTime       @default(now())
-  shipmentStatus shipmentStatus @relation(fields: [shipmentId], references: [id])
-  shipmentId     String         @db.ObjectId
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  isdeleted      Boolean        @default(false)
+  orderDate      DateTime         @default(now())
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  isdeleted      Boolean          @default(false)
+  shipmentStatus shipmentStatus[]
 }
 
 model shipmentStatus {
@@ -159,7 +163,10 @@ model shipmentStatus {
   status    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  order     order[]
+  adress    adress   @relation(fields: [adressId], references: [id])
+  adressId  String   @db.ObjectId
+  order     order    @relation(fields: [orderId], references: [id])
+  orderId   String   @db.ObjectId
   isdeleted Boolean  @default(false)
 }
 
