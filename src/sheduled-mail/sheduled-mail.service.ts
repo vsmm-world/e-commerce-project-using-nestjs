@@ -3,7 +3,6 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { env } from 'process';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as postmark from 'postmark';
-import { Product } from 'src/products/entities/product.entity';
 
 @Injectable()
 export class SheduledMailService {
