@@ -9,7 +9,7 @@ import { Product } from 'src/products/entities/product.entity';
 export class SheduledMailService {
   constructor(private prisma: PrismaService) {}
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_WEEK)
   async handleCron() {
     const client = new postmark.ServerClient(env.POST_MARK_API_KEY);
 
@@ -70,8 +70,8 @@ export class SheduledMailService {
 
       try {
         await client.sendEmail(mail).then((res) => {
-          console.log(res+'mail sent');
-        })
+          console.log(res + 'mail sent');
+        });
       } catch (err) {
         return {
           statusCode: 400,
