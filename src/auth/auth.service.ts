@@ -169,7 +169,7 @@ export class AuthService {
       };
 
       try {
-       await client.sendEmail(mail);
+        await client.sendEmail(mail);
       } catch (err) {
         return {
           statusCode: 400,
@@ -212,7 +212,7 @@ export class AuthService {
     };
 
     try {
-     await client.sendEmail(mail);
+      await client.sendEmail(mail);
     } catch (err) {
       return {
         statusCode: 400,
