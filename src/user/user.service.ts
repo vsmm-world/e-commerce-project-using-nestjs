@@ -13,8 +13,17 @@ export class UserService {
     const hash = await bcrypt.hash(password, 10);
 
     if (role === 'admin') {
+      const customer = await this.prisma.customer.findFirst({
+        where: { email ,isdeleted:false},
+      });
+      if (customer) {
+        return {
+          statusCode: 400,
+          message: 'Email already exists',
+        };
+      }
       const admin = await this.prisma.admin.findFirst({
-        where: { email },
+        where: { email ,isdeleted:false},
       });
       if (admin) {
         return {
@@ -46,8 +55,17 @@ export class UserService {
       };
     }
     if (role === 'customer') {
+      const admin = await this.prisma.admin.findFirst({
+        where: { email ,isdeleted:false},
+      });
+      if (admin) {
+        return {
+          statusCode: 400,
+          message: 'Email already exists',
+        };
+      }
       const user = await this.prisma.customer.findFirst({
-        where: { email },
+        where: { email,isdeleted:false },
       });
       if (user) {
         return {

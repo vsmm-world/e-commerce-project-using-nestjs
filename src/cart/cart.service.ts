@@ -56,7 +56,7 @@ export class CartService {
       let Products = [];
       let ProductIds = [];
       ProductIds = cart.productIds;
-      Products.push(cart.products);
+      Products = cart.products;
       let total_price = cart.totalPrice;
       Products.push(product);
       ProductIds.push(product.id);
@@ -86,6 +86,11 @@ export class CartService {
           stock: stock - quantity,
         },
       });
+      return {
+        statusCode: 200,
+        message: 'Product added to cart successfully',
+        Products,
+      };
     }
 
     if (!cart) {
@@ -117,6 +122,11 @@ export class CartService {
           stock: stock - quantity,
         },
       });
+      return {
+        statusCode: 200,
+        message: 'Product added to cart successfully',
+        Products,
+      };
     }
 
     return {
@@ -276,6 +286,7 @@ export class CartService {
     return {
       statusCode: 200,
       message: 'Product removed from cart successfully',
+      Products,
     };
   }
 }

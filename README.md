@@ -19,8 +19,6 @@
     <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
   <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
 ## Description
 
@@ -64,10 +62,11 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 
 ## Stay in touch
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
+- Author - [Ravindra Valand](https://github.com/vsmm-world)
+- Twitter - [@Mhz_144](https://twitter.com/Mhz_144)
+- Instagram - [Ravindr Valand](https://www.instagram.com/ravindra_valand/)
+- LinkedIn -[Ravindra Valand](https://in.linkedin.com/in/ravindra-valand)
+- You Tube -'[Ravindra Valand]()https://www.youtube.com/@RavindraValand
 ## License
 
 Nest is [MIT licensed](LICENSE).

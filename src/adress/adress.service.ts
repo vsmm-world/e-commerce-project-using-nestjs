@@ -36,7 +36,7 @@ export class AdressService {
       }
     }
 
-    const address = this.prisma.adress.create({
+    const address =await this.prisma.adress.create({
       data: {
         customer: {
           connect: {
@@ -52,6 +52,7 @@ export class AdressService {
         isDefault,
       },
     });
+    console.log(address);
     if (!address) {
       return {
         statusCode: 400,

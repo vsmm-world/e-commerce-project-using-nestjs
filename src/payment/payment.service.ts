@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePaymentDto } from './dto/create-payment.dto';
-import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { InjectRazorpay } from 'nestjs-razorpay';
 import Razorpay from 'razorpay';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { BuyNowDto } from './dto/buy-now.dto';
 
 @Injectable()
 export class PaymentService {
@@ -11,6 +11,112 @@ export class PaymentService {
     @InjectRazorpay() private readonly razorpay: Razorpay,
     private prisma: PrismaService,
   ) {}
+
+  async buyNow(buyNowDto: BuyNowDto, req: any) {
+    const { user } = req;
+    const customer = await this.prisma.customer.findUnique({
+      where: {
+        id: user.id,
+        isdeleted: false,
+      },
+    });
+    if (!customer) {
+      return {
+        statusCode: 404,
+        message: 'Customer not found',
+      };
+    }
+    const adress = await this.prisma.adress.findFirst({
+      where: {
+        customerId: customer.id,
+        isdeleted: false,
+      },
+    });
+    if (!adress) {
+      return {
+        statusCode: 404,
+        message: 'Adress not found',
+      };
+    }
+    const { product_VarientrId, quantity, CashOnDelivery } = buyNowDto;
+    const product = await this.prisma.product_variant.findUnique({
+      where: {
+        id: product_VarientrId,
+        isdeleted: false,
+      },
+    });
+    if (!product) {
+      return {
+        statusCode: 404,
+        message: 'Product not found',
+      };
+    }
+    const totalPrice = product.price * quantity;
+    const { currency } = buyNowDto;
+    if (CashOnDelivery) {
+      const payment = await this.prisma.payment.create({
+        data: {
+          customer: {
+            connect: { id: customer.id },
+          },
+          COD: CashOnDelivery,
+        },
+      });
+
+      const order = await this.prisma.order.create({
+        data: {
+          customerId: customer.id,
+          paymentId: payment.id,
+          paymentStatus: 'Pending',
+          paymentMethod: 'CashOnDelivery',
+          productIds: [product.id],
+          products: [product],
+          totalPrice,
+          tatalItems: quantity,
+        },
+      });
+      return {
+        statusCode: 200,
+        message: 'Payment created successfully',
+        data: { info: 'CashOnDelivery' },
+        order,
+      };
+    }
+    const options = {
+      amount: totalPrice * 100,
+      currency,
+      receipt: customer.email,
+    };
+
+    const res = await this.razorpay.orders.create(options);
+
+    const payment = await this.prisma.payment.create({
+      data: {
+        customer: {
+          connect: { id: customer.id },
+        },
+        COD: CashOnDelivery,
+      },
+    });
+    const order = await this.prisma.order.create({
+      data: {
+        customerId: customer.id,
+        paymentId: payment.id,
+        paymentStatus: 'Pending',
+        paymentMethod: 'Online',
+        productIds: [product.id],
+        products: [product],
+        totalPrice,
+        tatalItems: quantity,
+      },
+    });
+    return {
+      statusCode: 200,
+      message: 'Payment created successfully',
+      data: res,
+      order,
+    };
+  }
 
   // This function is used to get all payments
 
@@ -35,10 +141,24 @@ export class PaymentService {
         message: 'Cart not found',
       };
     }
+    const adress = await this.prisma.adress.findFirst({
+      where: {
+        customerId: customer.id,
+        isdeleted: false,
+      },
+    });
+    if (!adress) {
+      return {
+        statusCode: 404,
+        message: 'Adress not found',
+      };
+    }
+
+    console.log(cart.products);
     const products = cart.products;
     const totalPrice = cart.totalPrice;
 
-    const { amount, currency, receipt, CashOnDelivery } = createPaymentDto;
+    const { currency, CashOnDelivery } = createPaymentDto;
     if (CashOnDelivery) {
       const payment = await this.prisma.payment.create({
         data: {
@@ -48,18 +168,19 @@ export class PaymentService {
           COD: CashOnDelivery,
         },
       });
+
       const order = await this.createOrder(req);
       return {
         statusCode: 200,
         message: 'Payment created successfully',
-        data: { id: 'CashOnDelivery' },
+        data: { info: 'CashOnDelivery' },
         order,
       };
     }
     const options = {
-      amount: amount * 100,
+      amount: totalPrice * 100,
       currency,
-      receipt,
+      receipt: customer.email,
     };
     const res = await this.razorpay.orders.create(options);
 
@@ -97,9 +218,26 @@ export class PaymentService {
         isdeleted: false,
       },
     });
-
+    if (!cart) {
+      return {
+        statusCode: 404,
+        message: 'Cart not found',
+      };
+    }
+    console.log(cart.products);
     const productsfromCart = cart.products;
-    const products = await this.getProducts(productsfromCart);
+    let promises = [];
+    try {
+      promises = await this.getProducts(productsfromCart);
+    } catch (err) {
+      return {
+        statusCode: 404,
+        message: 'Product not found',
+      };
+    }
+
+    const products = await Promise.all(promises);
+    console.log(products);
     const productIds = this.getProductIds(products);
     const totalPrice = this.calculateTotalPrice(products);
     const totalItems = products.length;
@@ -112,10 +250,10 @@ export class PaymentService {
     });
 
     if (!payment) {
-      return{
+      return {
         statusCode: 404,
         message: 'Payment not found',
-      }
+      };
     }
 
     let PaymentStatus = 'Pending';
@@ -123,6 +261,18 @@ export class PaymentService {
     if (payment.COD == false) {
       PaymentMethod = 'Online';
       PaymentStatus = 'Paid';
+    }
+    const adress = await this.prisma.adress.findFirst({
+      where: {
+        customerId: customer.id,
+        isdeleted: false,
+      },
+    });
+    if (!adress) {
+      return {
+        statusCode: 404,
+        message: 'Adress not found',
+      };
     }
 
     const order = await this.prisma.order.create({
@@ -146,18 +296,6 @@ export class PaymentService {
         isdeleted: true,
       },
     });
-    const adress = await this.prisma.adress.findFirst({
-      where: {
-        customerId: customer.id,
-        isdeleted: false,
-      },
-    });
-    if (!adress) {
-      return {
-        statusCode: 404,
-        message: 'Adress not found',
-      };
-    }
     const shippmentstatus = await this.prisma.shipmentStatus.create({
       data: {
         order: {
@@ -177,20 +315,23 @@ export class PaymentService {
     return {
       data: order,
       shippmentstatus,
+      payment,
     };
   }
 
   // Some Fuctions used for calculating total price and getting product details
 
-  getProducts(products) {
+  async getProducts(products: Array<any>) {
     let productDetails = products.map(async (product) => {
       return await this.prisma.product_variant.findUnique({
         where: {
           id: product.id,
+          isdeleted: false,
         },
       });
     });
     return productDetails;
+    console.log(productDetails);
   }
 
   getProductIds(products) {
