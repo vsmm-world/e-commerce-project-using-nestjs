@@ -76,10 +76,11 @@ export class SheduledMailService {
         TextBody: `your products ${productDetails.map(async (product) => {
           product.name;
         })} are still in cart ,
-        jaldi purchse karlo , stock khatam ho jayenga fir mat bolna ki nahi bataya`,
+        jaldi purchse karlo , stock khatam ho jayenga fir mat bolna ki nahi bataya `,
       };
 
       try {
+        console.log(mail.TextBody)
         await client.sendEmail(mail).then((res) => {
           console.log(res + 'mail sent');
         });

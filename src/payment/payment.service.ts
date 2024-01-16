@@ -128,6 +128,12 @@ export class PaymentService {
         isdeleted: false,
       },
     });
+    if (!customer) {
+      return {
+        statusCode: 404,
+        message: 'Customer not found',
+      };
+    }
     const cart = await this.prisma.cart.findFirst({
       where: {
         customerId: customer.id,

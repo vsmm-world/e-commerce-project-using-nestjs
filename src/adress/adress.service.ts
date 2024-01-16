@@ -13,7 +13,18 @@ export class AdressService {
     const { name, street, city, state, zip, phone, isDefault } =
       createAdressDto;
     const { user } = req;
-
+    const customer = await this.prisma.customer.findUnique({
+      where: {
+        id: user.id,
+        isdeleted: false,
+      },
+    });
+    if (!customer) {
+      return {
+        statusCode: 404,
+        message: 'Customer not found',
+      };
+    }
     if (isDefault) {
       const defaultAdress = await this.prisma.adress.findFirst({
         where: {

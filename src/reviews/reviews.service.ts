@@ -33,7 +33,12 @@ export class ReviewsService {
     const HistoryProductIdsArray = orderHistory.map((order) => {
       return order.productsIds;
     });
-
+    if (HistoryProductIdsArray[0] == null) {
+      return {
+        statusCode: 404,
+        message: 'you have not purchased this product so you can not review it',
+      };
+    }
     const productIds = HistoryProductIdsArray.flat();
     if (!productIds.includes(productId)) {
       return {
@@ -96,6 +101,13 @@ export class ReviewsService {
         },
       });
 
+      if (reviews[0] == null) {
+        return {
+          statusCode: 404,
+          message: 'No reviews found',
+        };
+      }
+
       return {
         statusCode: 200,
         message: 'Reviews fetched as admin successfully',
@@ -126,6 +138,12 @@ export class ReviewsService {
       },
     });
 
+    if (reviews[0] == null) {
+      return {
+        statusCode: 404,
+        message: 'No reviews found',
+      };
+    }
     return {
       statusCode: 200,
       message: 'Reviews found successfully',
@@ -164,7 +182,7 @@ export class ReviewsService {
     }
   }
 
-  async update(id: string, req: any, updateReviewDto: UpdateReviewDto) {
+  async update(id: string, updateReviewDto: UpdateReviewDto, req: any) {
     const { user } = req;
     const customer = await this.prisma.customer.findUnique({
       where: {
