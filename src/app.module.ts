@@ -10,6 +10,7 @@ import { PaymentModule } from './payment/payment.module';
 import { AdressModule } from './adress/adress.module';
 import { ShipmentModule } from './shipment/shipment.module';
 import { SheduledMailModule } from './sheduled-mail/sheduled-mail.module';
+import { ReviewsModule } from './reviews/reviews.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { SheduledMailModule } from './sheduled-mail/sheduled-mail.module';
     AdressModule,
     ShipmentModule,
     SheduledMailModule,
+    ReviewsModule,
   ],
   controllers: [],
   providers: [PrismaModule],

@@ -56,6 +56,7 @@ model customer {
   payment            payment[]
   customerCredential customerCredential[]
   adress             adress[]
+  customerReviews    customerReviews[]
 }
 
 model customerCredential {
@@ -98,6 +99,7 @@ model product {
   cart            cart[]
   isdeleted       Boolean           @default(false)
   product_variant product_variant[]
+  customerReviews customerReviews[]
 }
 
 model product_variant {
@@ -129,6 +131,8 @@ model cart {
   products          Json[]
   totalItems        Int
   totalPrice        Float
+  isReminded        Boolean          @default(false)
+  reminderDate      DateTime?
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   customer          customer?        @relation(fields: [customerId], references: [id])
@@ -191,4 +195,18 @@ model tempResetToken {
   isdeleted Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model customerReviews {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  customer   customer @relation(fields: [customerId], references: [id])
+  customerId String   @db.ObjectId
+  product    product  @relation(fields: [productId], references: [id])
+  productId  String   @db.ObjectId
+  rating     Int
+  review     String
+  isApproved Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  isdeleted  Boolean  @default(false)
 }
