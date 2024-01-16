@@ -3,6 +3,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { env } from 'process';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as postmark from 'postmark';
+import { skip } from 'node:test';
 
 @Injectable()
 export class SheduledMailService {
@@ -20,13 +21,24 @@ export class SheduledMailService {
     });
 
     const selectedCarts = carts.map((cart) => {
-      if (true) {
+      if (
+        new Date().getTime() - new Date(cart.updatedAt).getTime() >
+        7 * 24 * 60 * 60 * 1000
+      ) {
+        if (
+          cart.isReminded &&
+          new Date().getTime() - new Date(cart.reminderDate).getTime() >
+            7 * 24 * 60 * 60 * 1000
+        ) {
+          return undefined;
+        }
         return cart;
       }
     });
+    const filteredCarts = selectedCarts.filter((cart) => cart !== undefined);
     // console.log(selectedCarts);
 
-    selectedCarts.forEach(async (cart) => {
+    filteredCarts.forEach(async (cart) => {
       const customer = await this.prisma.customer.findUnique({
         where: {
           id: cart.customerId,
@@ -78,6 +90,5 @@ export class SheduledMailService {
         };
       }
     });
-    
   }
 }

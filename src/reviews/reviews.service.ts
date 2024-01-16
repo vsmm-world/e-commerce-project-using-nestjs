@@ -102,7 +102,7 @@ export class ReviewsService {
         data: reviews,
       };
     }
-    
+
     const customer = await this.prisma.customer.findUnique({
       where: {
         id: user.id,
@@ -231,7 +231,6 @@ export class ReviewsService {
       const review = await this.prisma.customerReviews.findFirst({
         where: {
           id: id,
-          customerId: customer.id,
           isdeleted: false,
         },
       });
@@ -262,6 +261,7 @@ export class ReviewsService {
     const review = await this.prisma.customerReviews.findFirst({
       where: {
         id: id,
+        customerId: customer.id,
         isdeleted: false,
       },
     });
