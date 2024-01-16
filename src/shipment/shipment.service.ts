@@ -99,16 +99,25 @@ export class ShipmentService {
           id: order.customerId,
         },
       });
-      let history = customer.orderHistory;
-      history.push(order.id);
-      await this.prisma.customer.update({
-        where: {
-          id: order.customerId,
-        },
+
+      const orderHistory = await this.prisma.orderHistory.create({
         data: {
-          orderHistory: history,
+          order: {
+            connect: {
+              id: order.id,
+            },
+          },
+          products: order.products,
+          productsIds: order.productIds,
+          customer: {
+            connect: {
+              id: customer.id,
+            },
+          },
+          status: 'Delivered',
         },
       });
+
       const payment = await this.prisma.payment.findUnique({
         where: {
           id: order.paymentId,

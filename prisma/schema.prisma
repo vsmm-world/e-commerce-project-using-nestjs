@@ -47,7 +47,6 @@ model customer {
   id                 String               @id @default(auto()) @map("_id") @db.ObjectId
   name               String
   email              String
-  orderHistory       Json[]               @default([])
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   isdeleted          Boolean              @default(false)
@@ -57,6 +56,7 @@ model customer {
   customerCredential customerCredential[]
   adress             adress[]
   customerReviews    customerReviews[]
+  orderHistory       orderHistory[]
 }
 
 model customerCredential {
@@ -161,6 +161,7 @@ model order {
   updatedAt      DateTime         @updatedAt
   isdeleted      Boolean          @default(false)
   shipmentStatus shipmentStatus[]
+  orderHistory   orderHistory[]
 }
 
 model shipmentStatus {
@@ -205,8 +206,21 @@ model customerReviews {
   productId  String   @db.ObjectId
   rating     Int
   review     String
-  isApproved Boolean  @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   isdeleted  Boolean  @default(false)
+}
+
+model orderHistory {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  customer    customer @relation(fields: [customerId], references: [id])
+  customerId  String   @db.ObjectId
+  order       order    @relation(fields: [orderId], references: [id])
+  orderId     String   @db.ObjectId
+  status      String
+  productsIds Json[]
+  products    Json[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isdeleted   Boolean  @default(false)
 }
