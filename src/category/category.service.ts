@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -18,7 +18,7 @@ export class CategoryService {
 
     if (!admin) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Only admin can create category',
       };
     }
@@ -29,7 +29,7 @@ export class CategoryService {
     });
 
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Category created successfully',
       data: category,
     };
@@ -37,16 +37,16 @@ export class CategoryService {
 
   async findAll() {
     const category = await this.prisma.category.findMany({
-      where: { isdeleted: false },
+      where: { isDeleted: false },
     });
     if (category[0] == null) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Category not found',
       };
     }
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Category fetched successfully',
       data: category,
     };
@@ -54,17 +54,17 @@ export class CategoryService {
 
   async findOne(id: string) {
     const category = await this.prisma.category.findFirst({
-      where: { id: id, isdeleted: false },
+      where: { id: id, isDeleted: false },
     });
 
     if (!category) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Category not found',
       };
     }
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Category fetched successfully',
       data: category,
     };
@@ -76,32 +76,32 @@ export class CategoryService {
     const admin = this.prisma.admin.findFirst({
       where: {
         id: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
     if (!admin) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Only admin can update category',
       };
     }
     const chekCategory = await this.prisma.category.findFirst({
       where: {
         id: id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (!chekCategory) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Category not found',
       };
     }
     const category = await this.prisma.category.update({
       where: {
         id: id,
-        isdeleted: false,
+        isDeleted: false,
       },
       data: {
         name,
@@ -109,7 +109,7 @@ export class CategoryService {
     });
 
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Category updated successfully',
       data: category,
     };
@@ -120,12 +120,12 @@ export class CategoryService {
     const admin = this.prisma.admin.findFirst({
       where: {
         id: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (!admin) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Only admin can delete category',
       };
     }
@@ -133,12 +133,12 @@ export class CategoryService {
     const chekCategory = await this.prisma.category.findFirst({
       where: {
         id: id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (!chekCategory) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Category not found',
       };
     }
@@ -146,15 +146,15 @@ export class CategoryService {
     await this.prisma.category.update({
       where: {
         id: id,
-        isdeleted: false,
+        isDeleted: false,
       },
       data: {
-        isdeleted: true,
+        isDeleted: true,
       },
     });
 
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Category deleted successfully',
     };
   }

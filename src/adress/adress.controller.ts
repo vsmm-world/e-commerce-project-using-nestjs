@@ -15,39 +15,39 @@ import { UpdateAdressDto } from './dto/update-adress.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
-@ApiTags('adress')
-@Controller('adress')
+@ApiTags('address')
+@Controller('address')
 @UseGuards(AuthGuard('jwt'))
 @ApiBearerAuth()
 export class AdressController {
-  constructor(private readonly adressService: AdressService) {}
+  constructor(private readonly addressService: AdressService) {}
 
   @Post()
   create(@Body() createAdressDto: CreateAdressDto, @Request() req: any) {
-    return this.adressService.create(createAdressDto, req);
+    return this.addressService.create(createAdressDto, req);
   }
 
   @Get()
   findAll(@Request() req: any) {
-    return this.adressService.findAll(req);
+    return this.addressService.findAll(req);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string, @Request() req: any) {
-    return this.adressService.findOne(id, req);
+    return this.addressService.findOne(id, req);
   }
 
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateAdressDto: UpdateAdressDto,
+    @Body() updateaddressDto: UpdateAdressDto,
     @Request() req: any,
   ) {
-    return this.adressService.update(id, updateAdressDto, req);
+    return this.addressService.update(id, updateaddressDto, req);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string, @Request() req: any) {
-    return this.adressService.remove(id, req);
+    return this.addressService.remove(id, req);
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateAdressDto } from './dto/create-adress.dto';
 import { UpdateAdressDto } from './dto/update-adress.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -16,29 +16,29 @@ export class AdressService {
     const customer = await this.prisma.customer.findUnique({
       where: {
         id: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (!customer) {
       return {
-        statusCode: 404,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Customer not found',
       };
     }
     if (isDefault) {
-      const defaultAdress = await this.prisma.adress.findFirst({
+      const defaultaddress = await this.prisma.address.findFirst({
         where: {
-          isdeleted: false,
+          isDeleted: false,
           customer: {
             id: user.id,
           },
           isDefault: true,
         },
       });
-      if (defaultAdress) {
-        await this.prisma.adress.update({
+      if (defaultaddress) {
+        await this.prisma.address.update({
           where: {
-            id: defaultAdress.id,
+            id: defaultaddress.id,
           },
           data: {
             isDefault: false,
@@ -47,7 +47,7 @@ export class AdressService {
       }
     }
 
-    return this.prisma.adress.create({
+    return this.prisma.address.create({
       data: {
         customerId: user.id,
         name,
@@ -63,9 +63,9 @@ export class AdressService {
 
   async findAll(req) {
     const { user } = req;
-    return this.prisma.adress.findMany({
+    return this.prisma.address.findMany({
       where: {
-        isdeleted: false,
+        isDeleted: false,
         customerId: user.id,
       },
     });
@@ -73,17 +73,17 @@ export class AdressService {
 
   async findOne(id: string, req) {
     const { user } = req;
-    const address = await this.prisma.adress.findFirst({
+    const address = await this.prisma.address.findFirst({
       where: {
         id,
-        isdeleted: false,
+        isDeleted: false,
         customerId: user.id,
       },
     });
 
     if (!address) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'No address found',
       };
     }
@@ -97,14 +97,14 @@ export class AdressService {
 
   //
 
-  async update(id: string, updateAdressDto: UpdateAdressDto, req) {
+  async update(id: string, updateaddressDto: UpdateAdressDto, req) {
     const { name, street, city, state, zip, phone, isDefault } =
-      updateAdressDto;
+      updateaddressDto;
     const { user } = req;
-    const address = await this.prisma.adress.findFirst({
+    const address = await this.prisma.address.findFirst({
       where: {
         id,
-        isdeleted: false,
+        isDeleted: false,
         customer: {
           id: user.id,
         },
@@ -113,26 +113,26 @@ export class AdressService {
 
     if (!address) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'No address found',
       };
     }
 
     if (isDefault) {
-      const defaultAdress = await this.prisma.adress.findFirst({
+      const defaultaddress = await this.prisma.address.findFirst({
         where: {
-          isdeleted: false,
+          isDeleted: false,
           customer: {
             id: user.id,
           },
           isDefault: true,
         },
       });
-      if (defaultAdress) {
-        await this.prisma.adress.update({
+      if (defaultaddress) {
+        await this.prisma.address.update({
           where: {
-            isdeleted: false,
-            id: defaultAdress.id,
+            isDeleted: false,
+            id: defaultaddress.id,
           },
           data: {
             isDefault: false,
@@ -141,10 +141,10 @@ export class AdressService {
       }
     }
 
-    const updatedAddress = await this.prisma.adress.update({
+    const updatedAddress = await this.prisma.address.update({
       where: {
         id,
-        isdeleted: false,
+        isDeleted: false,
       },
       data: {
         name,
@@ -168,10 +168,10 @@ export class AdressService {
 
   async remove(id: string, req) {
     const { user } = req;
-    const address = await this.prisma.adress.findFirst({
+    const address = await this.prisma.address.findFirst({
       where: {
         id,
-        isdeleted: false,
+        isDeleted: false,
         customer: {
           id: user.id,
         },
@@ -180,17 +180,17 @@ export class AdressService {
 
     if (!address) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'No address found',
       };
     }
 
-    const deletedAddress = await this.prisma.adress.update({
+    const deletedAddress = await this.prisma.address.update({
       where: {
         id,
       },
       data: {
-        isdeleted: true,
+        isDeleted: true,
       },
     });
 

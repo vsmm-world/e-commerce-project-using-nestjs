@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
@@ -29,14 +29,14 @@ export class AuthService {
 
     if (!tempToken) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Invalid token',
       };
     }
 
     if (password !== confirPassword) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Confirm Password does not match',
       };
     }
@@ -54,7 +54,7 @@ export class AuthService {
       });
       if (!customer) {
         return {
-          statusCode: 400,
+          statusCode: HttpStatus.BAD_REQUEST,
           message: 'User not found',
         };
       }
@@ -65,7 +65,7 @@ export class AuthService {
       });
       if (!customerCred) {
         return {
-          statusCode: 400,
+          statusCode: HttpStatus.BAD_REQUEST,
           message: 'User not found',
         };
       }
@@ -84,7 +84,7 @@ export class AuthService {
         },
       });
       return {
-        statusCode: 200,
+        statusCode: HttpStatus.OK,
         message: 'Password reset successfully',
       };
     }
@@ -95,7 +95,7 @@ export class AuthService {
     });
     if (!adminCred) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'User not found',
       };
     }
@@ -114,7 +114,7 @@ export class AuthService {
       },
     });
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Password reset successfully',
     };
   }
@@ -135,7 +135,7 @@ export class AuthService {
       });
       if (!admin) {
         return {
-          statusCode: 400,
+          statusCode: HttpStatus.BAD_REQUEST,
           message: 'your email is not registered',
         };
       }
@@ -155,7 +155,7 @@ export class AuthService {
         });
       } catch (err) {
         return {
-          statusCode: 400,
+          statusCode: HttpStatus.BAD_REQUEST,
           message: 'something went wrong',
         };
       }
@@ -172,12 +172,12 @@ export class AuthService {
         await client.sendEmail(mail);
       } catch (err) {
         return {
-          statusCode: 400,
+          statusCode: HttpStatus.BAD_REQUEST,
           message: 'something went wrong while sending email',
         };
       }
       return {
-        statusCode: 200,
+        statusCode: HttpStatus.OK,
         message: 'Reset token sent successfully',
       };
     }
@@ -198,7 +198,7 @@ export class AuthService {
       });
     } catch (err) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'something went wrong',
       };
     }
@@ -215,13 +215,13 @@ export class AuthService {
       await client.sendEmail(mail);
     } catch (err) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'something went wrong while sending email',
       };
     }
 
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Reset token sent successfully',
     };
   }
@@ -240,7 +240,7 @@ export class AuthService {
         },
       });
       return {
-        statusCode: 200,
+        statusCode: HttpStatus.OK,
         message: 'Admin found',
         admin,
         adminCred,
@@ -259,7 +259,7 @@ export class AuthService {
         },
       });
       return {
-        statusCode: 200,
+        statusCode: HttpStatus.OK,
         message: 'Customer found',
         customer,
         customerCred,
@@ -267,7 +267,7 @@ export class AuthService {
     }
 
     return {
-      statusCode: 400,
+      statusCode: HttpStatus.BAD_REQUEST,
       message: 'User not found',
     };
   }
@@ -278,7 +278,7 @@ export class AuthService {
     const admin = await this.prisma.admin.findFirst({
       where: {
         email,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (admin) {
@@ -296,7 +296,7 @@ export class AuthService {
             specialChars: false,
             alphabets: false,
           });
-          await this.prisma.tempotp.create({
+          await this.prisma.tempOtp.create({
             data: {
               tempId: admin.id,
               otp,
@@ -319,7 +319,7 @@ export class AuthService {
           client.sendEmailWithTemplate(mail);
 
           return {
-            statusCode: 200,
+            statusCode: HttpStatus.OK,
             message: 'OTP sent successfully',
             otpRef,
           };
@@ -330,7 +330,7 @@ export class AuthService {
     const customer = await this.prisma.customer.findFirst({
       where: {
         email,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (customer) {
@@ -349,7 +349,7 @@ export class AuthService {
             alphabets: false,
           });
 
-          await this.prisma.tempotp.create({
+          await this.prisma.tempOtp.create({
             data: {
               tempId: customer.id,
               otp,
@@ -370,7 +370,7 @@ export class AuthService {
           };
           client.sendEmailWithTemplate(mail);
           return {
-            statusCode: 200,
+            statusCode: HttpStatus.OK,
             message: 'OTP sent successfully',
             otpRef,
           };
@@ -378,14 +378,14 @@ export class AuthService {
       }
     }
     return {
-      statusCode: 400,
+      statusCode: HttpStatus.BAD_REQUEST,
       message: 'Invalid credentials',
     };
   }
 
   async validateOtp(validateOtp) {
     const { otp, otpRef } = validateOtp;
-    const tempOtp = await this.prisma.tempotp.findFirst({
+    const tempOtp = await this.prisma.tempOtp.findFirst({
       where: {
         otpRef,
         expiresAt: {
@@ -419,13 +419,13 @@ export class AuthService {
                 expiresAt: new Date(Date.now() + 24 * 60 * 600000),
               },
             });
-            await this.prisma.tempotp.delete({
+            await this.prisma.tempOtp.delete({
               where: {
                 id: tempOtp.id,
               },
             });
             return {
-              statusCode: 200,
+              statusCode: HttpStatus.OK,
               message: 'Login successful',
               token,
               admin,
@@ -442,25 +442,27 @@ export class AuthService {
           const customerCred = await this.prisma.customerCredential.findFirst({
             where: {
               customerId: customer.id,
+              isDeleted: false,
             },
           });
           if (customerCred) {
             await this.prisma.customerCredential.update({
               where: {
                 id: customerCred.id,
+                isDeleted: false,
               },
               data: {
                 token,
                 expiresAt: new Date(Date.now() + 24 * 60 * 600000),
               },
             });
-            await this.prisma.tempotp.delete({
+            await this.prisma.tempOtp.delete({
               where: {
                 id: tempOtp.id,
               },
             });
             return {
-              statusCode: 200,
+              statusCode: HttpStatus.OK,
               message: 'Login successful',
               token,
               customer,
@@ -497,7 +499,7 @@ export class AuthService {
         },
       });
       return {
-        statusCode: 200,
+        statusCode: HttpStatus.OK,
         message: 'Logout successful',
       };
     }
@@ -525,12 +527,12 @@ export class AuthService {
         },
       });
       return {
-        statusCode: 200,
+        statusCode: HttpStatus.OK,
         message: 'Logout successful',
       };
     }
     return {
-      statusCode: 400,
+      statusCode: HttpStatus.BAD_REQUEST,
       message: 'Could not logout',
     };
   }

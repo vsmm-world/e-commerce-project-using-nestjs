@@ -26,7 +26,7 @@ export class CreateAdressDto {
   @IsNotEmpty()
   phone: string;
 
-    @ApiProperty()
-    @IsNotEmpty()
-    isDefault: boolean;
+  @ApiProperty()
+  @IsNotEmpty()
+  isDefault: boolean;
 }

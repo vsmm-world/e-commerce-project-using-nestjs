@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -8,37 +8,37 @@ export class CartService {
   constructor(private prisma: PrismaService) {}
 
   async create(createCartDto: CreateCartDto, req: any) {
-    const { product_variant_id, quantity } = createCartDto;
+    const { productVariantId, quantity } = createCartDto;
     const { user } = req;
     const admin = await this.prisma.admin.findUnique({
       where: {
         id: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
     if (admin) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Admin cannot add to cart, its your own product',
       };
     }
-    const product = await this.prisma.product_variant.findUnique({
+    const product = await this.prisma.productVariant.findUnique({
       where: {
-        id: product_variant_id,
-        isdeleted: false,
+        id: productVariantId,
+        isDeleted: false,
       },
     });
 
     if (!product) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Product not found',
       };
     }
     if (product.stock < quantity) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Product out of stock',
       };
     }
@@ -48,7 +48,7 @@ export class CartService {
     const cart = await this.prisma.cart.findFirst({
       where: {
         customerId: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
@@ -66,7 +66,7 @@ export class CartService {
       const newCart = await this.prisma.cart.update({
         where: {
           id: cart.id,
-          isdeleted: false,
+          isDeleted: false,
         },
         data: {
           customerId: user.id,
@@ -77,17 +77,17 @@ export class CartService {
         },
       });
 
-      const newProduct = await this.prisma.product_variant.update({
+      const newProduct = await this.prisma.productVariant.update({
         where: {
-          id: product_variant_id,
-          isdeleted: false,
+          id: productVariantId,
+          isDeleted: false,
         },
         data: {
           stock: stock - quantity,
         },
       });
       return {
-        statusCode: 200,
+        statusCode: HttpStatus.OK,
         message: 'Product added to cart successfully',
         Products,
       };
@@ -113,24 +113,24 @@ export class CartService {
         },
       });
 
-      const newProduct = await this.prisma.product_variant.update({
+      const newProduct = await this.prisma.productVariant.update({
         where: {
-          id: product_variant_id,
-          isdeleted: false,
+          id: productVariantId,
+          isDeleted: false,
         },
         data: {
           stock: stock - quantity,
         },
       });
       return {
-        statusCode: 200,
+        statusCode: HttpStatus.OK,
         message: 'Product added to cart successfully',
         Products,
       };
     }
 
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Product added to cart successfully',
     };
   }
@@ -140,46 +140,46 @@ export class CartService {
     const cart = await this.prisma.cart.findFirst({
       where: {
         customerId: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (!cart) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Cart not found',
       };
     }
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Cart found',
       data: cart,
     };
   }
   async update(id: string, updateCartDto: UpdateCartDto, req: any) {
-    const { product_variant_id, quantity } = updateCartDto;
+    // const { productVariant_id, quantity } = updateCartDto;
     const { user } = req;
 
     const cart = await this.prisma.cart.findFirst({
       where: {
         customerId: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (!cart) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Cart not found',
       };
     }
-    const product = await this.prisma.product_variant.findUnique({
+    const product = await this.prisma.productVariant.findUnique({
       where: {
-        id: product_variant_id,
-        isdeleted: false,
+        id: updateCartDto.productVariantId,
+        isDeleted: false,
       },
     });
     if (!product) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Product not found',
       };
     }
@@ -190,12 +190,12 @@ export class CartService {
     let total_price = cart.totalPrice;
     Products.push(product);
     ProductIds.push(product.id);
-    total_price = total_price + product.price * quantity;
+    total_price = total_price + product.price * updateCartDto.quantity;
     let totalItems = Products.length;
     const newCart = await this.prisma.cart.update({
       where: {
         id: cart.id,
-        isdeleted: false,
+        isDeleted: false,
       },
       data: {
         customerId: user.id,
@@ -206,13 +206,13 @@ export class CartService {
       },
     });
 
-    const newProduct = await this.prisma.product_variant.update({
+    const newProduct = await this.prisma.productVariant.update({
       where: {
-        id: product_variant_id,
-        isdeleted: false,
+        id: updateCartDto.productVariantId,
+        isDeleted: false,
       },
       data: {
-        stock: quantity,
+        stock: updateCartDto.quantity,
       },
     });
   }
@@ -222,25 +222,25 @@ export class CartService {
     const cart = await this.prisma.cart.findFirst({
       where: {
         customerId: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (!cart) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Cart not found',
       };
     }
-    const product = await this.prisma.product_variant.findUnique({
+    const product = await this.prisma.productVariant.findUnique({
       where: {
         id: id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
     if (!product) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Product not found',
       };
     }
@@ -263,7 +263,7 @@ export class CartService {
     const newCart = await this.prisma.cart.update({
       where: {
         id: cart.id,
-        isdeleted: false,
+        isDeleted: false,
       },
       data: {
         customerId: user.id,
@@ -273,10 +273,10 @@ export class CartService {
         totalPrice: total_price,
       },
     });
-    const newProduct = await this.prisma.product_variant.update({
+    const newProduct = await this.prisma.productVariant.update({
       where: {
         id: id,
-        isdeleted: false,
+        isDeleted: false,
       },
       data: {
         stock: product.stock + 1,
@@ -284,7 +284,7 @@ export class CartService {
     });
 
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Product removed from cart successfully',
       Products,
     };

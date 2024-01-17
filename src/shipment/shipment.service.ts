@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { UpdateShipmentDto } from './dto/update-shipment.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -12,25 +12,25 @@ export class ShipmentService {
     const isAdmin = await this.isAdmin(user);
     if (!isAdmin) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Admin not found',
       };
     }
     const shipments = this.prisma.shipmentStatus.findMany({
       where: {
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
     if (shipments[0] == null) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Shipments not found',
       };
     }
 
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Shipments found successfully',
       shipments: shipments,
     };
@@ -40,19 +40,19 @@ export class ShipmentService {
     const shipment = await this.prisma.shipmentStatus.findFirst({
       where: {
         id: id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
     if (!shipment) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Shipment not found',
       };
     }
 
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Shipment found successfully',
       shipment: shipment,
     };
@@ -63,19 +63,19 @@ export class ShipmentService {
     const isAdmin = await this.isAdmin(user);
     if (!isAdmin) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Admin not found',
       };
     }
     const shiopmentCheck = await this.prisma.shipmentStatus.findFirst({
       where: {
         id: id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (!shiopmentCheck) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Shipment not found',
       };
     }
@@ -129,12 +129,12 @@ export class ShipmentService {
           id: shipment.orderId,
         },
         data: {
-          isdeleted: true,
+          isDeleted: true,
         },
       });
     }
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Shipment updated successfully',
       shipment: shipment,
     };
@@ -145,19 +145,19 @@ export class ShipmentService {
     const isAdmin = await this.isAdmin(user);
     if (!isAdmin) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Admin not found',
       };
     }
     const shiopmentCheck = await this.prisma.shipmentStatus.findFirst({
       where: {
         id: id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (!shiopmentCheck) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Shipment not found',
       };
     }
@@ -166,12 +166,12 @@ export class ShipmentService {
         id: id,
       },
       data: {
-        isdeleted: true,
+        isDeleted: true,
       },
     });
 
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Shipment deleted successfully',
     };
   }
@@ -181,7 +181,7 @@ export class ShipmentService {
     const admin = await this.prisma.admin.findUnique({
       where: {
         id: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (admin) {

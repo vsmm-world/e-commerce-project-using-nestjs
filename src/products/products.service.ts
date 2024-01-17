@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -14,13 +14,13 @@ export class ProductsService {
     const admin = await this.prisma.admin.findFirst({
       where: {
         id: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
     if (!admin) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Only admin can create product',
       };
     }
@@ -43,18 +43,18 @@ export class ProductsService {
   async findAll() {
     const products = await this.prisma.product.findMany({
       where: {
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (products[0] == null) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Products not found',
       };
     }
 
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Products retrieved successfully',
       data: products,
     };
@@ -64,17 +64,17 @@ export class ProductsService {
     const product = await this.prisma.product.findFirst({
       where: {
         id: id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (!product) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Product not found',
       };
     }
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Product retrieved successfully',
       data: product,
     };
@@ -86,13 +86,13 @@ export class ProductsService {
     const admin = await this.prisma.admin.findFirst({
       where: {
         id: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
     if (!admin) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Only admin can update product',
       };
     }
@@ -100,13 +100,13 @@ export class ProductsService {
     const productchek = await this.prisma.product.findFirst({
       where: {
         id: id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
     if (!productchek) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Product not found',
       };
     }
@@ -114,7 +114,7 @@ export class ProductsService {
     const product = await this.prisma.product.update({
       where: {
         id: id,
-        isdeleted: false,
+        isDeleted: false,
       },
       data: {
         name,
@@ -123,7 +123,7 @@ export class ProductsService {
       },
     });
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Product updated successfully',
       data: product,
     };
@@ -139,7 +139,7 @@ export class ProductsService {
 
     if (!admin) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Only admin can delete product',
       };
     }
@@ -147,13 +147,13 @@ export class ProductsService {
     const productchek = await this.prisma.product.findFirst({
       where: {
         id: id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
     if (!productchek) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Product not found',
       };
     }
@@ -161,15 +161,15 @@ export class ProductsService {
     const product = this.prisma.product.update({
       where: {
         id: id,
-        isdeleted: false,
+        isDeleted: false,
       },
       data: {
-        isdeleted: true,
+        isDeleted: true,
       },
     });
 
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Product deleted successfully',
       data: product,
     };

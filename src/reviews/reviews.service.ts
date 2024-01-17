@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -13,12 +13,12 @@ export class ReviewsService {
     const customer = await this.prisma.customer.findUnique({
       where: {
         id: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (!customer) {
       return {
-        statusCode: 404,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Customer not found',
       };
     }
@@ -26,7 +26,7 @@ export class ReviewsService {
     const orderHistory = await this.prisma.orderHistory.findMany({
       where: {
         customerId: customer.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
@@ -35,26 +35,26 @@ export class ReviewsService {
     });
     if (HistoryProductIdsArray[0] == null) {
       return {
-        statusCode: 404,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'you have not purchased this product so you can not review it',
       };
     }
     const productIds = HistoryProductIdsArray.flat();
     if (!productIds.includes(productId)) {
       return {
-        statusCode: 404,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'you have not purchased this product so you can not review it',
       };
     }
-    const product = await this.prisma.product_variant.findUnique({
+    const product = await this.prisma.productVariant.findUnique({
       where: {
         id: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (!product) {
       return {
-        statusCode: 404,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Product not found',
       };
     }
@@ -76,7 +76,7 @@ export class ReviewsService {
     });
 
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Review added successfully',
       data: reviewData,
     };
@@ -87,13 +87,13 @@ export class ReviewsService {
     const admin = await this.prisma.admin.findUnique({
       where: {
         id: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (admin) {
       const reviews = await this.prisma.customerReviews.findMany({
         where: {
-          isdeleted: false,
+          isDeleted: false,
         },
         include: {
           product: true,
@@ -103,13 +103,13 @@ export class ReviewsService {
 
       if (reviews[0] == null) {
         return {
-          statusCode: 404,
+          statusCode: HttpStatus.BAD_REQUEST,
           message: 'No reviews found',
         };
       }
 
       return {
-        statusCode: 200,
+        statusCode: HttpStatus.OK,
         message: 'Reviews fetched as admin successfully',
         data: reviews,
       };
@@ -118,20 +118,20 @@ export class ReviewsService {
     const customer = await this.prisma.customer.findUnique({
       where: {
         id: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
     if (!customer) {
       return {
-        statusCode: 404,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Customer not found',
       };
     }
     const reviews = await this.prisma.customerReviews.findMany({
       where: {
         customerId: customer.id,
-        isdeleted: false,
+        isDeleted: false,
       },
       include: {
         product: true,
@@ -140,12 +140,12 @@ export class ReviewsService {
 
     if (reviews[0] == null) {
       return {
-        statusCode: 404,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'No reviews found',
       };
     }
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Reviews found successfully',
       data: reviews,
     };
@@ -156,13 +156,13 @@ export class ReviewsService {
     const customer = await this.prisma.customer.findUnique({
       where: {
         id: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
     if (!customer) {
       return {
-        statusCode: 404,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Customer not found',
       };
     }
@@ -170,13 +170,13 @@ export class ReviewsService {
     const review = await this.prisma.customerReviews.findFirst({
       where: {
         id: id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
     if (!review) {
       return {
-        statusCode: 404,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Review not found',
       };
     }
@@ -187,13 +187,13 @@ export class ReviewsService {
     const customer = await this.prisma.customer.findUnique({
       where: {
         id: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
     if (!customer) {
       return {
-        statusCode: 404,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Customer not found',
       };
     }
@@ -201,13 +201,13 @@ export class ReviewsService {
     const review = await this.prisma.customerReviews.findFirst({
       where: {
         id: id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
     if (!review) {
       return {
-        statusCode: 404,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Review not found',
       };
     }
@@ -227,7 +227,7 @@ export class ReviewsService {
     const customer = await this.prisma.customer.findUnique({
       where: {
         id: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
@@ -235,13 +235,13 @@ export class ReviewsService {
       const admin = await this.prisma.admin.findUnique({
         where: {
           id: user.id,
-          isdeleted: false,
+          isDeleted: false,
         },
       });
 
       if (!admin) {
         return {
-          statusCode: 404,
+          statusCode: HttpStatus.BAD_REQUEST,
           message: 'You are not authorized to delete this review',
         };
       }
@@ -249,13 +249,13 @@ export class ReviewsService {
       const review = await this.prisma.customerReviews.findFirst({
         where: {
           id: id,
-          isdeleted: false,
+          isDeleted: false,
         },
       });
 
       if (!review) {
         return {
-          statusCode: 404,
+          statusCode: HttpStatus.BAD_REQUEST,
           message: 'Review not found',
         };
       }
@@ -265,12 +265,12 @@ export class ReviewsService {
           id: id,
         },
         data: {
-          isdeleted: true,
+          isDeleted: true,
         },
       });
 
       return {
-        statusCode: 200,
+        statusCode: HttpStatus.OK,
         message: 'Review deleted successfully',
         data: deletedReview,
       };
@@ -280,13 +280,13 @@ export class ReviewsService {
       where: {
         id: id,
         customerId: customer.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
     if (!review) {
       return {
-        statusCode: 404,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Review not found',
       };
     }
@@ -296,12 +296,12 @@ export class ReviewsService {
         id: id,
       },
       data: {
-        isdeleted: true,
+        isDeleted: true,
       },
     });
 
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Review deleted successfully',
       data: deletedReview,
     };

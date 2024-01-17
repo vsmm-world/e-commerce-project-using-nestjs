@@ -10,70 +10,71 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model admin {
+model Admin {
   id              String            @id @default(auto()) @map("_id") @db.ObjectId
   name            String
   email           String
-  isdeleted       Boolean           @default(false)
+  isDeleted       Boolean           @default(false)
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
-  adminCredential adminCredential[]
+  adminCredential AdminCredential[]
 }
 
-model adminCredential {
+model AdminCredential {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  admin     admin     @relation(fields: [adminId], references: [id])
+  admin     Admin     @relation(fields: [adminId], references: [id])
   adminId   String    @db.ObjectId
   token     String?
   expiresAt DateTime?
   password  String
-  isdeleted Boolean   @default(false)
+  isDeleted Boolean   @default(false)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
 
-model tempotp {
+model TempOtp {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   otp       String
   otpRef    String
   expiresAt DateTime
   tempId    String
-  isdeleted Boolean  @default(false)
+  isDeleted Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model customer {
+model Customer {
   id                 String               @id @default(auto()) @map("_id") @db.ObjectId
   name               String
   email              String
+  status             String               @default("active")
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
-  isdeleted          Boolean              @default(false)
-  cart               cart[]
-  order              order[]
-  payment            payment[]
-  customerCredential customerCredential[]
-  adress             adress[]
-  customerReviews    customerReviews[]
-  orderHistory       orderHistory[]
+  isDeleted          Boolean              @default(false)
+  cart               Cart[]
+  order              Order[]
+  payment            Payment[]
+  customerCredential CustomerCredential[]
+  address            Address[]
+  customerReviews    CustomerReviews[]
+  orderHistory       OrderHistory[]
 }
 
-model customerCredential {
+model CustomerCredential {
   id         String    @id @default(auto()) @map("_id") @db.ObjectId
-  customer   customer  @relation(fields: [customerId], references: [id])
+  customer   Customer  @relation(fields: [customerId], references: [id])
   customerId String    @db.ObjectId
   token      String?
   expiresAt  DateTime?
   password   String
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
-  isdeleted  Boolean   @default(false)
+  isDeleted  Boolean   @default(false)
 }
 
-model adress {
+model Address {
   id             String           @id @default(auto()) @map("_id") @db.ObjectId
-  customer       customer         @relation(fields: [customerId], references: [id])
+  customer       Customer         @relation(fields: [customerId], references: [id])
   customerId     String           @db.ObjectId
   name           String
   street         String
@@ -84,27 +85,27 @@ model adress {
   isDefault      Boolean
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
-  isdeleted      Boolean          @default(false)
-  shipmentStatus shipmentStatus[]
+  isDeleted      Boolean          @default(false)
+  shipmentStatus ShipmentStatus[]
 }
 
-model product {
+model Product {
   id              String            @id @default(auto()) @map("_id") @db.ObjectId
   name            String
   description     String
-  category        category          @relation(fields: [categoryId], references: [id])
+  category        Category          @relation(fields: [categoryId], references: [id])
   categoryId      String            @db.ObjectId
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
-  cart            cart[]
-  isdeleted       Boolean           @default(false)
-  product_variant product_variant[]
-  customerReviews customerReviews[]
+  cart            Cart[]
+  isDeleted       Boolean           @default(false)
+  ProductVariant  ProductVariant[]
+  customerReviews CustomerReviews[]
 }
 
-model product_variant {
+model ProductVariant {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  product   product  @relation(fields: [productId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
   productId String   @db.ObjectId
   size      String
   color     String
@@ -112,115 +113,115 @@ model product_variant {
   price     Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  isdeleted Boolean  @default(false)
-  cart      cart[]
+  isDeleted Boolean  @default(false)
+  cart      Cart[]
 }
 
-model category {
+model Category {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  product   product[]
-  isdeleted Boolean   @default(false)
+  product   Product[]
+  isDeleted Boolean   @default(false)
 }
 
-model cart {
-  id                String           @id @default(auto()) @map("_id") @db.ObjectId
-  productIds        Json[]
-  products          Json[]
-  totalItems        Int
-  totalPrice        Float
-  isReminded        Boolean          @default(false)
-  reminderDate      DateTime?
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-  customer          customer?        @relation(fields: [customerId], references: [id])
-  customerId        String?          @db.ObjectId
-  isdeleted         Boolean          @default(false)
-  product           product?         @relation(fields: [productId], references: [id])
-  productId         String?          @db.ObjectId
-  product_variant   product_variant? @relation(fields: [product_variantId], references: [id])
-  product_variantId String?          @db.ObjectId
+model Cart {
+  id               String          @id @default(auto()) @map("_id") @db.ObjectId
+  productIds       Json[]
+  products         Json[]
+  totalItems       Int
+  totalPrice       Float
+  isReminded       Boolean         @default(false)
+  reminderDate     DateTime?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  customer         Customer?       @relation(fields: [customerId], references: [id])
+  customerId       String?         @db.ObjectId
+  isDeleted        Boolean         @default(false)
+  product          Product?        @relation(fields: [productId], references: [id])
+  productId        String?         @db.ObjectId
+  ProductVariant   ProductVariant? @relation(fields: [ProductVariantId], references: [id])
+  ProductVariantId String?         @db.ObjectId
 }
 
-model order {
+model Order {
   id             String           @id @default(auto()) @map("_id") @db.ObjectId
   productIds     Json[]
   products       Json[]
-  customer       customer         @relation(fields: [customerId], references: [id])
+  customer       Customer         @relation(fields: [customerId], references: [id])
   customerId     String           @db.ObjectId
   tatalItems     Int
   totalPrice     Float
-  payment        payment          @relation(fields: [paymentId], references: [id])
+  payment        Payment          @relation(fields: [paymentId], references: [id])
   paymentId      String           @db.ObjectId
   paymentMethod  String
   paymentStatus  String
   orderDate      DateTime         @default(now())
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
-  isdeleted      Boolean          @default(false)
-  shipmentStatus shipmentStatus[]
-  orderHistory   orderHistory[]
+  isDeleted      Boolean          @default(false)
+  shipmentStatus ShipmentStatus[]
+  orderHistory   OrderHistory[]
 }
 
-model shipmentStatus {
+model ShipmentStatus {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   status    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  adress    adress   @relation(fields: [adressId], references: [id])
-  adressId  String   @db.ObjectId
-  order     order    @relation(fields: [orderId], references: [id])
+  address   Address  @relation(fields: [addressId], references: [id])
+  addressId String   @db.ObjectId
+  order     Order    @relation(fields: [orderId], references: [id])
   orderId   String   @db.ObjectId
-  isdeleted Boolean  @default(false)
+  isDeleted Boolean  @default(false)
 }
 
-model payment {
+model Payment {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   COD        Boolean
   pymentCred String?
-  customer   customer @relation(fields: [customerId], references: [id])
+  customer   Customer @relation(fields: [customerId], references: [id])
   customerId String   @db.ObjectId
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  order      order[]
-  isdeleted  Boolean  @default(false)
+  order      Order[]
+  isDeleted  Boolean  @default(false)
 }
 
-model tempResetToken {
+model TempResetToken {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   token     String
   expiresAt DateTime
   tempId    String
-  isdeleted Boolean  @default(false)
+  isDeleted Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model customerReviews {
+model CustomerReviews {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  customer   customer @relation(fields: [customerId], references: [id])
+  customer   Customer @relation(fields: [customerId], references: [id])
   customerId String   @db.ObjectId
-  product    product  @relation(fields: [productId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id])
   productId  String   @db.ObjectId
   rating     Int
   review     String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  isdeleted  Boolean  @default(false)
+  isDeleted  Boolean  @default(false)
 }
 
-model orderHistory {
+model OrderHistory {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  customer    customer @relation(fields: [customerId], references: [id])
+  customer    Customer @relation(fields: [customerId], references: [id])
   customerId  String   @db.ObjectId
-  order       order    @relation(fields: [orderId], references: [id])
+  order       Order    @relation(fields: [orderId], references: [id])
   orderId     String   @db.ObjectId
   status      String
   productsIds Json[]
   products    Json[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  isdeleted   Boolean  @default(false)
+  isDeleted   Boolean  @default(false)
 }

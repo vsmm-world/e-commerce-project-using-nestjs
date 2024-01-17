@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
+
+import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProductVariantDto } from './dto/create-product_variant.dto';
 import { UpdateProductVariantDto } from './dto/update-product_variant.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class ProductVariantService {
@@ -13,30 +14,30 @@ export class ProductVariantService {
     const admin = await this.prisma.admin.findUnique({
       where: {
         id: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
     if (!admin) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Only admin can create product variant',
       };
     }
     const product = await this.prisma.product.findUnique({
       where: {
         id: product_id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (!product) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Product not found',
       };
     }
 
-    const productVariant = await this.prisma.product_variant.create({
+    const productVariant = await this.prisma.productVariant.create({
       data: {
         product: { connect: { id: product_id } },
         size,
@@ -47,16 +48,16 @@ export class ProductVariantService {
     });
 
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Product variant created successfully',
       data: productVariant,
     };
   }
 
   async findAll() {
-    const productVariants = await this.prisma.product_variant.findMany({
+    const productVariants = await this.prisma.productVariant.findMany({
       where: {
-        isdeleted: false,
+        isDeleted: false,
         stock: {
           gt: 0,
         },
@@ -64,23 +65,23 @@ export class ProductVariantService {
     });
     if (productVariants[0] == null) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Product variants not found',
       };
     }
 
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Product variants fetched successfully',
       data: productVariants,
     };
   }
 
   async findOne(id: string) {
-    const productVariant = await this.prisma.product_variant.findFirst({
+    const productVariant = await this.prisma.productVariant.findFirst({
       where: {
         id,
-        isdeleted: false,
+        isDeleted: false,
         stock: {
           gt: 0,
         },
@@ -89,13 +90,13 @@ export class ProductVariantService {
 
     if (!productVariant) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Product variant not found',
       };
     }
 
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Product variant fetched successfully',
       data: productVariant,
     };
@@ -111,28 +112,28 @@ export class ProductVariantService {
     const admin = await this.prisma.admin.findUnique({
       where: {
         id: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (!admin) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Only admin can update product variant',
       };
     }
-    const productVariantCheck = await this.prisma.product_variant.findFirst({
+    const productVariantCheck = await this.prisma.productVariant.findFirst({
       where: {
         id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (!productVariantCheck) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Product variant not found',
       };
     }
-    const productVariant = await this.prisma.product_variant.update({
+    const productVariant = await this.prisma.productVariant.update({
       where: {
         id,
       },
@@ -144,7 +145,7 @@ export class ProductVariantService {
       },
     });
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Product variant updated successfully',
       data: productVariant,
     };
@@ -155,41 +156,41 @@ export class ProductVariantService {
     const admin = await this.prisma.admin.findUnique({
       where: {
         id: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
     if (!admin) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Only admin can delete product variant',
       };
     }
-    const productVariantCheck = await this.prisma.product_variant.findFirst({
+    const productVariantCheck = await this.prisma.productVariant.findFirst({
       where: {
         id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (!productVariantCheck) {
       return {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Product variant not found',
       };
     }
 
-    const productVariant = await this.prisma.product_variant.update({
+    const productVariant = await this.prisma.productVariant.update({
       where: {
         id,
-        isdeleted: false,
+        isDeleted: false,
       },
       data: {
-        isdeleted: true,
+        isDeleted: true,
       },
     });
 
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Product variant deleted successfully',
     };
   }

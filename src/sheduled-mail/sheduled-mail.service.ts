@@ -1,9 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { HttpCode, HttpStatus, Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { env } from 'process';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as postmark from 'postmark';
-import { skip } from 'node:test';
 
 @Injectable()
 export class SheduledMailService {
@@ -16,7 +15,7 @@ export class SheduledMailService {
     // write fuction for sending mail
     const carts = await this.prisma.cart.findMany({
       where: {
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
@@ -42,27 +41,27 @@ export class SheduledMailService {
       const customer = await this.prisma.customer.findUnique({
         where: {
           id: cart.customerId,
-          isdeleted: false,
+          isDeleted: false,
         },
       });
       if (!customer) {
         return {
-          statusCode: 404,
+          statusCode: HttpStatus.BAD_REQUEST,
           message: 'Customer not found',
         };
       }
       const products = cart.productIds;
       const productDetailspromise = products.map(async (productId: string) => {
-        const productvDetails = await this.prisma.product_variant.findUnique({
+        const productvDetails = await this.prisma.productVariant.findUnique({
           where: {
             id: productId,
-            isdeleted: false,
+            isDeleted: false,
           },
         });
         const productDetails = await this.prisma.product.findUnique({
           where: {
             id: productvDetails.productId,
-            isdeleted: false,
+            isDeleted: false,
           },
         });
 
@@ -80,13 +79,13 @@ export class SheduledMailService {
       };
 
       try {
-        console.log(mail.TextBody)
+        console.log(mail.TextBody);
         await client.sendEmail(mail).then((res) => {
           console.log(res + 'mail sent');
         });
       } catch (err) {
         return {
-          statusCode: 400,
+          statusCode: HttpStatus.BAD_REQUEST,
           message: 'something went wrong while sending email',
         };
       }

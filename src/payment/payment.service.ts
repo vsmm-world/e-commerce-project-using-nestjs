@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { InjectRazorpay } from 'nestjs-razorpay';
 import Razorpay from 'razorpay';
@@ -17,37 +17,37 @@ export class PaymentService {
     const customer = await this.prisma.customer.findUnique({
       where: {
         id: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (!customer) {
       return {
-        statusCode: 404,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Customer not found',
       };
     }
-    const adress = await this.prisma.adress.findFirst({
+    const address = await this.prisma.address.findFirst({
       where: {
         customerId: customer.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
-    if (!adress) {
+    if (!address) {
       return {
-        statusCode: 404,
-        message: 'Adress not found',
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'address not found',
       };
     }
     const { product_VarientrId, quantity, CashOnDelivery } = buyNowDto;
-    const product = await this.prisma.product_variant.findUnique({
+    const product = await this.prisma.productVariant.findUnique({
       where: {
         id: product_VarientrId,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (!product) {
       return {
-        statusCode: 404,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Product not found',
       };
     }
@@ -76,7 +76,7 @@ export class PaymentService {
         },
       });
       return {
-        statusCode: 200,
+        statusCode: HttpStatus.OK,
         message: 'Payment created successfully',
         data: { info: 'CashOnDelivery' },
         order,
@@ -111,7 +111,7 @@ export class PaymentService {
       },
     });
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Payment created successfully',
       data: res,
       order,
@@ -125,38 +125,38 @@ export class PaymentService {
     const customer = await this.prisma.customer.findUnique({
       where: {
         id: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (!customer) {
       return {
-        statusCode: 404,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Customer not found',
       };
     }
     const cart = await this.prisma.cart.findFirst({
       where: {
         customerId: customer.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
     if (!cart) {
       return {
-        statusCode: 404,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Cart not found',
       };
     }
-    const adress = await this.prisma.adress.findFirst({
+    const address = await this.prisma.address.findFirst({
       where: {
         customerId: customer.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
-    if (!adress) {
+    if (!address) {
       return {
-        statusCode: 404,
-        message: 'Adress not found',
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'address not found',
       };
     }
 
@@ -177,7 +177,7 @@ export class PaymentService {
 
       const order = await this.createOrder(req);
       return {
-        statusCode: 200,
+        statusCode: HttpStatus.OK,
         message: 'Payment created successfully',
         data: { info: 'CashOnDelivery' },
         order,
@@ -200,7 +200,7 @@ export class PaymentService {
     });
     const order = await this.createOrder(req);
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Payment created successfully',
       data: res,
       order,
@@ -214,19 +214,19 @@ export class PaymentService {
     const customer = await this.prisma.customer.findUnique({
       where: {
         id: user.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
     const cart = await this.prisma.cart.findFirst({
       where: {
         customerId: customer.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
     if (!cart) {
       return {
-        statusCode: 404,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Cart not found',
       };
     }
@@ -237,7 +237,7 @@ export class PaymentService {
       promises = await this.getProducts(productsfromCart);
     } catch (err) {
       return {
-        statusCode: 404,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Product not found',
       };
     }
@@ -251,13 +251,13 @@ export class PaymentService {
     const payment = await this.prisma.payment.findFirst({
       where: {
         customerId: customer.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
 
     if (!payment) {
       return {
-        statusCode: 404,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Payment not found',
       };
     }
@@ -268,16 +268,16 @@ export class PaymentService {
       PaymentMethod = 'Online';
       PaymentStatus = 'Paid';
     }
-    const adress = await this.prisma.adress.findFirst({
+    const address = await this.prisma.address.findFirst({
       where: {
         customerId: customer.id,
-        isdeleted: false,
+        isDeleted: false,
       },
     });
-    if (!adress) {
+    if (!address) {
       return {
-        statusCode: 404,
-        message: 'Adress not found',
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'address not found',
       };
     }
 
@@ -299,21 +299,13 @@ export class PaymentService {
         id: cart.id,
       },
       data: {
-        isdeleted: true,
+        isDeleted: true,
       },
     });
     const shippmentstatus = await this.prisma.shipmentStatus.create({
       data: {
-        order: {
-          connect: {
-            id: order.id,
-          },
-        },
-        adress: {
-          connect: {
-            id: adress.id,
-          },
-        },
+        orderId: order.id,
+        addressId: address.id,
         status: 'Pending',
       },
     });
@@ -329,15 +321,14 @@ export class PaymentService {
 
   async getProducts(products: Array<any>) {
     let productDetails = products.map(async (product) => {
-      return await this.prisma.product_variant.findUnique({
+      return await this.prisma.productVariant.findUnique({
         where: {
           id: product.id,
-          isdeleted: false,
+          isDeleted: false,
         },
       });
     });
     return productDetails;
-    console.log(productDetails);
   }
 
   getProductIds(products) {
