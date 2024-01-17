@@ -4,6 +4,7 @@ import { InjectRazorpay } from 'nestjs-razorpay';
 import Razorpay from 'razorpay';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BuyNowDto } from './dto/buy-now.dto';
+import { PaymentKeys } from 'src/shared/keys/payment.keys';
 
 @Injectable()
 export class PaymentService {
@@ -23,7 +24,7 @@ export class PaymentService {
     if (!customer) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Customer not found',
+        message: PaymentKeys.CUSTOMER_NOT_FOUND,
       };
     }
     const address = await this.prisma.address.findFirst({
@@ -35,7 +36,7 @@ export class PaymentService {
     if (!address) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'address not found',
+        message: PaymentKeys.ADDRESS_NOT_FOUND,
       };
     }
     const { product_VarientrId, quantity, CashOnDelivery } = buyNowDto;
@@ -48,7 +49,7 @@ export class PaymentService {
     if (!product) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Product not found',
+        message: PaymentKeys.PRODUCT_NOT_FOUND,
       };
     }
     const totalPrice = product.price * quantity;
@@ -77,7 +78,7 @@ export class PaymentService {
       });
       return {
         statusCode: HttpStatus.OK,
-        message: 'Payment created successfully',
+        message: PaymentKeys.PAYMENT_CREATED,
         data: { info: 'CashOnDelivery' },
         order,
       };
@@ -112,7 +113,7 @@ export class PaymentService {
     });
     return {
       statusCode: HttpStatus.OK,
-      message: 'Payment created successfully',
+      message: PaymentKeys.PAYMENT_CREATED,
       data: res,
       order,
     };
@@ -131,7 +132,7 @@ export class PaymentService {
     if (!customer) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Customer not found',
+        message: PaymentKeys.CUSTOMER_NOT_FOUND,
       };
     }
     const cart = await this.prisma.cart.findFirst({
@@ -144,7 +145,7 @@ export class PaymentService {
     if (!cart) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Cart not found',
+        message: PaymentKeys.CART_NOT_FOUND,
       };
     }
     const address = await this.prisma.address.findFirst({
@@ -156,7 +157,7 @@ export class PaymentService {
     if (!address) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'address not found',
+        message: PaymentKeys.ADDRESS_NOT_FOUND,
       };
     }
 
@@ -178,7 +179,7 @@ export class PaymentService {
       const order = await this.createOrder(req);
       return {
         statusCode: HttpStatus.OK,
-        message: 'Payment created successfully',
+        message: PaymentKeys.PAYMENT_CREATED,
         data: { info: 'CashOnDelivery' },
         order,
       };
@@ -201,7 +202,7 @@ export class PaymentService {
     const order = await this.createOrder(req);
     return {
       statusCode: HttpStatus.OK,
-      message: 'Payment created successfully',
+      message: PaymentKeys.PAYMENT_CREATED,
       data: res,
       order,
     };
@@ -227,7 +228,7 @@ export class PaymentService {
     if (!cart) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Cart not found',
+        message: PaymentKeys.CART_NOT_FOUND,
       };
     }
     console.log(cart.products);
@@ -238,7 +239,7 @@ export class PaymentService {
     } catch (err) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Product not found',
+        message: PaymentKeys.PRODUCT_NOT_FOUND,
       };
     }
 
@@ -258,7 +259,7 @@ export class PaymentService {
     if (!payment) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Payment not found',
+        message: PaymentKeys.PAYMENT_NOT_FOUND,
       };
     }
 
@@ -277,7 +278,7 @@ export class PaymentService {
     if (!address) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'address not found',
+        message: PaymentKeys.ADDRESS_NOT_FOUND,
       };
     }
 

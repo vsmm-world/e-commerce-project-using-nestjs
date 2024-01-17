@@ -3,6 +3,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProductVariantDto } from './dto/create-product_variant.dto';
 import { UpdateProductVariantDto } from './dto/update-product_variant.dto';
+import { ProductKeys } from 'src/shared/keys/products.keys';
 
 @Injectable()
 export class ProductVariantService {
@@ -21,7 +22,7 @@ export class ProductVariantService {
     if (!admin) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Only admin can create product variant',
+        message: ProductKeys.ONLY_ADMIN,
       };
     }
     const product = await this.prisma.product.findUnique({
@@ -33,7 +34,7 @@ export class ProductVariantService {
     if (!product) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Product not found',
+        message: ProductKeys.PRODUCT_NOT_FOUND,
       };
     }
 
@@ -49,7 +50,7 @@ export class ProductVariantService {
 
     return {
       statusCode: HttpStatus.OK,
-      message: 'Product variant created successfully',
+      message: ProductKeys.PRODUCT_VARIANT_CREATED,
       data: productVariant,
     };
   }
@@ -66,13 +67,13 @@ export class ProductVariantService {
     if (productVariants[0] == null) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Product variants not found',
+        message: ProductKeys.PRODUCT_VARIANT_NOT_FOUND,
       };
     }
 
     return {
       statusCode: HttpStatus.OK,
-      message: 'Product variants fetched successfully',
+      message: ProductKeys.PRODUCT_VARIANT_FETCHED_SUCCESSFULLY,
       data: productVariants,
     };
   }
@@ -91,13 +92,13 @@ export class ProductVariantService {
     if (!productVariant) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Product variant not found',
+        message: ProductKeys.PRODUCT_VARIANT_NOT_FOUND,
       };
     }
 
     return {
       statusCode: HttpStatus.OK,
-      message: 'Product variant fetched successfully',
+      message: ProductKeys.PRODUCT_VARIANT_FETCHED_SUCCESSFULLY,
       data: productVariant,
     };
   }
@@ -118,7 +119,7 @@ export class ProductVariantService {
     if (!admin) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Only admin can update product variant',
+        message: ProductKeys.ONLY_ADMIN,
       };
     }
     const productVariantCheck = await this.prisma.productVariant.findFirst({
@@ -130,7 +131,7 @@ export class ProductVariantService {
     if (!productVariantCheck) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Product variant not found',
+        message: ProductKeys.PRODUCT_VARIANT_NOT_FOUND,
       };
     }
     const productVariant = await this.prisma.productVariant.update({
@@ -146,7 +147,7 @@ export class ProductVariantService {
     });
     return {
       statusCode: HttpStatus.OK,
-      message: 'Product variant updated successfully',
+      message: ProductKeys.PRODUCT_VARIANT_UPDATED,
       data: productVariant,
     };
   }
@@ -163,7 +164,7 @@ export class ProductVariantService {
     if (!admin) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Only admin can delete product variant',
+        message: ProductKeys.ONLY_ADMIN,
       };
     }
     const productVariantCheck = await this.prisma.productVariant.findFirst({
@@ -175,7 +176,7 @@ export class ProductVariantService {
     if (!productVariantCheck) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Product variant not found',
+        message: ProductKeys.PRODUCT_VARIANT_NOT_FOUND,
       };
     }
 
@@ -191,7 +192,7 @@ export class ProductVariantService {
 
     return {
       statusCode: HttpStatus.OK,
-      message: 'Product variant deleted successfully',
+      message: ProductKeys.PRODUCT_VARIANT_DELETED,
     };
   }
 }
