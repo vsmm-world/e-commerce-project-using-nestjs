@@ -2,6 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateAdressDto } from './dto/create-adress.dto';
 import { UpdateAdressDto } from './dto/update-adress.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { AddressKeys } from 'src/shared/keys/address.keys';
 
 @Injectable()
 export class AdressService {
@@ -84,13 +85,13 @@ export class AdressService {
     if (!address) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'No address found',
+        message: AddressKeys.NOT_FOUND,
       };
     }
 
     return {
       statusCode: 201,
-      message: 'Address fetched successfully',
+      message: AddressKeys.FETCHED,
       data: address,
     };
   }
@@ -114,7 +115,7 @@ export class AdressService {
     if (!address) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'No address found',
+        message: AddressKeys.NOT_FOUND,
       };
     }
 
@@ -159,7 +160,7 @@ export class AdressService {
 
     return {
       statusCode: 201,
-      message: 'Address updated successfully',
+      message: AddressKeys.UPDATED,
       data: updatedAddress,
     };
   }
@@ -181,7 +182,7 @@ export class AdressService {
     if (!address) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'No address found',
+        message: AddressKeys.NOT_FOUND,
       };
     }
 
@@ -196,7 +197,7 @@ export class AdressService {
 
     return {
       statusCode: 201,
-      message: 'Address deleted successfully',
+      message: AddressKeys.DELETED,
       data: deletedAddress,
     };
   }

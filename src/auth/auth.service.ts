@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { env } from 'process';
 import { ForgetPasswordDto } from './dto/forget-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { AuthKeys } from 'src/shared/keys/auth.keys';
 
 @Injectable()
 export class AuthService {
@@ -30,14 +31,14 @@ export class AuthService {
     if (!tempToken) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Invalid token',
+        message: AuthKeys.INVALID_TOKEN,
       };
     }
 
     if (password !== confirPassword) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Confirm Password does not match',
+        message: AuthKeys.INVALID_CREDENTIALS,
       };
     }
 
@@ -55,7 +56,7 @@ export class AuthService {
       if (!customer) {
         return {
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'User not found',
+          message: AuthKeys.USER_NOT_FOUND,
         };
       }
       const customerCred = await this.prisma.customerCredential.findFirst({
@@ -66,7 +67,7 @@ export class AuthService {
       if (!customerCred) {
         return {
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'User not found',
+          message: AuthKeys.USER_NOT_FOUND,
         };
       }
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -85,7 +86,7 @@ export class AuthService {
       });
       return {
         statusCode: HttpStatus.OK,
-        message: 'Password reset successfully',
+        message: AuthKeys.PASSWORD_CHANGED,
       };
     }
     const adminCred = await this.prisma.adminCredential.findFirst({
@@ -96,7 +97,7 @@ export class AuthService {
     if (!adminCred) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'User not found',
+        message: AuthKeys.USER_NOT_FOUND,
       };
     }
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -115,7 +116,7 @@ export class AuthService {
     });
     return {
       statusCode: HttpStatus.OK,
-      message: 'Password reset successfully',
+      message: AuthKeys.PASSWORD_CHANGED,
     };
   }
 
@@ -136,7 +137,7 @@ export class AuthService {
       if (!admin) {
         return {
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'your email is not registered',
+          message: AuthKeys.NOT_REGISTERD,
         };
       }
       const token = otpGenerator.generate(10, {
@@ -156,7 +157,7 @@ export class AuthService {
       } catch (err) {
         return {
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'something went wrong',
+          message: AuthKeys.GONE_WRONG,
         };
       }
       const client = new postmark.ServerClient(env.POST_MARK_API_KEY);
@@ -173,12 +174,12 @@ export class AuthService {
       } catch (err) {
         return {
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'something went wrong while sending email',
+          message: AuthKeys.GONE_WRONG,
         };
       }
       return {
         statusCode: HttpStatus.OK,
-        message: 'Reset token sent successfully',
+        message: AuthKeys.TOKEN_SENT,
       };
     }
 
@@ -199,7 +200,7 @@ export class AuthService {
     } catch (err) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'something went wrong',
+        message: AuthKeys.GONE_WRONG,
       };
     }
     const client = new postmark.ServerClient(env.POST_MARK_API_KEY);
@@ -216,13 +217,13 @@ export class AuthService {
     } catch (err) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'something went wrong while sending email',
+        message: AuthKeys.GONE_WRONG,
       };
     }
 
     return {
       statusCode: HttpStatus.OK,
-      message: 'Reset token sent successfully',
+      message: AuthKeys.TOKEN_SENT,
     };
   }
 
@@ -241,7 +242,7 @@ export class AuthService {
       });
       return {
         statusCode: HttpStatus.OK,
-        message: 'Admin found',
+        message: AuthKeys.USER_NOT_FOUND,
         admin,
         adminCred,
       };
@@ -260,7 +261,7 @@ export class AuthService {
       });
       return {
         statusCode: HttpStatus.OK,
-        message: 'Customer found',
+        message: AuthKeys.USER_NOT_FOUND,
         customer,
         customerCred,
       };
@@ -268,7 +269,7 @@ export class AuthService {
 
     return {
       statusCode: HttpStatus.BAD_REQUEST,
-      message: 'User not found',
+      message: AuthKeys.USER_NOT_FOUND,
     };
   }
 
@@ -320,7 +321,7 @@ export class AuthService {
 
           return {
             statusCode: HttpStatus.OK,
-            message: 'OTP sent successfully',
+            message: AuthKeys.OTP_SENT,
             otpRef,
           };
         }
@@ -371,7 +372,7 @@ export class AuthService {
           client.sendEmailWithTemplate(mail);
           return {
             statusCode: HttpStatus.OK,
-            message: 'OTP sent successfully',
+            message: AuthKeys.OTP_SENT,
             otpRef,
           };
         }
@@ -379,7 +380,7 @@ export class AuthService {
     }
     return {
       statusCode: HttpStatus.BAD_REQUEST,
-      message: 'Invalid credentials',
+      message: AuthKeys.INVALID_CREDENTIALS,
     };
   }
 
@@ -426,7 +427,7 @@ export class AuthService {
             });
             return {
               statusCode: HttpStatus.OK,
-              message: 'Login successful',
+              message: AuthKeys.LOGIN_SUCCESS,
               token,
               admin,
             };
@@ -463,7 +464,7 @@ export class AuthService {
             });
             return {
               statusCode: HttpStatus.OK,
-              message: 'Login successful',
+              message: AuthKeys.LOGIN_SUCCESS,
               token,
               customer,
             };
@@ -500,7 +501,7 @@ export class AuthService {
       });
       return {
         statusCode: HttpStatus.OK,
-        message: 'Logout successful',
+        message: AuthKeys.LOGIN_SUCCESS,
       };
     }
 
@@ -528,12 +529,12 @@ export class AuthService {
       });
       return {
         statusCode: HttpStatus.OK,
-        message: 'Logout successful',
+        message: AuthKeys.LOGIN_SUCCESS,
       };
     }
     return {
       statusCode: HttpStatus.BAD_REQUEST,
-      message: 'Could not logout',
+      message: AuthKeys.NOT_LOGGED_IN,
     };
   }
 

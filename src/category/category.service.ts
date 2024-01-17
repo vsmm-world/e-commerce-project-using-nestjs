@@ -2,6 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CategoryKeys } from 'src/shared/keys/category.keys';
 
 @Injectable()
 export class CategoryService {
@@ -19,7 +20,7 @@ export class CategoryService {
     if (!admin) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Only admin can create category',
+        message: CategoryKeys.ONLY_ADMIN,
       };
     }
     const category = await this.prisma.category.create({
@@ -30,7 +31,7 @@ export class CategoryService {
 
     return {
       statusCode: HttpStatus.OK,
-      message: 'Category created successfully',
+      message: CategoryKeys.CATEGORY_CREATED,
       data: category,
     };
   }
@@ -42,12 +43,12 @@ export class CategoryService {
     if (category[0] == null) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Category not found',
+        message: CategoryKeys.CATEGORY_NOT_FOUND,
       };
     }
     return {
       statusCode: HttpStatus.OK,
-      message: 'Category fetched successfully',
+      message: CategoryKeys.FETCHED_SUCCESSFULLY,
       data: category,
     };
   }
@@ -60,12 +61,12 @@ export class CategoryService {
     if (!category) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Category not found',
+        message: CategoryKeys.CATEGORY_NOT_FOUND,
       };
     }
     return {
       statusCode: HttpStatus.OK,
-      message: 'Category fetched successfully',
+      message: CategoryKeys.FETCHED_SUCCESSFULLY,
       data: category,
     };
   }
@@ -83,7 +84,7 @@ export class CategoryService {
     if (!admin) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Only admin can update category',
+        message: CategoryKeys.ONLY_ADMIN,
       };
     }
     const chekCategory = await this.prisma.category.findFirst({
@@ -95,7 +96,7 @@ export class CategoryService {
     if (!chekCategory) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Category not found',
+        message: CategoryKeys.CATEGORY_NOT_FOUND,
       };
     }
     const category = await this.prisma.category.update({
@@ -110,7 +111,7 @@ export class CategoryService {
 
     return {
       statusCode: HttpStatus.OK,
-      message: 'Category updated successfully',
+      message: CategoryKeys.CATEGORY_UPDATED,
       data: category,
     };
   }
@@ -126,7 +127,7 @@ export class CategoryService {
     if (!admin) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Only admin can delete category',
+        message: CategoryKeys.ONLY_ADMIN,
       };
     }
 
@@ -139,7 +140,7 @@ export class CategoryService {
     if (!chekCategory) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Category not found',
+        message: CategoryKeys.CATEGORY_NOT_FOUND,
       };
     }
 
@@ -155,7 +156,7 @@ export class CategoryService {
 
     return {
       statusCode: HttpStatus.OK,
-      message: 'Category deleted successfully',
+      message: CategoryKeys.CATEGORY_DELETED,
     };
   }
 }

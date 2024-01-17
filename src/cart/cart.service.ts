@@ -2,6 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CartKeys } from 'src/shared/keys/cart.keys';
 
 @Injectable()
 export class CartService {
@@ -20,7 +21,7 @@ export class CartService {
     if (admin) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Admin cannot add to cart, its your own product',
+        message: CartKeys.ADMIN_ERR,
       };
     }
     const product = await this.prisma.productVariant.findUnique({
@@ -33,13 +34,13 @@ export class CartService {
     if (!product) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Product not found',
+        message: CartKeys.PRODUCT_NOT_FOUND,
       };
     }
     if (product.stock < quantity) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Product out of stock',
+        message: CartKeys.OUT_OF_STOCK,
       };
     }
 
@@ -88,7 +89,7 @@ export class CartService {
       });
       return {
         statusCode: HttpStatus.OK,
-        message: 'Product added to cart successfully',
+        message: CartKeys.PRODUCT_ADDED,
         Products,
       };
     }
@@ -124,14 +125,14 @@ export class CartService {
       });
       return {
         statusCode: HttpStatus.OK,
-        message: 'Product added to cart successfully',
+        message: CartKeys.PRODUCT_ADDED,
         Products,
       };
     }
 
     return {
       statusCode: HttpStatus.OK,
-      message: 'Product added to cart successfully',
+      message: CartKeys.PRODUCT_ADDED,
     };
   }
 
@@ -146,17 +147,17 @@ export class CartService {
     if (!cart) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Cart not found',
+        message: CartKeys.CART_NOT_FOUND,
       };
     }
     return {
       statusCode: HttpStatus.OK,
-      message: 'Cart found',
+      message: CartKeys.CART_NOT_FOUND,
       data: cart,
     };
   }
   async update(id: string, updateCartDto: UpdateCartDto, req: any) {
-    // const { productVariant_id, quantity } = updateCartDto;
+    // const { productVariant_id, quantity } = updateCartDto; 
     const { user } = req;
 
     const cart = await this.prisma.cart.findFirst({
@@ -168,7 +169,7 @@ export class CartService {
     if (!cart) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Cart not found',
+        message: CartKeys.CART_NOT_FOUND,
       };
     }
     const product = await this.prisma.productVariant.findUnique({
@@ -180,7 +181,7 @@ export class CartService {
     if (!product) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Product not found',
+        message: CartKeys.PRODUCT_NOT_FOUND,
       };
     }
     let Products = [];
@@ -228,7 +229,7 @@ export class CartService {
     if (!cart) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Cart not found',
+        message: CartKeys.CART_NOT_FOUND,
       };
     }
     const product = await this.prisma.productVariant.findUnique({
@@ -285,7 +286,7 @@ export class CartService {
 
     return {
       statusCode: HttpStatus.OK,
-      message: 'Product removed from cart successfully',
+      message: CartKeys.PRODUCT_REMOVED,
       Products,
     };
   }
