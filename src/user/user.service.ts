@@ -3,6 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { JwtStrategy } from 'src/auth/stretegy/jwt.strategy';
 
 @Injectable()
 export class UserService {
@@ -100,6 +101,7 @@ export class UserService {
   }
 
   async findAll(req: any) {
+    
     const { user } = req;
     const admin = await this.prisma.admin.findFirst({
       where: {

@@ -47,13 +47,9 @@ export class AdressService {
       }
     }
 
-    const address =await this.prisma.adress.create({
+    return this.prisma.adress.create({
       data: {
-        customer: {
-          connect: {
-            id: user.id,
-          },
-        },
+        customerId: user.id,
         name,
         street,
         city,
@@ -63,48 +59,17 @@ export class AdressService {
         isDefault,
       },
     });
-    console.log(address);
-    if (!address) {
-      return {
-        statusCode: 400,
-        message: 'Error in creating address',
-      };
-    }
-
-    return {
-      statusCode: 201,
-      message: 'Address created successfully',
-      data: address,
-    };
   }
-
-  //
 
   async findAll(req) {
     const { user } = req;
-    const address = await this.prisma.adress.findMany({
+    return this.prisma.adress.findMany({
       where: {
         isdeleted: false,
-        customer: {
-          id: user.id,
-        },
+        customerId: user.id,
       },
     });
-
-    if (address.length === 0) {
-      return {
-        statusCode: 400,
-        message: 'No address found',
-      };
-    }
-    return {
-      statusCode: 201,
-      message: 'Address fetched successfully',
-      data: address,
-    };
   }
-
-  //
 
   async findOne(id: string, req) {
     const { user } = req;
@@ -112,9 +77,7 @@ export class AdressService {
       where: {
         id,
         isdeleted: false,
-        customer: {
-          id: user.id,
-        },
+        customerId: user.id,
       },
     });
 
