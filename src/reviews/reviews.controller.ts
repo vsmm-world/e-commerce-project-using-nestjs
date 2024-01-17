@@ -36,26 +36,26 @@ export class ReviewsController {
 
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @Get(':id')
-  findOne(@Param('id') id: string, @Request() req: any) {
-    return this.reviewsService.findOne(id, req);
+  @Get(':reviewId')
+  findOne(@Param('reviewId') reviewId: string, @Request() req: any) {
+    return this.reviewsService.findOne(reviewId, req);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @Patch(':id')
+  @Patch(':reviewId')
   update(
-    @Param('id') id: string,
+    @Param('reviewId') reviewId: string,
     @Body() updateReviewDto: UpdateReviewDto,
     @Request() req: any,
   ) {
-    return this.reviewsService.update(id, updateReviewDto, req);
+    return this.reviewsService.update(reviewId, updateReviewDto, req);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @Delete(':id')
-  remove(@Param('id') id: string, @Request() req: any) {
-    return this.reviewsService.remove(id, req);
+  @Delete(':reviewId')
+  remove(@Param('reviewId') reviewId: string, @Request() req: any) {
+    return this.reviewsService.remove(reviewId, req);
   }
 }

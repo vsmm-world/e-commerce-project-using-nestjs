@@ -29,26 +29,26 @@ export class ShipmentController {
 
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.shipmentService.findOne(id);
+  @Get(':shepmentId')
+  findOne(@Param('shepmentId') shepmentId: string) {
+    return this.shipmentService.findOne(shepmentId);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @Patch(':id')
+  @Patch(':shepmentId')
   update(
-    @Param('id') id: string,
+    @Param('shepmentId') shepmentId: string,
     @Body() updateShipmentDto: UpdateShipmentDto,
     @Request() req: any,
   ) {
-    return this.shipmentService.update(id, updateShipmentDto, req);
+    return this.shipmentService.update(shepmentId, updateShipmentDto, req);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @Delete(':id')
-  remove(@Param('id') id: string, @Request() req: any) {
-    return this.shipmentService.remove(id, req);
+  @Delete(':shepmentId')
+  remove(@Param('shepmentId') shepmentId: string, @Request() req: any) {
+    return this.shipmentService.remove(shepmentId, req);
   }
 }

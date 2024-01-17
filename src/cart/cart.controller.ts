@@ -36,13 +36,13 @@ export class CartController {
 
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @Patch(':id')
+  @Patch(':CartId')
   update(
-    @Param('id') id: string,
+    @Param('CartId') CartId: string,
     @Body() updateCartDto: UpdateCartDto,
     @Request() req: any,
   ) {
-    return this.cartService.update(id, updateCartDto, req);
+    return this.cartService.update(CartId, updateCartDto, req);
   }
 
   @UseGuards(AuthGuard('jwt'))

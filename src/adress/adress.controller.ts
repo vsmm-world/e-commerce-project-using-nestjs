@@ -32,22 +32,22 @@ export class AdressController {
     return this.addressService.findAll(req);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string, @Request() req: any) {
-    return this.addressService.findOne(id, req);
+  @Get(':addressId')
+  findOne(@Param('addressaddressId') addressId: string, @Request() req: any) {
+    return this.addressService.findOne(addressId, req);
   }
 
-  @Patch(':id')
+  @Patch(':addressId')
   update(
-    @Param('id') id: string,
+    @Param('addressId') addressId: string,
     @Body() updateaddressDto: UpdateAdressDto,
     @Request() req: any,
   ) {
-    return this.addressService.update(id, updateaddressDto, req);
+    return this.addressService.update(addressId, updateaddressDto, req);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string, @Request() req: any) {
-    return this.addressService.remove(id, req);
+  @Delete(':addressId')
+  remove(@Param('addressId') addressId: string, @Request() req: any) {
+    return this.addressService.remove(addressId, req);
   }
 }

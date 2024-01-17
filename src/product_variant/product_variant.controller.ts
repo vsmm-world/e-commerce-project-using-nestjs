@@ -16,7 +16,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Product Variants')
-@Controller('product-variant')
+@Controller('productVariant')
 export class ProductVariantController {
   constructor(private readonly productVariantService: ProductVariantService) {}
 
@@ -39,26 +39,26 @@ export class ProductVariantController {
 
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productVariantService.findOne(id);
+  @Get(':productVariantId')
+  findOne(@Param('productVariantId') productVariantId: string) {
+    return this.productVariantService.findOne(productVariantId);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @Patch(':id')
+  @Patch(':productVariantId')
   update(
-    @Param('id') id: string,
+    @Param('productVariantId') productVariantId: string,
     @Body() updateProductVariantDto: UpdateProductVariantDto,
     @Request() req: any,
   ) {
-    return this.productVariantService.update(id, updateProductVariantDto, req);
+    return this.productVariantService.update(productVariantId, updateProductVariantDto, req);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @Delete(':id')
-  remove(@Param('id') id: string, @Request() req: any) {
-    return this.productVariantService.remove(id, req);
+  @Delete(':productVariantId')
+  remove(@Param('productVariantId') productVariantId: string, @Request() req: any) {
+    return this.productVariantService.remove(productVariantId, req);
   }
 }

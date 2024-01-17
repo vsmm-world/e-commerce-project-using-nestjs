@@ -36,26 +36,26 @@ export class CategoryController {
 
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoryService.findOne(id);
+  @Get(':CatergoryId')
+  findOne(@Param('CatergoryId') CatergoryId: string) {
+    return this.categoryService.findOne(CatergoryId);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @Patch(':id')
+  @Patch(':CatergoryId')
   update(
-    @Param('id') id: string,
+    @Param('CatergoryId') CatergoryId: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
     @Request() req: any,
   ) {
-    return this.categoryService.update(id, updateCategoryDto, req);
+    return this.categoryService.update(CatergoryId, updateCategoryDto, req);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @Delete(':id')
-  remove(@Param('id') id: string, @Request() req: any) {
-    return this.categoryService.remove(id, req);
+  @Delete(':CatergoryId')
+  remove(@Param('CatergoryId') CatergoryId: string, @Request() req: any) {
+    return this.categoryService.remove(CatergoryId, req);
   }
 }

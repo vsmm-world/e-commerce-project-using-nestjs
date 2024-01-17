@@ -33,26 +33,26 @@ export class UserController {
 
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @Get(':id')
-  findOne(@Param('id') id: string, @Request() req: any) {
-    return this.userService.findOne(id, req);
+  @Get(':userId')
+  findOne(@Param('userId') userId: string, @Request() req: any) {
+    return this.userService.findOne(userId, req);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @Patch(':id')
+  @Patch(':userId')
   update(
-    @Param('id') id: string,
+    @Param('userId') userId: string,
     @Body() updateUserDto: UpdateUserDto,
     @Request() req: any,
   ) {
-    return this.userService.update(id, updateUserDto, req);
+    return this.userService.update(userId, updateUserDto, req);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @Delete(':id')
-  remove(@Param('id') id: string, @Request() req: any) {
-    return this.userService.remove(id, req);
+  @Delete(':userId')
+  remove(@Param('userId') userId: string, @Request() req: any) {
+    return this.userService.remove(userId, req);
   }
 }

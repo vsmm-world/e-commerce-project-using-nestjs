@@ -36,26 +36,26 @@ export class ProductsController {
 
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @Get(':id')
-  findOne(@Param('id') id: string, @Request() req: any) {
-    return this.productsService.findOne(id,);
+  @Get(':productId')
+  findOne(@Param('productId') productId: string, @Request() req: any) {
+    return this.productsService.findOne(productId,);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @Patch(':id')
+  @Patch(':productId')
   update(
-    @Param('id') id: string,
+    @Param('productId') productId: string,
     @Body() updateProductDto: UpdateProductDto,
     @Request() req: any,
   ) {
-    return this.productsService.update(id, updateProductDto, req);
+    return this.productsService.update(productId, updateProductDto, req);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @Delete(':id')
-  remove(@Param('id') id: string, @Request() req: any) {
-    return this.productsService.remove(id, req);
+  @Delete(':productId')
+  remove(@Param('productId') productId: string, @Request() req: any) {
+    return this.productsService.remove(productId, req);
   }
 }
