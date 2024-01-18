@@ -76,73 +76,12 @@ export class ReviewsService {
     };
   }
 
-  async findAll(req: any) {
-    const { user } = req;
-    const admin = await this.prisma.admin.findUnique({
+  async findAll() {
+    return this.prisma.customerReviews.findMany({
       where: {
-        id: user.id,
         isDeleted: false,
       },
     });
-    if (admin) {
-      const reviews = await this.prisma.customerReviews.findMany({
-        where: {
-          isDeleted: false,
-        },
-        include: {
-          product: true,
-          customer: true,
-        },
-      });
-
-      if (reviews[0] == null) {
-        return {
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: ReviewKeys.REVIEW_NOT_FOUND,
-        };
-      }
-
-      return {
-        statusCode: HttpStatus.OK,
-        message: ReviewKeys.FETCHED_SUCCESSFULLY_ADMIN,
-        data: reviews,
-      };
-    }
-
-    const customer = await this.prisma.customer.findUnique({
-      where: {
-        id: user.id,
-        isDeleted: false,
-      },
-    });
-
-    if (!customer) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ReviewKeys.CUSTOMER_NOT_FOUND,
-      };
-    }
-    const reviews = await this.prisma.customerReviews.findMany({
-      where: {
-        customerId: customer.id,
-        isDeleted: false,
-      },
-      include: {
-        product: true,
-      },
-    });
-
-    if (reviews[0] == null) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ReviewKeys.REVIEW_NOT_FOUND,
-      };
-    }
-    return {
-      statusCode: HttpStatus.OK,
-      message: ReviewKeys.FETCHED_SUCCESSFULLY,
-      data: reviews,
-    };
   }
 
   async findOne(id: string, req: any) {
