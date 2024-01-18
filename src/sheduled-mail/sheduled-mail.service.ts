@@ -3,12 +3,13 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { env } from 'process';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as postmark from 'postmark';
+import { CommonKeys } from 'src/shared/keys/common.keys';
 
 @Injectable()
 export class SheduledMailService {
   constructor(private prisma: PrismaService) {}
 
-  @Cron(CronExpression.EVERY_WEEK)
+  @Cron(CronExpression.EVERY_HOUR)
   async handleCron() {
     const client = new postmark.ServerClient(env.POST_MARK_API_KEY);
 
@@ -47,7 +48,7 @@ export class SheduledMailService {
       if (!customer) {
         return {
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Customer not found',
+          message: CommonKeys.CUSTOMER_NOT_FOUND,
         };
       }
       const products = cart.productIds;
@@ -86,7 +87,7 @@ export class SheduledMailService {
       } catch (err) {
         return {
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'something went wrong while sending email',
+          message: CommonKeys.GONE_WRONG,
         };
       }
     });

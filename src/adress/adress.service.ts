@@ -11,8 +11,7 @@ export class AdressService {
   //
 
   async create(createAdressDto: CreateAdressDto, req) {
-    const { name, street, city, state, zip, phone, isDefault } =
-      createAdressDto;
+    const { isDefault } = createAdressDto;
     const { user } = req;
     const customer = await this.prisma.customer.findUnique({
       where: {
@@ -51,13 +50,7 @@ export class AdressService {
     return this.prisma.address.create({
       data: {
         customerId: user.id,
-        name,
-        street,
-        city,
-        state,
-        pincode: zip,
-        phone,
-        isDefault,
+        ...createAdressDto,
       },
     });
   }
@@ -99,8 +92,7 @@ export class AdressService {
   //
 
   async update(id: string, updateaddressDto: UpdateAdressDto, req) {
-    const { name, street, city, state, zip, phone, isDefault } =
-      updateaddressDto;
+    const { isDefault } = updateaddressDto;
     const { user } = req;
     const address = await this.prisma.address.findFirst({
       where: {
@@ -148,13 +140,7 @@ export class AdressService {
         isDeleted: false,
       },
       data: {
-        name,
-        street,
-        city,
-        state,
-        pincode: zip,
-        phone,
-        isDefault,
+        ...updateaddressDto,
       },
     });
 

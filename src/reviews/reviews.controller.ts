@@ -34,6 +34,7 @@ export class ReviewsController {
     return this.reviewsService.findAll(req);
   }
 
+  
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
   @Get(':reviewId')

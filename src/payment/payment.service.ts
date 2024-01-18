@@ -39,10 +39,10 @@ export class PaymentService {
         message: PaymentKeys.ADDRESS_NOT_FOUND,
       };
     }
-    const { product_VarientrId, quantity, CashOnDelivery } = buyNowDto;
+    const { ProductVariantId, quantity, CashOnDelivery } = buyNowDto;
     const product = await this.prisma.productVariant.findUnique({
       where: {
-        id: product_VarientrId,
+        id: ProductVariantId,
         isDeleted: false,
       },
     });

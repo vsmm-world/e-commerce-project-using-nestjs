@@ -4,7 +4,7 @@ import { IsNotEmpty } from 'class-validator';
 export class BuyNowDto {
   @ApiProperty()
   @IsNotEmpty()
-  product_VarientrId: string;
+  ProductVariantId: string;
 
   @ApiProperty()
   @IsNotEmpty()

@@ -20,11 +20,11 @@ export class CreateAdressDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  zip: string;
+  phone: string;
 
   @ApiProperty()
   @IsNotEmpty()
-  phone: string;
+  pincode: string;
 
   @ApiProperty()
   @IsNotEmpty()

@@ -9,7 +9,6 @@ export class CategoryService {
   constructor(private prisma: PrismaService) {}
 
   async create(createCategoryDto: CreateCategoryDto, req: any) {
-    const { name } = createCategoryDto;
     const { user } = req;
     const admin = await this.prisma.admin.findFirst({
       where: {
@@ -25,7 +24,7 @@ export class CategoryService {
     }
     const category = await this.prisma.category.create({
       data: {
-        name,
+        ...createCategoryDto,
       },
     });
 
@@ -72,7 +71,6 @@ export class CategoryService {
   }
 
   async update(id: string, updateCategoryDto: UpdateCategoryDto, req: any) {
-    const { name } = updateCategoryDto;
     const { user } = req;
     const admin = this.prisma.admin.findFirst({
       where: {
@@ -105,7 +103,7 @@ export class CategoryService {
         isDeleted: false,
       },
       data: {
-        name,
+        ...updateCategoryDto,
       },
     });
 

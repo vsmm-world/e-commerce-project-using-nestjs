@@ -2,6 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ProductKeys } from 'src/shared/keys/products.keys';
 
 @Injectable()
 export class ProductsService {
@@ -21,7 +22,7 @@ export class ProductsService {
     if (!admin) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Only admin can create product',
+        message: ProductKeys.ONLY_ADMIN,
       };
     }
 
@@ -35,7 +36,7 @@ export class ProductsService {
 
     return {
       statusCode: 201,
-      message: 'Product created successfully',
+      message: ProductKeys.PRODUCT_CREATED,
       data: product,
     };
   }
@@ -49,13 +50,13 @@ export class ProductsService {
     if (products[0] == null) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Products not found',
+        message: ProductKeys.PRODUCT_NOT_FOUND,
       };
     }
 
     return {
       statusCode: HttpStatus.OK,
-      message: 'Products retrieved successfully',
+      message: ProductKeys.FETCHED_SUCCESSFULLY,
       data: products,
     };
   }
@@ -70,12 +71,12 @@ export class ProductsService {
     if (!product) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Product not found',
+        message: ProductKeys.PRODUCT_NOT_FOUND,
       };
     }
     return {
       statusCode: HttpStatus.OK,
-      message: 'Product retrieved successfully',
+      message: ProductKeys.FETCHED_SUCCESSFULLY,
       data: product,
     };
   }
@@ -93,7 +94,7 @@ export class ProductsService {
     if (!admin) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Only admin can update product',
+        message: ProductKeys.ONLY_ADMIN,
       };
     }
 
@@ -107,7 +108,7 @@ export class ProductsService {
     if (!productchek) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Product not found',
+        message: ProductKeys.PRODUCT_NOT_FOUND,
       };
     }
 
@@ -124,7 +125,7 @@ export class ProductsService {
     });
     return {
       statusCode: HttpStatus.OK,
-      message: 'Product updated successfully',
+      message: ProductKeys.PRODUCT_UPDATED,
       data: product,
     };
   }
@@ -140,7 +141,7 @@ export class ProductsService {
     if (!admin) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Only admin can delete product',
+        message: ProductKeys.ONLY_ADMIN,
       };
     }
 
@@ -154,7 +155,7 @@ export class ProductsService {
     if (!productchek) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Product not found',
+        message: ProductKeys.PRODUCT_NOT_FOUND,
       };
     }
 
@@ -170,7 +171,7 @@ export class ProductsService {
 
     return {
       statusCode: HttpStatus.OK,
-      message: 'Product deleted successfully',
+      message: ProductKeys.PRODUCT_DELETED,
       data: product,
     };
   }

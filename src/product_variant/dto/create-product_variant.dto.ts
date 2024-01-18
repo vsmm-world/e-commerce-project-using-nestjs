@@ -4,7 +4,7 @@ import { IsNotEmpty } from "class-validator";
 export class CreateProductVariantDto {
     @ApiProperty()
     @IsNotEmpty()
-    product_id: string;
+    productId: string;
 
     @ApiProperty()
     @IsNotEmpty()

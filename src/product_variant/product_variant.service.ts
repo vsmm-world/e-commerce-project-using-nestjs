@@ -9,7 +9,7 @@ import { ProductKeys } from 'src/shared/keys/products.keys';
 export class ProductVariantService {
   constructor(private prisma: PrismaService) {}
   async create(createProductVariantDto: CreateProductVariantDto, req: any) {
-    const { product_id, size, color, stock, price } = createProductVariantDto;
+    const { productId } = createProductVariantDto;
     const { user } = req;
 
     const admin = await this.prisma.admin.findUnique({
@@ -27,7 +27,7 @@ export class ProductVariantService {
     }
     const product = await this.prisma.product.findUnique({
       where: {
-        id: product_id,
+        id: productId,
         isDeleted: false,
       },
     });
@@ -40,11 +40,7 @@ export class ProductVariantService {
 
     const productVariant = await this.prisma.productVariant.create({
       data: {
-        product: { connect: { id: product_id } },
-        size,
-        color,
-        stock,
-        price,
+        ...createProductVariantDto,
       },
     });
 
@@ -108,7 +104,6 @@ export class ProductVariantService {
     updateProductVariantDto: UpdateProductVariantDto,
     req: any,
   ) {
-    const { size, color, stock, price } = updateProductVariantDto;
     const { user } = req;
     const admin = await this.prisma.admin.findUnique({
       where: {
@@ -139,10 +134,7 @@ export class ProductVariantService {
         id,
       },
       data: {
-        size,
-        color,
-        stock,
-        price,
+        ...updateProductVariantDto,
       },
     });
     return {

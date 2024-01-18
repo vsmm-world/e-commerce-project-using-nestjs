@@ -2,6 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ReviewKeys } from 'src/shared/keys/reviews.keys';
 
 @Injectable()
 export class ReviewsService {
@@ -19,7 +20,7 @@ export class ReviewsService {
     if (!customer) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Customer not found',
+        message: ReviewKeys.CUSTOMER_NOT_FOUND,
       };
     }
 
@@ -36,14 +37,14 @@ export class ReviewsService {
     if (HistoryProductIdsArray[0] == null) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'you have not purchased this product so you can not review it',
+        message: ReviewKeys.NOT_PURCHASED,
       };
     }
     const productIds = HistoryProductIdsArray.flat();
     if (!productIds.includes(productId)) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'you have not purchased this product so you can not review it',
+        message: ReviewKeys.NOT_PURCHASED,
       };
     }
     const product = await this.prisma.productVariant.findUnique({
@@ -55,7 +56,7 @@ export class ReviewsService {
     if (!product) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Product not found',
+        message: ReviewKeys.PRODUCT_NOT_FOUND,
       };
     }
     const reviewData = await this.prisma.customerReviews.create({
@@ -77,7 +78,7 @@ export class ReviewsService {
 
     return {
       statusCode: HttpStatus.OK,
-      message: 'Review added successfully',
+      message: ReviewKeys.CREATED_SUCCESSFULLY,
       data: reviewData,
     };
   }
@@ -104,13 +105,13 @@ export class ReviewsService {
       if (reviews[0] == null) {
         return {
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'No reviews found',
+          message: ReviewKeys.REVIEW_NOT_FOUND,
         };
       }
 
       return {
         statusCode: HttpStatus.OK,
-        message: 'Reviews fetched as admin successfully',
+        message: ReviewKeys.FETCHED_SUCCESSFULLY_ADMIN,
         data: reviews,
       };
     }
@@ -125,7 +126,7 @@ export class ReviewsService {
     if (!customer) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Customer not found',
+        message: ReviewKeys.CUSTOMER_NOT_FOUND,
       };
     }
     const reviews = await this.prisma.customerReviews.findMany({
@@ -141,12 +142,12 @@ export class ReviewsService {
     if (reviews[0] == null) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'No reviews found',
+        message: ReviewKeys.REVIEW_NOT_FOUND,
       };
     }
     return {
       statusCode: HttpStatus.OK,
-      message: 'Reviews found successfully',
+      message: ReviewKeys.FETCHED_SUCCESSFULLY,
       data: reviews,
     };
   }
@@ -163,7 +164,7 @@ export class ReviewsService {
     if (!customer) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Customer not found',
+        message: ReviewKeys.CUSTOMER_NOT_FOUND,
       };
     }
 
@@ -177,7 +178,7 @@ export class ReviewsService {
     if (!review) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Review not found',
+        message: ReviewKeys.REVIEW_NOT_FOUND,
       };
     }
   }
@@ -194,7 +195,7 @@ export class ReviewsService {
     if (!customer) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Customer not found',
+        message: ReviewKeys.CUSTOMER_NOT_FOUND,
       };
     }
 
@@ -208,7 +209,7 @@ export class ReviewsService {
     if (!review) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Review not found',
+        message: ReviewKeys.REVIEW_NOT_FOUND,
       };
     }
 
@@ -242,7 +243,7 @@ export class ReviewsService {
       if (!admin) {
         return {
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'You are not authorized to delete this review',
+          message: ReviewKeys.NOT_AUTHORIZED,
         };
       }
 
@@ -256,7 +257,7 @@ export class ReviewsService {
       if (!review) {
         return {
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Review not found',
+          message: ReviewKeys.REVIEW_NOT_FOUND,
         };
       }
 
@@ -271,7 +272,7 @@ export class ReviewsService {
 
       return {
         statusCode: HttpStatus.OK,
-        message: 'Review deleted successfully',
+        message: ReviewKeys.REVIEW_DELETED,
         data: deletedReview,
       };
     }
@@ -287,7 +288,7 @@ export class ReviewsService {
     if (!review) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Review not found',
+        message: ReviewKeys.REVIEW_NOT_FOUND,
       };
     }
 
@@ -302,7 +303,7 @@ export class ReviewsService {
 
     return {
       statusCode: HttpStatus.OK,
-      message: 'Review deleted successfully',
+      message: ReviewKeys.REVIEW_DELETED,
       data: deletedReview,
     };
   }
