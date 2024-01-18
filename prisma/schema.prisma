@@ -90,31 +90,31 @@ model Address {
 }
 
 model Product {
-  id              String            @id @default(auto()) @map("_id") @db.ObjectId
-  name            String
-  description     String
-  category        Category          @relation(fields: [categoryId], references: [id])
-  categoryId      String            @db.ObjectId
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  cart            Cart[]
-  isDeleted       Boolean           @default(false)
-  ProductVariant  ProductVariant[]
-  customerReviews CustomerReviews[]
+  id             String           @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  description    String
+  category       Category         @relation(fields: [categoryId], references: [id])
+  categoryId     String           @db.ObjectId
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  cart           Cart[]
+  isDeleted      Boolean          @default(false)
+  ProductVariant ProductVariant[]
 }
 
 model ProductVariant {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  product   Product  @relation(fields: [productId], references: [id])
-  productId String   @db.ObjectId
-  size      String
-  color     String
-  stock     Int
-  price     Float
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isDeleted Boolean  @default(false)
-  cart      Cart[]
+  id              String            @id @default(auto()) @map("_id") @db.ObjectId
+  product         Product           @relation(fields: [productId], references: [id])
+  productId       String            @db.ObjectId
+  size            String
+  color           String
+  stock           Int
+  price           Float
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  isDeleted       Boolean           @default(false)
+  cart            Cart[]
+  CustomerReviews CustomerReviews[]
 }
 
 model Category {
@@ -200,16 +200,16 @@ model TempResetToken {
 }
 
 model CustomerReviews {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  customer   Customer @relation(fields: [customerId], references: [id])
-  customerId String   @db.ObjectId
-  product    Product  @relation(fields: [productId], references: [id])
-  productId  String   @db.ObjectId
-  rating     Int
-  review     String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  isDeleted  Boolean  @default(false)
+  id               String         @id @default(auto()) @map("_id") @db.ObjectId
+  customer         Customer       @relation(fields: [customerId], references: [id])
+  customerId       String         @db.ObjectId
+  product          ProductVariant @relation(fields: [productVariantId], references: [id])
+  productVariantId String         @db.ObjectId
+  rating           Int
+  review           String
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  isDeleted        Boolean        @default(false)
 }
 
 model OrderHistory {

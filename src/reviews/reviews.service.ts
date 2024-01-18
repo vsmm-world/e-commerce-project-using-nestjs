@@ -9,7 +9,7 @@ import { env } from 'process';
 export class ReviewsService {
   constructor(private prisma: PrismaService) {}
   async create(createReviewDto: CreateReviewDto, req: any) {
-    const { productId, rating, review } = createReviewDto;
+    const { productVariantId, rating, review } = createReviewDto;
     const { user } = req;
 
     const customer = await this.prisma.customer.findUnique({
@@ -32,17 +32,17 @@ export class ReviewsService {
       },
     });
 
-    const HistoryProductIdsArray = orderHistory.map((order) => {
+    const HistoryproductVariantIdsArray = orderHistory.map((order) => {
       return order.productsIds;
     });
-    if (HistoryProductIdsArray[0] == null) {
+    if (HistoryproductVariantIdsArray[0] == null) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
         message: ReviewKeys.NOT_PURCHASED,
       };
     }
-    const productIds = HistoryProductIdsArray.flat();
-    if (!productIds.includes(productId)) {
+    const productVariantIds = HistoryproductVariantIdsArray.flat();
+    if (!productVariantIds.includes(productVariantId)) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
         message: ReviewKeys.NOT_PURCHASED,
@@ -50,7 +50,7 @@ export class ReviewsService {
     }
     const product = await this.prisma.productVariant.findUnique({
       where: {
-        id: user.id,
+        id: productVariantId,
         isDeleted: false,
       },
     });
@@ -64,16 +64,8 @@ export class ReviewsService {
       data: {
         rating,
         review,
-        customer: {
-          connect: {
-            id: customer.id,
-          },
-        },
-        product: {
-          connect: {
-            id: productId,
-          },
-        },
+        customerId: customer.id,
+        productVariantId,
       },
     });
 

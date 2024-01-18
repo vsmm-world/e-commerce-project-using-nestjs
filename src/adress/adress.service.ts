@@ -67,26 +67,13 @@ export class AdressService {
 
   async findOne(id: string, req) {
     const { user } = req;
-    const address = await this.prisma.address.findFirst({
+    return this.prisma.address.findFirst({
       where: {
         id,
         isDeleted: false,
         customerId: user.id,
       },
     });
-
-    if (!address) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: AddressKeys.NOT_FOUND,
-      };
-    }
-
-    return {
-      statusCode: 201,
-      message: AddressKeys.FETCHED,
-      data: address,
-    };
   }
 
   //
@@ -134,7 +121,7 @@ export class AdressService {
       }
     }
 
-    const updatedAddress = await this.prisma.address.update({
+    return this.prisma.address.update({
       where: {
         id,
         isDeleted: false,
@@ -143,12 +130,6 @@ export class AdressService {
         ...updateaddressDto,
       },
     });
-
-    return {
-      statusCode: 201,
-      message: AddressKeys.UPDATED,
-      data: updatedAddress,
-    };
   }
 
   //
@@ -182,9 +163,8 @@ export class AdressService {
     });
 
     return {
-      statusCode: 201,
+      statusCode: HttpStatus.OK,
       message: AddressKeys.DELETED,
-      data: deletedAddress,
     };
   }
 }

@@ -2,6 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { UpdateShipmentDto } from './dto/update-shipment.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ShipmentKeys } from 'src/shared/keys/shipment.keys';
 
 @Injectable()
 export class ShipmentService {
@@ -13,49 +14,23 @@ export class ShipmentService {
     if (!isAdmin) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Admin not found',
+        message: ShipmentKeys.ADMIN_NOT_FOUND,
       };
     }
-    const shipments = this.prisma.shipmentStatus.findMany({
+    return this.prisma.shipmentStatus.findMany({
       where: {
         isDeleted: false,
       },
     });
-
-    if (shipments[0] == null) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Shipments not found',
-      };
-    }
-
-    return {
-      statusCode: HttpStatus.OK,
-      message: 'Shipments found successfully',
-      shipments: shipments,
-    };
   }
 
   async findOne(id: string) {
-    const shipment = await this.prisma.shipmentStatus.findFirst({
+    return this.prisma.shipmentStatus.findFirst({
       where: {
         id: id,
         isDeleted: false,
       },
     });
-
-    if (!shipment) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Shipment not found',
-      };
-    }
-
-    return {
-      statusCode: HttpStatus.OK,
-      message: 'Shipment found successfully',
-      shipment: shipment,
-    };
   }
 
   async update(id: string, updateShipmentDto: UpdateShipmentDto, req: any) {
@@ -64,19 +39,19 @@ export class ShipmentService {
     if (!isAdmin) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Admin not found',
+        message: ShipmentKeys.ADMIN_NOT_FOUND,
       };
     }
-    const shiopmentCheck = await this.prisma.shipmentStatus.findFirst({
+    const shipmentCheck = await this.prisma.shipmentStatus.findFirst({
       where: {
         id: id,
         isDeleted: false,
       },
     });
-    if (!shiopmentCheck) {
+    if (!shipmentCheck) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Shipment not found',
+        message: ShipmentKeys.SHIPMENT_NOT_FOUND,
       };
     }
     const shipment = await this.prisma.shipmentStatus.update({
@@ -102,18 +77,10 @@ export class ShipmentService {
 
       const orderHistory = await this.prisma.orderHistory.create({
         data: {
-          order: {
-            connect: {
-              id: order.id,
-            },
-          },
+          orderId: order.id,
           products: order.products,
           productsIds: order.productIds,
-          customer: {
-            connect: {
-              id: customer.id,
-            },
-          },
+          customerId: customer.id,
           status: 'Delivered',
         },
       });
@@ -135,7 +102,7 @@ export class ShipmentService {
     }
     return {
       statusCode: HttpStatus.OK,
-      message: 'Shipment updated successfully',
+      message: ShipmentKeys.SHIPMENT_UPDATED_SUCCESSFULLY,
       shipment: shipment,
     };
   }
@@ -146,19 +113,19 @@ export class ShipmentService {
     if (!isAdmin) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Admin not found',
+        message: ShipmentKeys.ADMIN_NOT_FOUND,
       };
     }
-    const shiopmentCheck = await this.prisma.shipmentStatus.findFirst({
+    const shipmentCheck = await this.prisma.shipmentStatus.findFirst({
       where: {
         id: id,
         isDeleted: false,
       },
     });
-    if (!shiopmentCheck) {
+    if (!shipmentCheck) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Shipment not found',
+        message: ShipmentKeys.SHIPMENT_NOT_FOUND,
       };
     }
     const shipment = await this.prisma.shipmentStatus.update({
@@ -172,7 +139,7 @@ export class ShipmentService {
 
     return {
       statusCode: HttpStatus.OK,
-      message: 'Shipment deleted successfully',
+      message: ShipmentKeys.SHIPMENT_DELETED_SUCCESSFULLY,
     };
   }
 
