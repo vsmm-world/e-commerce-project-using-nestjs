@@ -15,6 +15,7 @@ import { UpdateReviewDto } from './dto/update-review.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+
 @ApiTags('reviews')
 @UseGuards(AuthGuard('jwt'))
 @ApiBearerAuth()
@@ -29,6 +30,8 @@ export class ReviewsController {
 
   @Get()
   findAll(@Request() req: any) {
+
+
     return this.reviewsService.findAll(req);
   }
 

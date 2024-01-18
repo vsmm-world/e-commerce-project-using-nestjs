@@ -1,8 +1,10 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, Session } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { session } from 'passport';
+import { userInfo } from 'os';
 
 @Injectable()
 export class UserService {
@@ -100,6 +102,7 @@ export class UserService {
   }
 
   async findAll(req: any) {
+
     
     const { user } = req;
     const admin = await this.prisma.admin.findFirst({

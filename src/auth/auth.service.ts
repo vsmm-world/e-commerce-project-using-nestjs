@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, Session } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
@@ -9,6 +9,7 @@ import { env } from 'process';
 import { ForgetPasswordDto } from './dto/forget-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { AuthKeys } from 'src/shared/keys/auth.keys';
+import { session } from 'passport';
 
 @Injectable()
 export class AuthService {
@@ -242,7 +243,7 @@ export class AuthService {
       });
       return {
         statusCode: HttpStatus.OK,
-        message: AuthKeys.USER_NOT_FOUND,
+        message: AuthKeys.USER_FETCHED,
         admin,
         adminCred,
       };
@@ -261,7 +262,7 @@ export class AuthService {
       });
       return {
         statusCode: HttpStatus.OK,
-        message: AuthKeys.USER_NOT_FOUND,
+        message: AuthKeys.USER_FETCHED,
         customer,
         customerCred,
       };
@@ -475,6 +476,8 @@ export class AuthService {
   }
 
   async logout(req: any) {
+
+
     const { user } = req;
 
     const admin = await this.prisma.admin.findFirst({

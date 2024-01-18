@@ -5,6 +5,8 @@ import Razorpay from 'razorpay';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BuyNowDto } from './dto/buy-now.dto';
 import { PaymentKeys } from 'src/shared/keys/payment.keys';
+import { env } from 'process';
+import Stripe from 'stripe';
 
 @Injectable()
 export class PaymentService {
@@ -40,9 +42,21 @@ export class PaymentService {
       };
     }
     const { ProductVariantId, quantity, CashOnDelivery } = buyNowDto;
-    const product = await this.prisma.productVariant.findUnique({
+    const productVariant = await this.prisma.productVariant.findUnique({
       where: {
         id: ProductVariantId,
+        isDeleted: false,
+      },
+    });
+    if (!productVariant) {
+      return {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: PaymentKeys.PRODUCT_NOT_FOUND,
+      };
+    }
+    const product = await this.prisma.product.findUnique({
+      where: {
+        id: productVariant.productId,
         isDeleted: false,
       },
     });
@@ -52,7 +66,7 @@ export class PaymentService {
         message: PaymentKeys.PRODUCT_NOT_FOUND,
       };
     }
-    const totalPrice = product.price * quantity;
+    const totalPrice = productVariant.price * quantity;
     const { currency } = buyNowDto;
     if (CashOnDelivery) {
       const payment = await this.prisma.payment.create({
@@ -70,8 +84,8 @@ export class PaymentService {
           paymentId: payment.id,
           paymentStatus: 'Pending',
           paymentMethod: 'CashOnDelivery',
-          productIds: [product.id],
-          products: [product],
+          productIds: [productVariant.id],
+          products: [productVariant],
           totalPrice,
           tatalItems: quantity,
         },
@@ -89,8 +103,54 @@ export class PaymentService {
       receipt: customer.email,
     };
 
-    const res = await this.razorpay.orders.create(options);
+    if (env.PAYMENT_MODE == '1') {
+      const res = await this.razorpay.orders.create(options);
 
+      const payment = await this.prisma.payment.create({
+        data: {
+          customer: {
+            connect: { id: customer.id },
+          },
+          COD: CashOnDelivery,
+        },
+      });
+      const order = await this.prisma.order.create({
+        data: {
+          customerId: customer.id,
+          paymentId: payment.id,
+          paymentStatus: 'Pending',
+          paymentMethod: 'Online',
+          productIds: [productVariant.id],
+          products: [productVariant],
+          totalPrice,
+          tatalItems: quantity,
+        },
+      });
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: PaymentKeys.PAYMENT_CREATED + 'razorpay',
+        data: res,
+        order,
+      };
+    }
+    const stripe = new Stripe(env.STRIPE_KEY);
+    const res = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'inr',
+            product_data: {
+              name: product.name,
+            },
+            unit_amount: totalPrice * 100,
+          },
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+    });
     const payment = await this.prisma.payment.create({
       data: {
         customer: {
@@ -99,22 +159,23 @@ export class PaymentService {
         COD: CashOnDelivery,
       },
     });
+
     const order = await this.prisma.order.create({
       data: {
         customerId: customer.id,
         paymentId: payment.id,
         paymentStatus: 'Pending',
         paymentMethod: 'Online',
-        productIds: [product.id],
-        products: [product],
+        productIds: [productVariant.id],
+        products: [productVariant],
         totalPrice,
         tatalItems: quantity,
       },
     });
     return {
       statusCode: HttpStatus.OK,
-      message: PaymentKeys.PAYMENT_CREATED,
-      data: res,
+      message: PaymentKeys.PAYMENT_CREATED + 'stripe',
+      data: payment,
       order,
     };
   }
@@ -161,7 +222,6 @@ export class PaymentService {
       };
     }
 
-    console.log(cart.products);
     const products = cart.products;
     const totalPrice = cart.totalPrice;
 
@@ -179,7 +239,7 @@ export class PaymentService {
       const order = await this.createOrder(req);
       return {
         statusCode: HttpStatus.OK,
-        message: PaymentKeys.PAYMENT_CREATED,
+        message: PaymentKeys.PAYMENT_CREATED + 'razorpay',
         data: { info: 'CashOnDelivery' },
         order,
       };
@@ -189,7 +249,46 @@ export class PaymentService {
       currency,
       receipt: customer.email,
     };
-    const res = await this.razorpay.orders.create(options);
+    if (env.PAYMENT_MODE == '1') {
+      const res = await this.razorpay.orders.create(options);
+
+      const payment = await this.prisma.payment.create({
+        data: {
+          customer: {
+            connect: { id: customer.id },
+          },
+          COD: CashOnDelivery,
+        },
+      });
+      const order = await this.createOrder(req);
+      return {
+        statusCode: HttpStatus.OK,
+        message: PaymentKeys.PAYMENT_CREATED,
+        data: res,
+        order,
+      };
+    }
+
+    const stripe = new Stripe(env.STRIPE_KEY);
+    const res = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'inr',
+            unit_amount: totalPrice * 100,
+            product_data: {
+              name: 'Order',
+            },
+          },
+
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      success_url: 'http://localhost:3000/success',
+      cancel_url: 'http://localhost:3000/cancel',
+    });
 
     const payment = await this.prisma.payment.create({
       data: {
@@ -202,8 +301,8 @@ export class PaymentService {
     const order = await this.createOrder(req);
     return {
       statusCode: HttpStatus.OK,
-      message: PaymentKeys.PAYMENT_CREATED,
-      data: res,
+      message: PaymentKeys.PAYMENT_CREATED + 'stripe',
+      data: payment,
       order,
     };
   }

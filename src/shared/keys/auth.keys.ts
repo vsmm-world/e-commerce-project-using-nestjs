@@ -9,4 +9,6 @@ export class AuthKeys{
     static OTP_SENT ='OTP sent to your email'
     static LOGIN_SUCCESS ='Login success'
     static NOT_LOGGED_IN ='Not logged in'
+
+    static USER_FETCHED ='User fetched successfully'
 }
