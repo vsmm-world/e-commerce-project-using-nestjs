@@ -16,26 +16,22 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('cart')
+@UseGuards(AuthGuard('jwt'))
+@ApiBearerAuth()
 @Controller('cart')
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
-  @UseGuards(AuthGuard('jwt'))
-  @ApiBearerAuth()
   @Post()
   create(@Body() createCartDto: CreateCartDto, @Request() req: any) {
     return this.cartService.create(createCartDto, req);
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @ApiBearerAuth()
   @Get()
   findAll(@Request() req: any) {
     return this.cartService.findAll(req);
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @ApiBearerAuth()
   @Patch(':CartId')
   update(
     @Param('CartId') CartId: string,
@@ -45,8 +41,6 @@ export class CartController {
     return this.cartService.update(CartId, updateCartDto, req);
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @ApiBearerAuth()
   @Delete(':productId')
   remove(@Param('productId') id: string, @Request() req: any) {
     return this.cartService.remove(id, req);

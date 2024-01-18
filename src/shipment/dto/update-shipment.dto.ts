@@ -1,4 +1,8 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateShipmentDto } from './create-shipment.dto';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty } from 'class-validator';
 
-export class UpdateShipmentDto extends PartialType(CreateShipmentDto) {}
+export class UpdateShipmentDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  status: string;
+}

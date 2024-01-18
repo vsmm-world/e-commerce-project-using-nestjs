@@ -16,19 +16,18 @@ import { AuthGuard } from '@nestjs/passport';
 import { BuyNowDto } from './dto/buy-now.dto';
 
 @ApiTags('Payment')
+@UseGuards(AuthGuard('jwt'))
+@ApiBearerAuth()
 @Controller('payment')
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
-  @UseGuards(AuthGuard('jwt'))
-  @ApiBearerAuth()
+
   @Post()
   create(@Body() createPaymentDto: CreatePaymentDto, @Request() req: any) {
     return this.paymentService.create(createPaymentDto, req);
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @ApiBearerAuth()
   @Post('buy-now')
   buyNow(@Body() buyNowDto: BuyNowDto, @Request() req: any) {
     return this.paymentService.buyNow(buyNowDto, req);

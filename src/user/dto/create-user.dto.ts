@@ -26,5 +26,6 @@ export class CreateUserDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  role: string; deafult: 'user';
+  role: string;
+  deafult: 'customer';
 }
