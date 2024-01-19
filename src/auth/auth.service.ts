@@ -9,7 +9,6 @@ import { env } from 'process';
 import { ForgetPasswordDto } from './dto/forget-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { AuthKeys } from 'src/shared/keys/auth.keys';
-import { session } from 'passport';
 
 @Injectable()
 export class AuthService {
@@ -333,6 +332,7 @@ export class AuthService {
       where: {
         email,
         isDeleted: false,
+        status: 'active',
       },
     });
     if (customer) {
@@ -476,10 +476,7 @@ export class AuthService {
   }
 
   async logout(req: any) {
-
-
     const { user } = req;
-
     const admin = await this.prisma.admin.findFirst({
       where: {
         id: user.id,

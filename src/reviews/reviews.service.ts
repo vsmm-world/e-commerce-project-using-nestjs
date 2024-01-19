@@ -11,7 +11,12 @@ export class ReviewsService {
   async create(createReviewDto: CreateReviewDto, req: any) {
     const { productVariantId, rating, review } = createReviewDto;
     const { user } = req;
-
+if(rating > 5 || rating < 1){
+  return {
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: ReviewKeys.INVALID_RATING,
+  };
+}
     const customer = await this.prisma.customer.findUnique({
       where: {
         id: user.id,

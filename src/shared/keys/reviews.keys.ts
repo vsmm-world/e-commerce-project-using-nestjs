@@ -10,4 +10,5 @@ export class ReviewKeys{
     static PRODUCT_NOT_FOUND = 'Product not found';
     static FETCHED_SUCCESSFULLY_ADMIN = 'Reviews fetched as admin successfully';
     static NOT_AUTHORIZED = 'You are not authorized to perform this action';
+    static INVALID_RATING = 'Rating must be between 1 and 5';
 }
