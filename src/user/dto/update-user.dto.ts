@@ -1,7 +1,8 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { CreateUserDto } from './create-user.dto';
 import { IsNotEmpty, Validate } from 'class-validator';
-import { CustomEmailValidator } from 'src/validator/custom-validator';
+import { CustomEmailValidator } from '../../validator/custom-validator';
+
 
 export class UpdateUserDto {
   @ApiProperty()

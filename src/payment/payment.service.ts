@@ -2,9 +2,9 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { InjectRazorpay } from 'nestjs-razorpay';
 import Razorpay from 'razorpay';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { BuyNowDto } from './dto/buy-now.dto';
-import { PaymentKeys } from 'src/shared/keys/payment.keys';
+import { PaymentKeys } from '../shared/keys/payment.keys';
 import { env } from 'process';
 import Stripe from 'stripe';
 

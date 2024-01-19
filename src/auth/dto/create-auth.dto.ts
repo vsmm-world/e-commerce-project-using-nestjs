@@ -3,7 +3,7 @@ import { IsNotEmpty, Validate } from 'class-validator';
 import {
   CustomEmailValidator,
   PasswordValidator,
-} from 'src/validator/custom-validator';
+} from '../../validator/custom-validator';
 
 export class CreateAuthDto {
   @ApiProperty()

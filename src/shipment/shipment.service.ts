@@ -1,8 +1,8 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { UpdateShipmentDto } from './dto/update-shipment.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { ShipmentKeys } from 'src/shared/keys/shipment.keys';
+import { PrismaService } from '../prisma/prisma.service';
+import { ShipmentKeys } from '../shared/keys/shipment.keys';
 
 @Injectable()
 export class ShipmentService {

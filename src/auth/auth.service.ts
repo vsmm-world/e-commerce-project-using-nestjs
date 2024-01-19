@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable, Session } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import * as postmark from 'postmark';
 import * as otpGenerator from 'otp-generator';
@@ -8,7 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { env } from 'process';
 import { ForgetPasswordDto } from './dto/forget-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { AuthKeys } from 'src/shared/keys/auth.keys';
+import { AuthKeys } from '../shared/keys/auth.keys';
 
 @Injectable()
 export class AuthService {

@@ -1,9 +1,9 @@
 import { HttpCode, HttpStatus, Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { env } from 'process';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import * as postmark from 'postmark';
-import { CommonKeys } from 'src/shared/keys/common.keys';
+import { CommonKeys } from '../shared/keys/common.keys';
 
 @Injectable()
 export class SheduledMailService {

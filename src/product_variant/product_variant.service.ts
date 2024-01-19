@@ -1,9 +1,9 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductVariantDto } from './dto/create-product_variant.dto';
 import { UpdateProductVariantDto } from './dto/update-product_variant.dto';
-import { ProductKeys } from 'src/shared/keys/products.keys';
+import { ProductKeys } from '../shared/keys/products.keys';
 
 @Injectable()
 export class ProductVariantService {
