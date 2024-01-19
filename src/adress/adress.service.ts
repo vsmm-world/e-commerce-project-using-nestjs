@@ -1,8 +1,8 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateAdressDto } from './dto/create-adress.dto';
 import { UpdateAdressDto } from './dto/update-adress.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { AddressKeys } from 'src/shared/keys/address.keys';
+import { PrismaService } from '../prisma/prisma.service';
+import { AddressKeys } from '../shared/keys/address.keys';
 
 @Injectable()
 export class AdressService {
