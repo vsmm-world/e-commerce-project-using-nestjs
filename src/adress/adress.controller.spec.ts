@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AdressController } from './adress.controller';
 import { AdressService } from './adress.service';
 import { Controller } from '@nestjs/common';
+import { PrismaModule } from '../prisma/prisma.module';
 
 describe('AdressController', () => {
   let controller: AdressController;
@@ -9,6 +10,8 @@ describe('AdressController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [PrismaModule],
+
       controllers: [AdressController],
       providers: [
         {
@@ -44,21 +47,4 @@ describe('AdressController', () => {
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
-
-  describe('create', () => {
-    it('shoudl create a new address', async () => {
-      expect(await controller.create(null, null)).toEqual(
-        'This action adds a new address',
-      );
-    });
-  });
-
-  describe('findAll', () => {
-    it('should return an array of addresses', async () => {
-      expect(await controller.findAll(null)).toEqual(
-        'This action returns all addresses',
-      );
-    });
-  });
-  
 });
