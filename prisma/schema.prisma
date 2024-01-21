@@ -177,6 +177,8 @@ model ShipmentStatus {
   isDeleted Boolean  @default(false)
 }
 
+
+
 model Payment {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   COD        Boolean
@@ -199,6 +201,8 @@ model TempResetToken {
   updatedAt DateTime @updatedAt
 }
 
+
+
 model CustomerReviews {
   id               String         @id @default(auto()) @map("_id") @db.ObjectId
   customer         Customer       @relation(fields: [customerId], references: [id])
@@ -211,6 +215,8 @@ model CustomerReviews {
   updatedAt        DateTime       @updatedAt
   isDeleted        Boolean        @default(false)
 }
+
+
 
 model OrderHistory {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
