@@ -37,6 +37,8 @@ model AdminCredential {
   updatedAt DateTime  @updatedAt
 }
 
+
+
 model TempOtp {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   otp       String
@@ -47,6 +49,8 @@ model TempOtp {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+
 
 model Customer {
   id                 String               @id @default(auto()) @map("_id") @db.ObjectId
@@ -64,6 +68,8 @@ model Customer {
   customerReviews    CustomerReviews[]
   orderHistory       OrderHistory[]
 }
+
+
 
 model CustomerCredential {
   id         String    @id @default(auto()) @map("_id") @db.ObjectId
