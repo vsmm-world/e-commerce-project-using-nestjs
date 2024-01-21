@@ -10,6 +10,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+
+
 model Admin {
   id              String            @id @default(auto()) @map("_id") @db.ObjectId
   name            String
@@ -19,6 +22,8 @@ model Admin {
   updatedAt       DateTime          @updatedAt
   adminCredential AdminCredential[]
 }
+
+
 
 model AdminCredential {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
