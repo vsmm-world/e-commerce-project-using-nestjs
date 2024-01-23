@@ -1,5 +1,6 @@
 export class Adress {
-  id: number;
+  id: string;
+  customerId: string;
   name: string;
   street: string;
   city: string;
@@ -7,4 +8,7 @@ export class Adress {
   phone: string;
   pincode: string;
   isDefault: boolean;
+  isDeleted: boolean;
+  createdAt: Date;  
+  updatedAt: Date;
 }
