@@ -16,7 +16,7 @@ export class UserService {
 
     if (role === 'admin') {
       const customer = await this.prisma.customer.findFirst({
-        where: { email ,isDeleted:false},
+        where: { email, isDeleted: false },
       });
       if (customer) {
         return {
@@ -25,7 +25,7 @@ export class UserService {
         };
       }
       const admin = await this.prisma.admin.findFirst({
-        where: { email ,isDeleted:false},
+        where: { email, isDeleted: false },
       });
       if (admin) {
         return {
@@ -58,7 +58,7 @@ export class UserService {
     }
     if (role === 'customer') {
       const admin = await this.prisma.admin.findFirst({
-        where: { email ,isDeleted:false},
+        where: { email, isDeleted: false },
       });
       if (admin) {
         return {
@@ -67,7 +67,7 @@ export class UserService {
         };
       }
       const user = await this.prisma.customer.findFirst({
-        where: { email,isDeleted:false },
+        where: { email, isDeleted: false },
       });
       if (user) {
         return {
@@ -102,8 +102,6 @@ export class UserService {
   }
 
   async findAll(req: any) {
-
-    
     const { user } = req;
     const admin = await this.prisma.admin.findFirst({
       where: {

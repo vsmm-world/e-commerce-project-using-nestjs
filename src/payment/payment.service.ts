@@ -330,7 +330,6 @@ export class PaymentService {
         message: PaymentKeys.CART_NOT_FOUND,
       };
     }
-    console.log(cart.products);
     const productsfromCart = cart.products;
     let promises = [];
     try {
@@ -343,7 +342,6 @@ export class PaymentService {
     }
 
     const products = await Promise.all(promises);
-    console.log(products);
     const productIds = this.getProductIds(products);
     const totalPrice = this.calculateTotalPrice(products);
     const totalItems = products.length;

@@ -97,7 +97,7 @@ export class CategoryService {
         message: CategoryKeys.CATEGORY_NOT_FOUND,
       };
     }
-    const category = await this.prisma.category.update({
+    return this.prisma.category.update({
       where: {
         id: id,
         isDeleted: false,
@@ -106,12 +106,6 @@ export class CategoryService {
         ...updateCategoryDto,
       },
     });
-
-    return {
-      statusCode: HttpStatus.OK,
-      message: CategoryKeys.CATEGORY_UPDATED,
-      data: category,
-    };
   }
 
   async remove(id: string, req: any) {
