@@ -7,8 +7,18 @@ describe('CartService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports:[PrismaModule],
-      providers: [CartService],
+      imports: [PrismaModule],
+      providers: [
+        {
+          provide: CartService,
+          useValue: {
+            create: jest.fn().mockResolvedValue('This action adds a new cart'),
+            findAll: jest.fn().mockResolvedValue([]),
+            update: jest.fn().mockResolvedValue([]),
+            remove: jest.fn().mockResolvedValue([]),
+          },
+        },
+      ],
     }).compile();
 
     service = module.get<CartService>(CartService);

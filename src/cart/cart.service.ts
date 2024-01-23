@@ -216,6 +216,12 @@ export class CartService {
         stock: updateCartDto.quantity,
       },
     });
+
+    return{
+      statusCode: HttpStatus.OK,
+      message: CartKeys.PRODUCT_UPDATED,
+      cart: newCart,
+    }
   }
 
   async remove(id: string, req: any) {
