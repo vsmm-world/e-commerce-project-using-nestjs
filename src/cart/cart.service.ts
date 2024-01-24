@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -19,10 +19,7 @@ export class CartService {
     });
 
     if (admin) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: CartKeys.ADMIN_ERR,
-      };
+      throw new Error(CartKeys.ADMIN_ERR);
     }
     const product = await this.prisma.productVariant.findUnique({
       where: {
@@ -32,16 +29,10 @@ export class CartService {
     });
 
     if (!product) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: CartKeys.PRODUCT_NOT_FOUND,
-      };
+      throw new NotFoundException(CartKeys.PRODUCT_NOT_FOUND);
     }
     if (product.stock < quantity) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: CartKeys.OUT_OF_STOCK,
-      };
+      throw new Error(CartKeys.OUT_OF_STOCK);
     }
 
     let stock = product.stock;
@@ -145,19 +136,16 @@ export class CartService {
       },
     });
     if (!cart) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: CartKeys.CART_NOT_FOUND,
-      };
+     throw new NotFoundException(CartKeys.CART_NOT_FOUND);
     }
     return {
       statusCode: HttpStatus.OK,
-      message: CartKeys.CART_NOT_FOUND,
+      message: CartKeys.CART,
       data: cart,
     };
   }
   async update(id: string, updateCartDto: UpdateCartDto, req: any) {
-    // const { productVariant_id, quantity } = updateCartDto; 
+    // const { productVariant_id, quantity } = updateCartDto;
     const { user } = req;
 
     const cart = await this.prisma.cart.findFirst({
@@ -167,10 +155,8 @@ export class CartService {
       },
     });
     if (!cart) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: CartKeys.CART_NOT_FOUND,
-      };
+      throw new NotFoundException(CartKeys.CART_NOT_FOUND);
+
     }
     const product = await this.prisma.productVariant.findUnique({
       where: {
@@ -179,10 +165,8 @@ export class CartService {
       },
     });
     if (!product) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: CartKeys.PRODUCT_NOT_FOUND,
-      };
+      throw new NotFoundException(CartKeys.PRODUCT_NOT_FOUND);
+
     }
     let Products = [];
     let ProductIds = [];
@@ -217,11 +201,11 @@ export class CartService {
       },
     });
 
-    return{
+    return {
       statusCode: HttpStatus.OK,
       message: CartKeys.PRODUCT_UPDATED,
       cart: newCart,
-    }
+    };
   }
 
   async remove(id: string, req: any) {
@@ -233,10 +217,8 @@ export class CartService {
       },
     });
     if (!cart) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: CartKeys.CART_NOT_FOUND,
-      };
+      throw new NotFoundException(CartKeys.CART_NOT_FOUND);
+
     }
     const product = await this.prisma.productVariant.findUnique({
       where: {
@@ -246,10 +228,8 @@ export class CartService {
     });
 
     if (!product) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Product not found',
-      };
+      throw new NotFoundException(CartKeys.PRODUCT_NOT_FOUND);
+
     }
 
     let Products = [];

@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAdressDto } from './dto/create-adress.dto';
 import { UpdateAdressDto } from './dto/update-adress.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -7,8 +7,6 @@ import { AddressKeys } from '../shared/keys/address.keys';
 @Injectable()
 export class AdressService {
   constructor(private prisma: PrismaService) {}
-
-  //
 
   async create(createAdressDto: CreateAdressDto, req) {
     const { isDefault } = createAdressDto;
@@ -20,10 +18,7 @@ export class AdressService {
       },
     });
     if (!customer) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Customer not found',
-      };
+      throw new NotFoundException('Customer not found');
     }
     if (isDefault) {
       const defaultaddress = await this.prisma.address.findFirst({
@@ -85,17 +80,12 @@ export class AdressService {
       where: {
         id,
         isDeleted: false,
-        customer: {
-          id: user.id,
-        },
+        customerId: user.id,
       },
     });
 
     if (!address) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: AddressKeys.NOT_FOUND,
-      };
+      throw new NotFoundException(AddressKeys.NOT_FOUND);
     }
 
     if (isDefault) {
@@ -147,10 +137,7 @@ export class AdressService {
     });
 
     if (!address) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: AddressKeys.NOT_FOUND,
-      };
+      throw new NotFoundException(AddressKeys.NOT_FOUND);
     }
 
     const deletedAddress = await this.prisma.address.update({

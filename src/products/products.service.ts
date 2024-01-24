@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -20,10 +20,7 @@ export class ProductsService {
     });
 
     if (!admin) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ProductKeys.ONLY_ADMIN,
-      };
+      throw new Error(ProductKeys.ONLY_ADMIN);
     }
 
     const product = await this.prisma.product.create({
@@ -42,43 +39,20 @@ export class ProductsService {
   }
 
   async findAll() {
-    const products = await this.prisma.product.findMany({
+    return this.prisma.product.findMany({
       where: {
         isDeleted: false,
       },
     });
-    if (products[0] == null) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ProductKeys.PRODUCT_NOT_FOUND,
-      };
-    }
-
-    return {
-      statusCode: HttpStatus.OK,
-      message: ProductKeys.FETCHED_SUCCESSFULLY,
-      data: products,
-    };
   }
 
   async findOne(id: string) {
-    const product = await this.prisma.product.findFirst({
+    return this.prisma.product.findFirst({
       where: {
         id: id,
         isDeleted: false,
       },
     });
-    if (!product) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ProductKeys.PRODUCT_NOT_FOUND,
-      };
-    }
-    return {
-      statusCode: HttpStatus.OK,
-      message: ProductKeys.FETCHED_SUCCESSFULLY,
-      data: product,
-    };
   }
 
   async update(id: string, updateProductDto: UpdateProductDto, req: any) {
@@ -92,10 +66,7 @@ export class ProductsService {
     });
 
     if (!admin) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ProductKeys.ONLY_ADMIN,
-      };
+      throw new Error(ProductKeys.ONLY_ADMIN);
     }
 
     const productchek = await this.prisma.product.findFirst({
@@ -106,13 +77,10 @@ export class ProductsService {
     });
 
     if (!productchek) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ProductKeys.PRODUCT_NOT_FOUND,
-      };
+      throw new NotFoundException(ProductKeys.PRODUCT_NOT_FOUND);
     }
 
-    const product = await this.prisma.product.update({
+    return this.prisma.product.update({
       where: {
         id: id,
         isDeleted: false,
@@ -120,14 +88,9 @@ export class ProductsService {
       data: {
         name,
         description,
-        category: { connect: { id: categoryId } },
+        categoryId: categoryId,
       },
     });
-    return {
-      statusCode: HttpStatus.OK,
-      message: ProductKeys.PRODUCT_UPDATED,
-      data: product,
-    };
   }
 
   async remove(id: string, req: any) {
@@ -139,10 +102,7 @@ export class ProductsService {
     });
 
     if (!admin) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ProductKeys.ONLY_ADMIN,
-      };
+      throw new Error(ProductKeys.ONLY_ADMIN);
     }
 
     const productchek = await this.prisma.product.findFirst({
@@ -153,10 +113,7 @@ export class ProductsService {
     });
 
     if (!productchek) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ProductKeys.PRODUCT_NOT_FOUND,
-      };
+      throw new NotFoundException(ProductKeys.PRODUCT_NOT_FOUND);
     }
 
     const product = this.prisma.product.update({
@@ -172,7 +129,6 @@ export class ProductsService {
     return {
       statusCode: HttpStatus.OK,
       message: ProductKeys.PRODUCT_DELETED,
-      data: product,
     };
   }
 }

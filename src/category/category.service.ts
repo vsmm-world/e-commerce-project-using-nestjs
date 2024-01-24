@@ -17,10 +17,7 @@ export class CategoryService {
     });
 
     if (!admin) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: CategoryKeys.ONLY_ADMIN,
-      };
+      throw new Error(CategoryKeys.ONLY_ADMIN);
     }
     const category = await this.prisma.category.create({
       data: {
@@ -36,38 +33,17 @@ export class CategoryService {
   }
 
   async findAll() {
-    const category = await this.prisma.category.findMany({
+    return this.prisma.category.findMany({
       where: { isDeleted: false },
     });
-    if (category[0] == null) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: CategoryKeys.CATEGORY_NOT_FOUND,
-      };
-    }
-    return {
-      statusCode: HttpStatus.OK,
-      message: CategoryKeys.FETCHED_SUCCESSFULLY,
-      data: category,
-    };
   }
 
   async findOne(id: string) {
-    const category = await this.prisma.category.findFirst({
+
+    return this.prisma.category.findFirst({
       where: { id: id, isDeleted: false },
     });
 
-    if (!category) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: CategoryKeys.CATEGORY_NOT_FOUND,
-      };
-    }
-    return {
-      statusCode: HttpStatus.OK,
-      message: CategoryKeys.FETCHED_SUCCESSFULLY,
-      data: category,
-    };
   }
 
   async update(id: string, updateCategoryDto: UpdateCategoryDto, req: any) {
@@ -80,10 +56,7 @@ export class CategoryService {
     });
 
     if (!admin) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: CategoryKeys.ONLY_ADMIN,
-      };
+      throw new Error(CategoryKeys.ONLY_ADMIN);
     }
     const chekCategory = await this.prisma.category.findFirst({
       where: {
@@ -92,10 +65,7 @@ export class CategoryService {
       },
     });
     if (!chekCategory) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: CategoryKeys.CATEGORY_NOT_FOUND,
-      };
+      throw new Error(CategoryKeys.CATEGORY_NOT_FOUND);
     }
     return this.prisma.category.update({
       where: {
@@ -117,10 +87,7 @@ export class CategoryService {
       },
     });
     if (!admin) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: CategoryKeys.ONLY_ADMIN,
-      };
+      throw new Error(CategoryKeys.ONLY_ADMIN);
     }
 
     const chekCategory = await this.prisma.category.findFirst({
@@ -130,10 +97,7 @@ export class CategoryService {
       },
     });
     if (!chekCategory) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: CategoryKeys.CATEGORY_NOT_FOUND,
-      };
+      throw new Error(CategoryKeys.CATEGORY_NOT_FOUND);
     }
 
     await this.prisma.category.update({

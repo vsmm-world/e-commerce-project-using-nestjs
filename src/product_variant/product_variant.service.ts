@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductVariantDto } from './dto/create-product_variant.dto';
@@ -20,10 +20,7 @@ export class ProductVariantService {
     });
 
     if (!admin) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ProductKeys.ONLY_ADMIN,
-      };
+      throw new Error(ProductKeys.ONLY_ADMIN);
     }
     const product = await this.prisma.product.findUnique({
       where: {
@@ -32,10 +29,7 @@ export class ProductVariantService {
       },
     });
     if (!product) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ProductKeys.PRODUCT_NOT_FOUND,
-      };
+      throw new NotFoundException(ProductKeys.PRODUCT_NOT_FOUND);
     }
 
     const productVariant = await this.prisma.productVariant.create({
@@ -52,7 +46,7 @@ export class ProductVariantService {
   }
 
   async findAll() {
-    const productVariants = await this.prisma.productVariant.findMany({
+    return this.prisma.productVariant.findMany({
       where: {
         isDeleted: false,
         stock: {
@@ -60,22 +54,10 @@ export class ProductVariantService {
         },
       },
     });
-    if (productVariants[0] == null) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ProductKeys.PRODUCT_VARIANT_NOT_FOUND,
-      };
-    }
-
-    return {
-      statusCode: HttpStatus.OK,
-      message: ProductKeys.PRODUCT_VARIANT_FETCHED_SUCCESSFULLY,
-      data: productVariants,
-    };
   }
 
   async findOne(id: string) {
-    const productVariant = await this.prisma.productVariant.findFirst({
+    return this.prisma.productVariant.findFirst({
       where: {
         id,
         isDeleted: false,
@@ -84,19 +66,6 @@ export class ProductVariantService {
         },
       },
     });
-
-    if (!productVariant) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ProductKeys.PRODUCT_VARIANT_NOT_FOUND,
-      };
-    }
-
-    return {
-      statusCode: HttpStatus.OK,
-      message: ProductKeys.PRODUCT_VARIANT_FETCHED_SUCCESSFULLY,
-      data: productVariant,
-    };
   }
 
   async update(
@@ -112,10 +81,7 @@ export class ProductVariantService {
       },
     });
     if (!admin) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ProductKeys.ONLY_ADMIN,
-      };
+      throw new Error(ProductKeys.ONLY_ADMIN);
     }
     const productVariantCheck = await this.prisma.productVariant.findFirst({
       where: {
@@ -124,12 +90,9 @@ export class ProductVariantService {
       },
     });
     if (!productVariantCheck) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ProductKeys.PRODUCT_VARIANT_NOT_FOUND,
-      };
+     throw new NotFoundException(ProductKeys.PRODUCT_VARIANT_NOT_FOUND);
     }
-    const productVariant = await this.prisma.productVariant.update({
+    return this.prisma.productVariant.update({
       where: {
         id,
       },
@@ -137,11 +100,7 @@ export class ProductVariantService {
         ...updateProductVariantDto,
       },
     });
-    return {
-      statusCode: HttpStatus.OK,
-      message: ProductKeys.PRODUCT_VARIANT_UPDATED,
-      data: productVariant,
-    };
+  
   }
 
   async remove(id: string, req: any) {
@@ -154,10 +113,7 @@ export class ProductVariantService {
     });
 
     if (!admin) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ProductKeys.ONLY_ADMIN,
-      };
+      throw new Error(ProductKeys.ONLY_ADMIN);
     }
     const productVariantCheck = await this.prisma.productVariant.findFirst({
       where: {
@@ -166,10 +122,7 @@ export class ProductVariantService {
       },
     });
     if (!productVariantCheck) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ProductKeys.PRODUCT_VARIANT_NOT_FOUND,
-      };
+      throw new NotFoundException(ProductKeys.PRODUCT_VARIANT_NOT_FOUND);
     }
 
     const productVariant = await this.prisma.productVariant.update({

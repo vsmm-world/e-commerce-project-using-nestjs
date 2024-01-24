@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -11,12 +11,9 @@ export class ReviewsService {
   async create(createReviewDto: CreateReviewDto, req: any) {
     const { productVariantId, rating, review } = createReviewDto;
     const { user } = req;
-if(rating > 5 || rating < 1){
-  return {
-    statusCode: HttpStatus.BAD_REQUEST,
-    message: ReviewKeys.INVALID_RATING,
-  };
-}
+    if (rating > 5 || rating < 1) {
+      throw new Error(ReviewKeys.INVALID_RATING);
+    }
     const customer = await this.prisma.customer.findUnique({
       where: {
         id: user.id,
@@ -24,10 +21,7 @@ if(rating > 5 || rating < 1){
       },
     });
     if (!customer) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ReviewKeys.CUSTOMER_NOT_FOUND,
-      };
+      throw new NotFoundException(ReviewKeys.CUSTOMER_NOT_FOUND);
     }
 
     const orderHistory = await this.prisma.orderHistory.findMany({
@@ -41,17 +35,11 @@ if(rating > 5 || rating < 1){
       return order.productsIds;
     });
     if (HistoryproductVariantIdsArray[0] == null) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ReviewKeys.NOT_PURCHASED,
-      };
+      throw new Error(ReviewKeys.NOT_PURCHASED);
     }
     const productVariantIds = HistoryproductVariantIdsArray.flat();
     if (!productVariantIds.includes(productVariantId)) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ReviewKeys.NOT_PURCHASED,
-      };
+      throw new Error(ReviewKeys.NOT_PURCHASED);
     }
     const product = await this.prisma.productVariant.findUnique({
       where: {
@@ -60,12 +48,9 @@ if(rating > 5 || rating < 1){
       },
     });
     if (!product) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ReviewKeys.PRODUCT_NOT_FOUND,
-      };
+      throw new NotFoundException(ReviewKeys.PRODUCT_NOT_FOUND);
     }
-    const reviewData = await this.prisma.customerReviews.create({
+    return this.prisma.customerReviews.create({
       data: {
         rating,
         review,
@@ -73,12 +58,6 @@ if(rating > 5 || rating < 1){
         productVariantId,
       },
     });
-
-    return {
-      statusCode: HttpStatus.OK,
-      message: ReviewKeys.CREATED_SUCCESSFULLY,
-      data: reviewData,
-    };
   }
 
   async findAll() {
@@ -99,10 +78,7 @@ if(rating > 5 || rating < 1){
     });
 
     if (!customer) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ReviewKeys.CUSTOMER_NOT_FOUND,
-      };
+      throw new NotFoundException(ReviewKeys.CUSTOMER_NOT_FOUND);
     }
 
     const review = await this.prisma.customerReviews.findFirst({
@@ -113,10 +89,7 @@ if(rating > 5 || rating < 1){
     });
 
     if (!review) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ReviewKeys.REVIEW_NOT_FOUND,
-      };
+      throw new NotFoundException(ReviewKeys.REVIEW_NOT_FOUND);
     }
   }
 
@@ -130,10 +103,7 @@ if(rating > 5 || rating < 1){
     });
 
     if (!customer) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ReviewKeys.CUSTOMER_NOT_FOUND,
-      };
+      throw new NotFoundException(ReviewKeys.CUSTOMER_NOT_FOUND);
     }
 
     const review = await this.prisma.customerReviews.findFirst({
@@ -144,13 +114,9 @@ if(rating > 5 || rating < 1){
     });
 
     if (!review) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ReviewKeys.REVIEW_NOT_FOUND,
-      };
+      throw new NotFoundException(ReviewKeys.REVIEW_NOT_FOUND);
     }
-
-    const updatedReview = await this.prisma.customerReviews.update({
+    return this.prisma.customerReviews.update({
       where: {
         id: id,
       },
@@ -178,10 +144,7 @@ if(rating > 5 || rating < 1){
       });
 
       if (!admin) {
-        return {
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: ReviewKeys.NOT_AUTHORIZED,
-        };
+        throw new NotFoundException(ReviewKeys.CUSTOMER_NOT_FOUND);
       }
 
       const review = await this.prisma.customerReviews.findFirst({
@@ -192,10 +155,7 @@ if(rating > 5 || rating < 1){
       });
 
       if (!review) {
-        return {
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: ReviewKeys.REVIEW_NOT_FOUND,
-        };
+        throw new NotFoundException(ReviewKeys.REVIEW_NOT_FOUND);
       }
 
       const deletedReview = await this.prisma.customerReviews.update({
@@ -223,10 +183,7 @@ if(rating > 5 || rating < 1){
     });
 
     if (!review) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ReviewKeys.REVIEW_NOT_FOUND,
-      };
+      throw new NotFoundException(ReviewKeys.REVIEW_NOT_FOUND);
     }
 
     const deletedReview = await this.prisma.customerReviews.update({
@@ -241,7 +198,6 @@ if(rating > 5 || rating < 1){
     return {
       statusCode: HttpStatus.OK,
       message: ReviewKeys.REVIEW_DELETED,
-      data: deletedReview,
     };
   }
 }

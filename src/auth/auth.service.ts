@@ -1,4 +1,9 @@
-import { HttpStatus, Injectable, Session } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  Session,
+} from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
@@ -29,17 +34,11 @@ export class AuthService {
     });
 
     if (!tempToken) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: AuthKeys.INVALID_TOKEN,
-      };
+      throw new BadRequestException(AuthKeys.INVALID_TOKEN);
     }
 
     if (password !== confirPassword) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: AuthKeys.INVALID_CREDENTIALS,
-      };
+      throw new BadRequestException(AuthKeys.INVALID_CREDENTIALS);
     }
 
     const admin = await this.prisma.admin.findFirst({
@@ -54,10 +53,7 @@ export class AuthService {
         },
       });
       if (!customer) {
-        return {
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: AuthKeys.USER_NOT_FOUND,
-        };
+        throw new BadRequestException(AuthKeys.USER_NOT_FOUND);
       }
       const customerCred = await this.prisma.customerCredential.findFirst({
         where: {
@@ -65,10 +61,7 @@ export class AuthService {
         },
       });
       if (!customerCred) {
-        return {
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: AuthKeys.USER_NOT_FOUND,
-        };
+        throw new BadRequestException(AuthKeys.USER_NOT_FOUND);
       }
       const hashedPassword = await bcrypt.hash(password, 10);
       await this.prisma.customerCredential.update({
@@ -95,10 +88,7 @@ export class AuthService {
       },
     });
     if (!adminCred) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: AuthKeys.USER_NOT_FOUND,
-      };
+      throw new BadRequestException(AuthKeys.USER_NOT_FOUND);
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     await this.prisma.adminCredential.update({
@@ -135,10 +125,7 @@ export class AuthService {
         },
       });
       if (!admin) {
-        return {
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: AuthKeys.NOT_REGISTERD,
-        };
+        throw new BadRequestException(AuthKeys.USER_NOT_FOUND);
       }
       const token = otpGenerator.generate(10, {
         upperCase: false,
@@ -155,10 +142,7 @@ export class AuthService {
           },
         });
       } catch (err) {
-        return {
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: AuthKeys.GONE_WRONG,
-        };
+        throw new BadRequestException(AuthKeys.GONE_WRONG);
       }
       const client = new postmark.ServerClient(env.POST_MARK_API_KEY);
       const mail = {
@@ -172,10 +156,7 @@ export class AuthService {
       try {
         await client.sendEmail(mail);
       } catch (err) {
-        return {
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: AuthKeys.GONE_WRONG,
-        };
+        throw new BadRequestException(AuthKeys.GONE_WRONG);
       }
       return {
         statusCode: HttpStatus.OK,
@@ -198,10 +179,7 @@ export class AuthService {
         },
       });
     } catch (err) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: AuthKeys.GONE_WRONG,
-      };
+      throw new BadRequestException(AuthKeys.GONE_WRONG);
     }
     const client = new postmark.ServerClient(env.POST_MARK_API_KEY);
     const mail = {
@@ -215,10 +193,7 @@ export class AuthService {
     try {
       await client.sendEmail(mail);
     } catch (err) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: AuthKeys.GONE_WRONG,
-      };
+      throw new BadRequestException(AuthKeys.GONE_WRONG);
     }
 
     return {
@@ -267,10 +242,7 @@ export class AuthService {
       };
     }
 
-    return {
-      statusCode: HttpStatus.BAD_REQUEST,
-      message: AuthKeys.USER_NOT_FOUND,
-    };
+  throw new BadRequestException(AuthKeys.NOT_REGISTERD);
   }
 
   async login(createAuthDto: CreateAuthDto) {
@@ -379,10 +351,7 @@ export class AuthService {
         }
       }
     }
-    return {
-      statusCode: HttpStatus.BAD_REQUEST,
-      message: AuthKeys.INVALID_CREDENTIALS,
-    };
+    throw new BadRequestException(AuthKeys.INVALID_CREDENTIALS);
   }
 
   async validateOtp(validateOtp) {
@@ -532,10 +501,7 @@ export class AuthService {
         message: AuthKeys.LOGIN_SUCCESS,
       };
     }
-    return {
-      statusCode: HttpStatus.BAD_REQUEST,
-      message: AuthKeys.NOT_LOGGED_IN,
-    };
+    throw new BadRequestException(AuthKeys.NOT_LOGGED_IN);
   }
 
   generatejwtToken(userId: string): string {

@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { UpdateShipmentDto } from './dto/update-shipment.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -12,10 +12,7 @@ export class ShipmentService {
     const { user } = req;
     const isAdmin = await this.isAdmin(user);
     if (!isAdmin) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ShipmentKeys.ADMIN_NOT_FOUND,
-      };
+   throw new NotFoundException(ShipmentKeys.ADMIN_NOT_FOUND);
     }
     return this.prisma.shipmentStatus.findMany({
       where: {
@@ -37,10 +34,8 @@ export class ShipmentService {
     const { user } = req;
     const isAdmin = await this.isAdmin(user);
     if (!isAdmin) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ShipmentKeys.ADMIN_NOT_FOUND,
-      };
+      throw new NotFoundException(ShipmentKeys.ADMIN_NOT_FOUND);
+
     }
     const shipmentCheck = await this.prisma.shipmentStatus.findFirst({
       where: {
@@ -49,10 +44,7 @@ export class ShipmentService {
       },
     });
     if (!shipmentCheck) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ShipmentKeys.SHIPMENT_NOT_FOUND,
-      };
+      throw new NotFoundException(ShipmentKeys.SHIPMENT_NOT_FOUND);
     }
     const shipment = await this.prisma.shipmentStatus.update({
       where: {
@@ -111,10 +103,8 @@ export class ShipmentService {
     const { user } = req;
     const isAdmin = await this.isAdmin(user);
     if (!isAdmin) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ShipmentKeys.ADMIN_NOT_FOUND,
-      };
+      throw new NotFoundException(ShipmentKeys.ADMIN_NOT_FOUND);
+
     }
     const shipmentCheck = await this.prisma.shipmentStatus.findFirst({
       where: {
@@ -123,10 +113,7 @@ export class ShipmentService {
       },
     });
     if (!shipmentCheck) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ShipmentKeys.SHIPMENT_NOT_FOUND,
-      };
+      throw new NotFoundException(ShipmentKeys.SHIPMENT_NOT_FOUND);
     }
     const shipment = await this.prisma.shipmentStatus.update({
       where: {

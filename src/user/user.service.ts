@@ -1,10 +1,15 @@
-import { HttpStatus, Injectable, Session } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+  Session,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { session } from 'passport';
-import { userInfo } from 'os';
+import { UserKeys } from 'src/shared/keys/user.keys';
 
 @Injectable()
 export class UserService {
@@ -19,19 +24,13 @@ export class UserService {
         where: { email, isDeleted: false },
       });
       if (customer) {
-        return {
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Email already exists',
-        };
+        throw new BadRequestException(UserKeys.USER_ALREADY_EXIST);
       }
       const admin = await this.prisma.admin.findFirst({
         where: { email, isDeleted: false },
       });
       if (admin) {
-        return {
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Email already exists',
-        };
+        throw new BadRequestException(UserKeys.USER_ALREADY_EXIST);
       }
       const newAdmin = await this.prisma.admin.create({
         data: {
@@ -51,7 +50,7 @@ export class UserService {
       });
       return {
         statusCode: HttpStatus.OK,
-        message: 'Admin created successfully',
+        message: UserKeys.USER_CREATED,
         data: newAdmin,
         adminCred: cred,
       };
@@ -61,19 +60,13 @@ export class UserService {
         where: { email, isDeleted: false },
       });
       if (admin) {
-        return {
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Email already exists',
-        };
+        throw new BadRequestException(UserKeys.USER_ALREADY_EXIST);
       }
       const user = await this.prisma.customer.findFirst({
         where: { email, isDeleted: false },
       });
       if (user) {
-        return {
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Email already exists',
-        };
+        throw new BadRequestException(UserKeys.USER_ALREADY_EXIST);
       }
       const newUser = await this.prisma.customer.create({
         data: {
@@ -94,7 +87,7 @@ export class UserService {
 
       return {
         statusCode: HttpStatus.OK,
-        message: 'User created successfully',
+        message: UserKeys.USER_CREATED,
         data: newUser,
         userCred: cred,
       };
@@ -110,10 +103,7 @@ export class UserService {
       },
     });
     if (!admin) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Only admin can create category',
-      };
+      throw new Error(UserKeys.ADMIN_ONLY);
     }
     const admins = await this.prisma.admin.findMany({
       where: { isDeleted: false },
@@ -124,14 +114,11 @@ export class UserService {
     });
 
     if (admins[0] == null && customers[0] == null) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'No users found',
-      };
+      throw new NotFoundException(UserKeys.USER_NOT_FOUND);
     }
     return {
       statusCode: HttpStatus.OK,
-      message: 'Users fetched successfully',
+      message: UserKeys.USER_FETCHED,
       admins: admins,
       customers: customers,
     };
@@ -147,10 +134,7 @@ export class UserService {
     });
 
     if (!admin) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Only admin can view user details',
-      };
+      throw new Error(UserKeys.ADMIN_ONLY);
     }
 
     const customer = await this.prisma.customer.findUnique({
@@ -161,20 +145,17 @@ export class UserService {
         where: { id: id, isDeleted: false },
       });
       if (!admin) {
-        return {
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: 'User not found',
-        };
+        throw new NotFoundException(UserKeys.USER_NOT_FOUND);
       }
       return {
         statusCode: HttpStatus.OK,
-        message: 'User found successfully',
+        message: UserKeys.USER_FETCHED,
         user: admin,
       };
     }
     return {
       statusCode: HttpStatus.OK,
-      message: 'User found successfully',
+      message: UserKeys.USER_FETCHED,
       user: customer,
     };
   }
@@ -188,10 +169,7 @@ export class UserService {
       },
     });
     if (!admin) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Only admin can update user details',
-      };
+      throw new Error(UserKeys.ADMIN_ONLY);
     }
     const customerCheck = await this.prisma.customer.findUnique({
       where: { id: id, isDeleted: false },
@@ -202,40 +180,26 @@ export class UserService {
       });
 
       if (!adminCheck) {
-        return {
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: 'admin not found',
-        };
+        throw new NotFoundException(UserKeys.USER_NOT_FOUND);
       }
       const { name, email } = updateUserDto;
-      const admin = await this.prisma.admin.update({
+      return this.prisma.admin.update({
         where: { id },
         data: {
           name,
           email,
         },
       });
-      return {
-        statusCode: HttpStatus.OK,
-        message: 'User updated successfully',
-        user: admin,
-      };
     }
 
     const { name, email } = updateUserDto;
-    const customer = await this.prisma.customer.update({
+    return this.prisma.customer.update({
       where: { id },
       data: {
         name,
         email,
       },
     });
-
-    return {
-      statusCode: HttpStatus.OK,
-      message: 'User updated successfully',
-      user: customer,
-    };
   }
 
   async remove(id: string, req: any) {
@@ -247,10 +211,7 @@ export class UserService {
       },
     });
     if (!admin) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Only admin can delete user',
-      };
+      throw new Error(UserKeys.ADMIN_ONLY);
     }
     const customerCheck = await this.prisma.customer.findUnique({
       where: { id: id, isDeleted: false },
@@ -261,10 +222,7 @@ export class UserService {
       });
 
       if (!adminCheck) {
-        return {
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Admin not found',
-        };
+        throw new NotFoundException(UserKeys.USER_NOT_FOUND);
       }
       const admin = await this.prisma.admin.update({
         where: { id },
@@ -274,7 +232,7 @@ export class UserService {
       });
       return {
         statusCode: HttpStatus.OK,
-        message: 'Admin deleted successfully',
+        message: UserKeys.USER_DELETED,
       };
     }
 
@@ -287,7 +245,7 @@ export class UserService {
 
     return {
       statusCode: HttpStatus.OK,
-      message: 'User deleted successfully',
+      message: UserKeys.USER_DELETED,
     };
   }
 }

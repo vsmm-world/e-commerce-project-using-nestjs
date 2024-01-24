@@ -8,6 +8,11 @@ describe('AdressController', () => {
   let controller: AdressController;
   let service: AdressService;
 
+  const notFound = {
+    statusCode: 404,
+    message: 'Adress not found',
+  };
+
   const req = {
     user: {
       id: '1',
@@ -93,6 +98,32 @@ describe('AdressController', () => {
 
       expect(service.create).toHaveBeenCalled();
     });
+
+    it('should handle validation error for invalid data', async () => {
+      const result = {
+        statusCode: 200,
+        message: 'This action returns a result',
+        data: {
+          id: '1',
+          customerId: '1',
+          name: 'teste',
+          street: 'Rua 1',
+          phone: '1',
+          city: 'Cidade 1',
+          state: 'Estado 1',
+          pincode: '00000000',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          isDeleted: false,
+          isDefault: true,
+        },
+      };
+      jest
+        .spyOn(service, 'create')
+        .mockImplementation(async () => await result.data);
+      expect(await controller.create(result.data, req)).toEqual(result.data);
+      expect(service.create).toHaveBeenCalled();
+    });
   });
 
   describe('findAll', () => {
@@ -103,10 +134,28 @@ describe('AdressController', () => {
 
       expect(service.findAll).toHaveBeenCalled();
     });
+
+    it('should return an array of resultes by customerId', async () => {
+      const notFount = jest
+        .spyOn(service, 'findAll')
+        .mockImplementation(async () => result);
+
+      expect(await controller.findAll(req)).toEqual(result);
+
+      expect(service.findAll).toHaveBeenCalled();
+    });
   });
 
   describe('findOne', () => {
     it('should return a result', async () => {
+      jest.spyOn(service, 'findOne').mockImplementation(async () => result[0]);
+
+      expect(await controller.findOne('1', req)).toEqual(result[0]);
+
+      expect(service.findOne).toHaveBeenCalled();
+    });
+
+    it('should return a result by customerId', async () => {
       jest.spyOn(service, 'findOne').mockImplementation(async () => result[0]);
 
       expect(await controller.findOne('1', req)).toEqual(result[0]);
@@ -134,4 +183,6 @@ describe('AdressController', () => {
       expect(service.remove).toHaveBeenCalled();
     });
   });
+
+  
 });

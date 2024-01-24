@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { InjectRazorpay } from 'nestjs-razorpay';
 import Razorpay from 'razorpay';
@@ -24,10 +24,7 @@ export class PaymentService {
       },
     });
     if (!customer) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: PaymentKeys.CUSTOMER_NOT_FOUND,
-      };
+      throw new NotFoundException(PaymentKeys.CUSTOMER_NOT_FOUND);
     }
     const address = await this.prisma.address.findFirst({
       where: {
@@ -36,10 +33,7 @@ export class PaymentService {
       },
     });
     if (!address) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: PaymentKeys.ADDRESS_NOT_FOUND,
-      };
+      throw new NotFoundException(PaymentKeys.ADDRESS_NOT_FOUND);
     }
     const { ProductVariantId, quantity, CashOnDelivery } = buyNowDto;
     const productVariant = await this.prisma.productVariant.findUnique({
@@ -49,10 +43,7 @@ export class PaymentService {
       },
     });
     if (!productVariant) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: PaymentKeys.PRODUCT_NOT_FOUND,
-      };
+    throw new NotFoundException(PaymentKeys.PRODUCT_NOT_FOUND);
     }
     const product = await this.prisma.product.findUnique({
       where: {
@@ -61,10 +52,7 @@ export class PaymentService {
       },
     });
     if (!product) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: PaymentKeys.PRODUCT_NOT_FOUND,
-      };
+      throw new NotFoundException(PaymentKeys.PRODUCT_NOT_FOUND);
     }
     const totalPrice = productVariant.price * quantity;
     const { currency } = buyNowDto;
@@ -191,10 +179,7 @@ export class PaymentService {
       },
     });
     if (!customer) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: PaymentKeys.CUSTOMER_NOT_FOUND,
-      };
+     throw new NotFoundException(PaymentKeys.CUSTOMER_NOT_FOUND);
     }
     const cart = await this.prisma.cart.findFirst({
       where: {
@@ -204,10 +189,7 @@ export class PaymentService {
     });
 
     if (!cart) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: PaymentKeys.CART_NOT_FOUND,
-      };
+    throw new NotFoundException(PaymentKeys.CART_NOT_FOUND);
     }
     const address = await this.prisma.address.findFirst({
       where: {
@@ -216,10 +198,7 @@ export class PaymentService {
       },
     });
     if (!address) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: PaymentKeys.ADDRESS_NOT_FOUND,
-      };
+      throw new NotFoundException(PaymentKeys.ADDRESS_NOT_FOUND);
     }
 
     const products = cart.products;
@@ -325,20 +304,14 @@ export class PaymentService {
       },
     });
     if (!cart) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: PaymentKeys.CART_NOT_FOUND,
-      };
+      throw new NotFoundException(PaymentKeys.CART_NOT_FOUND);
     }
     const productsfromCart = cart.products;
     let promises = [];
     try {
       promises = await this.getProducts(productsfromCart);
     } catch (err) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: PaymentKeys.PRODUCT_NOT_FOUND,
-      };
+   throw new NotFoundException(PaymentKeys.PRODUCT_NOT_FOUND);
     }
 
     const products = await Promise.all(promises);
@@ -354,10 +327,7 @@ export class PaymentService {
     });
 
     if (!payment) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: PaymentKeys.PAYMENT_NOT_FOUND,
-      };
+     throw new NotFoundException(PaymentKeys.PAYMENT_NOT_FOUND);
     }
 
     let PaymentStatus = 'Pending';
@@ -373,10 +343,7 @@ export class PaymentService {
       },
     });
     if (!address) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: PaymentKeys.ADDRESS_NOT_FOUND,
-      };
+     throw new NotFoundException(PaymentKeys.ADDRESS_NOT_FOUND);
     }
 
     const order = await this.prisma.order.create({

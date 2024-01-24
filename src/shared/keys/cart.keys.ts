@@ -6,4 +6,5 @@ export class CartKeys {
     static PRODUCT_NOT_FOUND = 'Product not found';
     static OUT_OF_STOCK = 'Product is out of stock';
     static PRODUCT_UPDATED = 'Product updated successfully';
+    static CART = 'Fetches cart successfully';
 }
