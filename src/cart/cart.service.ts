@@ -129,20 +129,12 @@ export class CartService {
 
   async findAll(req: any) {
     const { user } = req;
-    const cart = await this.prisma.cart.findFirst({
+    return this.prisma.cart.findFirst({
       where: {
         customerId: user.id,
         isDeleted: false,
       },
     });
-    if (!cart) {
-     throw new NotFoundException(CartKeys.CART_NOT_FOUND);
-    }
-    return {
-      statusCode: HttpStatus.OK,
-      message: CartKeys.CART,
-      data: cart,
-    };
   }
   async update(id: string, updateCartDto: UpdateCartDto, req: any) {
     // const { productVariant_id, quantity } = updateCartDto;
@@ -156,7 +148,6 @@ export class CartService {
     });
     if (!cart) {
       throw new NotFoundException(CartKeys.CART_NOT_FOUND);
-
     }
     const product = await this.prisma.productVariant.findUnique({
       where: {
@@ -166,7 +157,6 @@ export class CartService {
     });
     if (!product) {
       throw new NotFoundException(CartKeys.PRODUCT_NOT_FOUND);
-
     }
     let Products = [];
     let ProductIds = [];
@@ -218,7 +208,6 @@ export class CartService {
     });
     if (!cart) {
       throw new NotFoundException(CartKeys.CART_NOT_FOUND);
-
     }
     const product = await this.prisma.productVariant.findUnique({
       where: {
@@ -229,7 +218,6 @@ export class CartService {
 
     if (!product) {
       throw new NotFoundException(CartKeys.PRODUCT_NOT_FOUND);
-
     }
 
     let Products = [];

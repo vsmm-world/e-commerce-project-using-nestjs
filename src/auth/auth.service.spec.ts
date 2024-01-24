@@ -50,7 +50,11 @@ describe('AuthService', () => {
       isDeleted: false,
     },
   };
-
+  const loginReturn = {
+    statusCode: 200,
+    message: 'This action login a user',
+    otpRef: 'string',
+  };
   const message = [
     {
       statusCode: 200,
@@ -155,9 +159,9 @@ describe('AuthService', () => {
 
   describe('login', () => {
     it('should return "This action login a user"', async () => {
-      jest.spyOn(service, 'login').mockImplementation(async () => message[2]);
+      jest.spyOn(service, 'login').mockImplementation(async () => loginReturn);
 
-      expect(await service.login(logs)).toEqual(message[2]);
+      expect(await service.login(logs)).toEqual(loginReturn);
       expect(service.login).toHaveBeenCalled();
     });
   });
@@ -181,6 +185,8 @@ describe('AuthService', () => {
       expect(service.logout).toHaveBeenCalled();
     });
   });
+
+  
 
   describe('whoami', () => {
     it('should return "This action returns a user"', async () => {
