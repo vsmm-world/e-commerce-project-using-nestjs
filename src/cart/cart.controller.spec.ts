@@ -54,7 +54,7 @@ describe('CartController', () => {
     quantity: 1,
   };
 
-  const returnUpdated = {
+  const returnUpdated = [{
     id: '1',
     productIds: ['xyz', 'xyz'],
     products: [
@@ -76,8 +76,7 @@ describe('CartController', () => {
     customerId: '1',
     isDeleted: false,
     productId: '1',
-    productVariantId: '1',
-  };
+  }]
 
   const result = [
     {
