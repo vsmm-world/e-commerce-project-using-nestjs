@@ -6,7 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: npm run start:dev
+    command: npm run start
     volumes:
       - ./app:/usr/src/app
     ports:
