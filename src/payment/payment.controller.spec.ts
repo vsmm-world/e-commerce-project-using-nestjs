@@ -143,6 +143,14 @@ describe('PaymentController', () => {
 
       expect(controller.create).toHaveBeenCalled();
     });
+    it('should throw an error for invalid payment data', async () => {
+      jest.spyOn(controller, 'create').mockImplementation(async () => {
+        throw new Error('Invalid payment data');
+      });
+
+      await expect(controller.create).rejects.toThrow('Invalid payment data');
+      expect(controller.create).toHaveBeenCalled();
+    });
   });
 
   describe('buyNow', () => {
@@ -155,8 +163,13 @@ describe('PaymentController', () => {
 
       expect(controller.buyNow).toHaveBeenCalled();
     });
-  });
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+    it('should throw an error for invalid payment data', async () => {
+      jest.spyOn(controller, 'buyNow').mockImplementation(async () => {
+        throw new Error('Invalid payment data');
+      });
+
+      await expect(controller.buyNow).rejects.toThrow('Invalid payment data');
+      expect(controller.buyNow).toHaveBeenCalled();
+    });
   });
 });

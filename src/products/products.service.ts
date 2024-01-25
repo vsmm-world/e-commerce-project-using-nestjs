@@ -23,19 +23,13 @@ export class ProductsService {
       throw new Error(ProductKeys.ONLY_ADMIN);
     }
 
-    const product = await this.prisma.product.create({
+    return this.prisma.product.create({
       data: {
         name,
         description,
-        category: { connect: { id: categoryId } },
+        categoryId: categoryId,
       },
     });
-
-    return {
-      statusCode: 201,
-      message: ProductKeys.PRODUCT_CREATED,
-      data: product,
-    };
   }
 
   async findAll() {

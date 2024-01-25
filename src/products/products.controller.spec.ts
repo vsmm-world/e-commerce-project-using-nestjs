@@ -16,10 +16,12 @@ describe('ProductsController', () => {
     categoryId: '65a8fa1341a6ba640657c8de',
   };
 
-  const returnedProduct = {
-    statusCode: 201,
-    message: 'Product created successfully',
-    data: {
+  const message = {
+    statusCode: 200,
+    message: 'This action adds a new product',
+  };
+  const returnedProduct = [
+    {
       id: '65af99da15ca634a7f2df712',
       name: 'string',
       description: 'string',
@@ -28,45 +30,7 @@ describe('ProductsController', () => {
       updatedAt: new Date(),
       isDeleted: false,
     },
-  };
-
-  const findAllProduct = {
-    statusCode: 200,
-    message: 'Product fetched successfully',
-    data: [
-      {
-        id: '65a8fa4f41a6ba640657c8df',
-        name: 'Sugar',
-        description: 'ek dam mast sugar',
-        categoryId: '65a8fa1341a6ba640657c8de',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        isDeleted: false,
-      },
-      {
-        id: '65af99da15ca634a7f2df712',
-        name: 'string',
-        description: 'string',
-        categoryId: '65a8fa1341a6ba640657c8de',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        isDeleted: false,
-      },
-    ],
-  };
-  const findOneProduct = {
-    statusCode: 200,
-    message: 'Product fetched successfully',
-    data: {
-      id: '65a8fa4f41a6ba640657c8df',
-      name: 'Sugar',
-      description: 'ek dam mast sugar',
-      categoryId: '65a8fa1341a6ba640657c8de',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      isDeleted: false,
-    },
-  };
+  ];
 
   const updateProduct = {
     name: 'Sugar',
@@ -107,39 +71,84 @@ describe('ProductsController', () => {
 
   describe('create', () => {
     it('should return created product', async () => {
-      jest.spyOn(controller, 'create').mockResolvedValue(returnedProduct);
+      jest.spyOn(controller, 'create').mockResolvedValue(returnedProduct[0]);
       expect(await controller.create(createProductDto, req)).toEqual(
-        returnedProduct,
+        returnedProduct[0],
       );
       expect(controller.create).toHaveBeenCalled();
     });
+    it('should handle validation error for invalid data', async () => {
+      jest.spyOn(controller, 'create').mockImplementation(async () => {
+        throw new Error('Invalid product data');
+      });
+      await expect(controller.create).rejects.toThrow('Invalid product data');
+    });
+
   });
 
   describe('findAll', () => {
     it('should return all product', async () => {
-      jest.spyOn(controller, 'findAll').mockResolvedValue(findAllProduct);
-      expect(await controller.findAll(req)).toEqual(findAllProduct);
+      jest.spyOn(controller, 'findAll').mockResolvedValue(returnedProduct);
+      expect(await controller.findAll(req)).toEqual(returnedProduct);
       expect(controller.findAll).toHaveBeenCalled();
     });
+    it('should return an empty array when no product are found', async () => {
+      jest.spyOn(controller, 'findAll').mockResolvedValue([]);
+      expect(await controller.findAll(req)).toEqual([]);
+      expect(controller.findAll).toHaveBeenCalled();
+    });
+
   });
 
   describe('findOne', () => {
     it('should return a product', async () => {
-      jest.spyOn(controller, 'findOne').mockResolvedValue(findOneProduct);
+      jest.spyOn(controller, 'findOne').mockResolvedValue(returnedProduct[0]);
       expect(await controller.findOne('65a8fa4f41a6ba640657c8df', req)).toEqual(
-        findOneProduct,
+        returnedProduct[0],
       );
       expect(controller.findOne).toHaveBeenCalled();
     });
+    it('should throw an error when no product is found', async () => {
+      jest.spyOn(controller, 'findOne').mockImplementation(async () => {
+        throw new Error('Product not found');
+      });
+      await expect(controller.findOne).rejects.toThrow('Product not found');
+      expect(controller.findOne).toHaveBeenCalled();
+    });
+
   });
 
   describe('update', () => {
     it('should update a product', async () => {
-      jest.spyOn(controller, 'update').mockResolvedValue(findOneProduct);
+      jest.spyOn(controller, 'update').mockResolvedValue(returnedProduct[0]);
       expect(
         await controller.update('65a8fa4f41a6ba640657c8df', updateProduct, req),
-      ).toEqual(findOneProduct);
+      ).toEqual(returnedProduct[0]);
       expect(controller.update).toHaveBeenCalled();
     });
+    it('should throw an error when no product is found', async () => {
+      jest.spyOn(controller, 'update').mockImplementation(async () => {
+        throw new Error('Product not found');
+      });
+      await expect(controller.update).rejects.toThrow('Product not found');
+      expect(controller.update).toHaveBeenCalled();
+    });
+  });
+  describe('remove', () => {
+    it('should remove a product', async () => {
+      jest.spyOn(controller, 'remove').mockResolvedValue(message);
+      expect(await controller.remove('65a8fa4f41a6ba640657c8df', req)).toEqual(
+        message,
+      );
+      expect(controller.remove).toHaveBeenCalled();
+    });
+    it('should throw an error when no product is found', async () => {
+      jest.spyOn(controller, 'remove').mockImplementation(async () => {
+        throw new Error('Product not found');
+      });
+      await expect(controller.remove).rejects.toThrow('Product not found');
+      expect(controller.remove).toHaveBeenCalled();
+    });
+    
   });
 });

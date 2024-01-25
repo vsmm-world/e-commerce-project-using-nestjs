@@ -9,7 +9,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { UserKeys } from 'src/shared/keys/user.keys';
+import { UserKeys } from '../shared/keys/user.keys';
 
 @Injectable()
 export class UserService {

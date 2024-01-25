@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CategoryController } from './category.controller';
 import { CategoryService } from './category.service';
 import { PrismaModule } from '../prisma/prisma.module';
+import { NotFoundException } from '@nestjs/common';
 
 describe('CategoryController', () => {
   let controller: CategoryController;
@@ -23,25 +24,20 @@ describe('CategoryController', () => {
     },
   };
 
-  const message = [
+  const returnUpdated = [
     {
-      statusCode: 200,
-      message: 'This action returns all category',
-      data: [
-        {
-          id: '1',
-          name: 'category',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          isDeleted: false,
-        },
-      ],
-    },
-    {
-      statusCode: 200,
-      message: 'This action deletes a  category',
+      id: '1',
+      name: 'category',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isDeleted: false,
     },
   ];
+
+  const message = {
+    statusCode: 200,
+    message: 'This action removes a #${id} category',
+  };
 
   const category = [
     {
@@ -94,16 +90,30 @@ describe('CategoryController', () => {
 
       expect(controller.create).toHaveBeenCalled();
     });
+    it('should throw an error for invalid cart data', async () => {
+      jest.spyOn(controller, 'create').mockImplementation(async () => {
+        throw new Error('Invalid cart data');
+      });
+
+      await expect(controller.create).rejects.toThrow('Invalid cart data');
+      expect(controller.create).toHaveBeenCalled();
+    });
   });
 
   describe('findAll', () => {
     it('should return an array of cart', async () => {
       jest
         .spyOn(controller, 'findAll')
-        .mockImplementation(async () => message[0]);
+        .mockImplementation(async () => returnUpdated);
 
-      expect(await controller.findAll()).toBe(message[0]);
+      expect(await controller.findAll()).toBe(returnUpdated);
 
+      expect(controller.findAll).toHaveBeenCalled();
+    });
+    it('should return an empty array when no carts are found', async () => {
+      jest.spyOn(controller, 'findAll').mockImplementation(async () => []);
+
+      expect(await controller.findAll()).toEqual([]);
       expect(controller.findAll).toHaveBeenCalled();
     });
   });
@@ -112,25 +122,40 @@ describe('CategoryController', () => {
     it('should update a cart', async () => {
       jest
         .spyOn(controller, 'update')
-        .mockImplementation(async () => cartegory1.data);
+        .mockImplementation(async () => returnUpdated[0]);
 
       expect(await controller.update('1', cartegory1.data, req)).toBe(
-        cartegory1.data,
+        returnUpdated[0],
       );
 
+      expect(controller.update).toHaveBeenCalled();
+    });
+    it('should throw an error when no cart is found', async () => {
+      jest.spyOn(controller, 'update').mockImplementation(async () => {
+        throw new NotFoundException();
+      });
+
+      await expect(controller.update).rejects.toThrow(NotFoundException);
       expect(controller.update).toHaveBeenCalled();
     });
   });
 
   describe('remove', () => {
     it('should remove a cart', async () => {
-      jest
-        .spyOn(controller, 'remove')
-        .mockImplementation(async () => message[1]);
+      jest.spyOn(controller, 'remove').mockImplementation(async () => message);
 
-      expect(await controller.remove('1', req)).toBe(message[1]);
+      expect(await controller.remove('1', req)).toBe(message);
 
       expect(controller.remove).toHaveBeenCalled();
     });
+    it('should throw an error when no cart is found', async () => {
+      jest.spyOn(controller, 'remove').mockImplementation(async () => {
+        throw new NotFoundException();
+      });
+
+      await expect(controller.remove).rejects.toThrow(NotFoundException);
+      expect(controller.remove).toHaveBeenCalled();
+    });
+    
   });
 });

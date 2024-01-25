@@ -69,28 +69,12 @@ export class ReviewsService {
   }
 
   async findOne(id: string, req: any) {
-    const { user } = req;
-    const customer = await this.prisma.customer.findUnique({
-      where: {
-        id: user.id,
-        isDeleted: false,
-      },
-    });
-
-    if (!customer) {
-      throw new NotFoundException(ReviewKeys.CUSTOMER_NOT_FOUND);
-    }
-
-    const review = await this.prisma.customerReviews.findFirst({
+    return this.prisma.customerReviews.findFirst({
       where: {
         id: id,
         isDeleted: false,
       },
     });
-
-    if (!review) {
-      throw new NotFoundException(ReviewKeys.REVIEW_NOT_FOUND);
-    }
   }
 
   async update(id: string, updateReviewDto: UpdateReviewDto, req: any) {
@@ -170,7 +154,6 @@ export class ReviewsService {
       return {
         statusCode: HttpStatus.OK,
         message: ReviewKeys.REVIEW_DELETED,
-        data: deletedReview,
       };
     }
 

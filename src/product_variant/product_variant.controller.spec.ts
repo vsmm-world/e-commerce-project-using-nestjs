@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProductVariantController } from './product_variant.controller';
 import { ProductVariantService } from './product_variant.service';
 import { PrismaModule } from '../prisma/prisma.module';
-import e from 'express';
+import { NotFoundException } from '@nestjs/common';
 
 describe('ProductVariantController', () => {
   let controller: ProductVariantController;
@@ -40,61 +40,9 @@ describe('ProductVariantController', () => {
       isDeleted: false,
     },
   };
-  const findAllProductVariant = {
-    statusCode: 200,
-    message: 'Product variant fetched successfully',
-    data: [
-      {
-        id: '65a8fb6141a6ba640657c8e0',
-        productId: '65a8fa4f41a6ba640657c8df',
-        size: 'Mota dana',
-        color: 'White',
-        stock: 90,
-        price: 50,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        isDeleted: false,
-      },
-      {
-        id: '65a8fb7f41a6ba640657c8e1',
-        productId: '65a8fa4f41a6ba640657c8df',
-        size: 'small dana',
-        color: 'White',
-        stock: 98,
-        price: 55,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        isDeleted: false,
-      },
-      {
-        id: '65a8fba141a6ba640657c8e2',
-        productId: '65a8fa4f41a6ba640657c8df',
-        size: 'invisible ',
-        color: 'White',
-        stock: 96,
-        price: 500,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        isDeleted: false,
-      },
-      {
-        id: '65af8cfeb3954d905bb67060',
-        productId: '65a8fa4f41a6ba640657c8df',
-        size: 'string',
-        color: 'string',
-        stock: 5,
-        price: 50,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        isDeleted: false,
-      },
-    ],
-  };
 
-  const returnUpdated = {
-    statusCode: 200,
-    message: 'Product variant updated successfully',
-    data: {
+  const returnUpdated = [
+    {
       id: '65af8cfeb3954d905bb67060',
       productId: '65a8fa4f41a6ba640657c8df',
       size: 'XL',
@@ -105,7 +53,7 @@ describe('ProductVariantController', () => {
       updatedAt: new Date(),
       isDeleted: false,
     },
-  };
+  ];
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -152,49 +100,75 @@ describe('ProductVariantController', () => {
       expect(await controller.create(createProductVariantDto, req)).toEqual(
         returnedProductVariant,
       );
-      expect(
-        controller.create,
-      ).toHaveBeenCalled();
+      expect(controller.create).toHaveBeenCalled();
+    });
+    it('should handle validation error for invalid data', async () => {
+      jest.spyOn(controller, 'create').mockImplementation(async () => {
+        throw new Error('Invalid product variant data');
+      });
+      await expect(controller.create).rejects.toThrow(
+        'Invalid product variant data',
+      );
+      expect(controller.create).toHaveBeenCalled();
     });
   });
 
   describe('findAll', () => {
     it('should return all product variant', async () => {
-      jest
-        .spyOn(controller, 'findAll')
-        .mockResolvedValue(findAllProductVariant);
-      expect(await controller.findAll()).toEqual(findAllProductVariant);
+      jest.spyOn(controller, 'findAll').mockResolvedValue(returnUpdated);
+      expect(await controller.findAll()).toEqual(returnUpdated);
+      expect(controller.findAll).toHaveBeenCalled();
+    });
+    it('should return an empty array when no product variant are found', async () => {
+      jest.spyOn(controller, 'findAll').mockImplementation(async () => []);
+      expect(await controller.findAll()).toEqual([]);
       expect(controller.findAll).toHaveBeenCalled();
     });
   });
 
   describe('findOne', () => {
     it('should return one product variant', async () => {
-      jest
-        .spyOn(controller, 'findOne')
-        .mockResolvedValue(returnedProductVariant);
+      jest.spyOn(controller, 'findOne').mockResolvedValue(returnUpdated[0]);
       expect(await controller.findOne('65af8cfeb3954d905bb67060')).toEqual(
-        returnedProductVariant,
+        returnUpdated[0],
       );
-      expect(
-        controller.findOne,
-      ).toHaveBeenCalled();
+      expect(controller.findOne).toHaveBeenCalled();
+    });
+    it('should throw an error when no product variant is found', async () => {
+      jest.spyOn(controller, 'findOne').mockImplementation(async () => {
+        throw new NotFoundException();
+      });
+      await expect(
+        controller.findOne('65af8cfeb3954d905bb67060'),
+      ).rejects.toThrow(NotFoundException);
+      expect(controller.findOne).toHaveBeenCalled();
     });
   });
 
   describe('update', () => {
     it('should update product variant', async () => {
-      jest.spyOn(controller, 'update').mockResolvedValue(returnUpdated);
+      jest.spyOn(controller, 'update').mockResolvedValue(returnUpdated[0]);
       expect(
         await controller.update(
           '65af8cfeb3954d905bb67060',
           createProductVariantDto,
           req,
         ),
-      ).toEqual(returnUpdated);
-      expect(
-        controller.update,
-      ).toHaveBeenCalled();
+      ).toEqual(returnUpdated[0]);
+      expect(controller.update).toHaveBeenCalled();
+    });
+    it('should throw an error when no product variant is found', async () => {
+      jest.spyOn(controller, 'update').mockImplementation(async () => {
+        throw new NotFoundException();
+      });
+      await expect(
+        controller.update(
+          '65af8cfeb3954d905bb67060',
+          createProductVariantDto,
+          req,
+        ),
+      ).rejects.toThrow(NotFoundException);
+      expect(controller.update).toHaveBeenCalled();
     });
   });
 
@@ -204,11 +178,17 @@ describe('ProductVariantController', () => {
       expect(await controller.remove('65af8cfeb3954d905bb67060', req)).toEqual(
         message,
       );
-      expect(
-        controller.remove,
-      ).toHaveBeenCalled();
+      expect(controller.remove).toHaveBeenCalled();
+    });
+
+    it('should throw an error when no product variant is found', async () => {
+      jest.spyOn(controller, 'remove').mockImplementation(async () => {
+        throw new NotFoundException();
+      });
+      await expect(
+        controller.remove('65af8cfeb3954d905bb67060', req),
+      ).rejects.toThrow(NotFoundException);
+      expect(controller.remove).toHaveBeenCalled();
     });
   });
 });
-
-

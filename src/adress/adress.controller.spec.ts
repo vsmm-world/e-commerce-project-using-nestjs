@@ -3,6 +3,7 @@ import { AdressController } from './adress.controller';
 import { AdressService } from './adress.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { Adress } from './entities/adress.entity';
+import { NotFoundException } from '@nestjs/common';
 
 describe('AdressController', () => {
   let controller: AdressController;
@@ -144,21 +145,31 @@ describe('AdressController', () => {
 
       expect(service.findAll).toHaveBeenCalled();
     });
+    it('should return an empty array when no resultes are found', async () => {
+      jest.spyOn(service, 'findAll').mockImplementation(async () => []);
+
+      expect(await controller.findAll(req)).toEqual([]);
+
+      expect(service.findAll).toHaveBeenCalled();
+    });
   });
 
   describe('findOne', () => {
-    it('should return a result', async () => {
+    it('should return a result by customerId', async () => {
       jest.spyOn(service, 'findOne').mockImplementation(async () => result[0]);
 
       expect(await controller.findOne('1', req)).toEqual(result[0]);
 
       expect(service.findOne).toHaveBeenCalled();
     });
+    it('should throw an error when no result is found', async () => {
+      jest.spyOn(service, 'findOne').mockImplementation(async () => {
+        throw new NotFoundException(notFound.message);
+      });
 
-    it('should return a result by customerId', async () => {
-      jest.spyOn(service, 'findOne').mockImplementation(async () => result[0]);
-
-      expect(await controller.findOne('1', req)).toEqual(result[0]);
+      await expect(controller.findOne('1', req)).rejects.toThrow(
+        NotFoundException,
+      );
 
       expect(service.findOne).toHaveBeenCalled();
     });
@@ -172,6 +183,16 @@ describe('AdressController', () => {
 
       expect(service.update).toHaveBeenCalled();
     });
+    it('should throw an error when updating a non-existing result', async () => {
+      jest.spyOn(service, 'update').mockImplementation(async () => {
+        throw new NotFoundException();
+      });
+
+      await expect(
+        controller.update('nonexistent', result[0], req),
+      ).rejects.toThrow(NotFoundException);
+      expect(service.update).toHaveBeenCalled();
+    });
   });
 
   describe('remove', () => {
@@ -182,7 +203,15 @@ describe('AdressController', () => {
 
       expect(service.remove).toHaveBeenCalled();
     });
-  });
+    it('should throw an error when removing a non-existing result', async () => {
+      jest.spyOn(service, 'remove').mockImplementation(async () => {
+        throw new NotFoundException();
+      });
 
-  
+      await expect(controller.remove('nonexistent', req)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(service.remove).toHaveBeenCalled();
+    });
+  });
 });

@@ -39,11 +39,9 @@ export class CategoryService {
   }
 
   async findOne(id: string) {
-
     return this.prisma.category.findFirst({
       where: { id: id, isDeleted: false },
     });
-
   }
 
   async update(id: string, updateCategoryDto: UpdateCategoryDto, req: any) {
