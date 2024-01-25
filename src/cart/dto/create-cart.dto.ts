@@ -9,5 +9,4 @@ export class CreateCartDto {
   @ApiProperty()
   @IsNotEmpty()
   quantity: number;
-
 }

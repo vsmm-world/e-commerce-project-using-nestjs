@@ -136,6 +136,7 @@ export class CartService {
       },
     });
   }
+
   async update(id: string, updateCartDto: UpdateCartDto, req: any) {
     // const { productVariant_id, quantity } = updateCartDto;
     const { user } = req;
@@ -167,7 +168,17 @@ export class CartService {
     ProductIds.push(product.id);
     total_price = total_price + product.price * updateCartDto.quantity;
     let totalItems = Products.length;
-    const newCart = await this.prisma.cart.update({
+    const newProduct = await this.prisma.productVariant.update({
+      where: {
+        id: updateCartDto.productVariantId,
+        isDeleted: false,
+      },
+      data: {
+        stock: updateCartDto.quantity,
+      },
+    });
+
+    return this.prisma.cart.update({
       where: {
         id: cart.id,
         isDeleted: false,
@@ -180,22 +191,6 @@ export class CartService {
         totalPrice: total_price,
       },
     });
-
-    const newProduct = await this.prisma.productVariant.update({
-      where: {
-        id: updateCartDto.productVariantId,
-        isDeleted: false,
-      },
-      data: {
-        stock: updateCartDto.quantity,
-      },
-    });
-
-    return {
-      statusCode: HttpStatus.OK,
-      message: CartKeys.PRODUCT_UPDATED,
-      cart: newCart,
-    };
   }
 
   async remove(id: string, req: any) {

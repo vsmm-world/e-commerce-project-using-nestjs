@@ -139,10 +139,10 @@ model Cart {
   customer         Customer?       @relation(fields: [customerId], references: [id])
   customerId       String?         @db.ObjectId
   isDeleted        Boolean         @default(false)
-  product          Product?        @relation(fields: [productId], references: [id])
+  Product          Product?        @relation(fields: [productId], references: [id])
   productId        String?         @db.ObjectId
-  ProductVariant   ProductVariant? @relation(fields: [ProductVariantId], references: [id])
-  ProductVariantId String?         @db.ObjectId
+  ProductVariant   ProductVariant? @relation(fields: [productVariantId], references: [id])
+  productVariantId String?         @db.ObjectId
 }
 
 model Order {
