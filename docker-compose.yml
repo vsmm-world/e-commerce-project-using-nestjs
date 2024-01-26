@@ -2,7 +2,11 @@ version: '3'
 
 services:
   nest-app:
+<<<<<<< HEAD
     image: node:18.17.1
+=======
+    image: node:14
+>>>>>>> c6c5718e638b5b42e7c02d700f2a160ffad56911
     build:
       context: .
       dockerfile: Dockerfile
@@ -13,7 +17,10 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=development
+<<<<<<< HEAD
         - DATABASE_URL=mongodb+srv://ravindra:rvrvrv@cluster0.y3ybjan.mongodb.net/learn?retryWrites=true&w=majority
+=======
+>>>>>>> c6c5718e638b5b42e7c02d700f2a160ffad56911
     depends_on:
       - mongo
 

@@ -1,6 +1,6 @@
-FROM node:v20.10.0
+FROM node:18
 
-WORKDIR /user/scr/app
+WORKDIR /workspaces/e-commerce-project-using-nestjs
 
 COPY package*.json ./
 
