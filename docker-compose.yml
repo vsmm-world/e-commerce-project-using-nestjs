@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  nest-app:
+    image: node:18.17.1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: npm run start
+    volumes:
+      - ./app:/usr/src/app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+        - DATABASE_URL=mongodb+srv://ravindra:rvrvrv@cluster0.y3ybjan.mongodb.net/learn?retryWrites=true&w=majority
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
