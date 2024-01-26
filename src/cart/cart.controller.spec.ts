@@ -54,32 +54,30 @@ describe('CartController', () => {
     quantity: 1,
   };
 
-  const returnUpdated = [
-    {
-      id: '1',
-      productIds: ['xyz', 'xyz'],
-      products: [
-        {
-          id: '1',
-          quantity: 1,
-          productIds: 'xyz',
-          size: '',
-          color: '',
-          stock: 22,
-          price: 50,
-        },
-      ],
-      totalItems: 2,
-      totalPrice: 500,
-      isReminded: true,
-      reminderDate: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      customerId: '1',
-      isDeleted: false,
-      productId: '1',
-    },
-  ];
+  const returnUpdated = {
+    id: '1',
+    productIds: ['xyz', 'xyz'],
+    products: [
+      {
+        id: '1',
+        quantity: 1,
+        size: '',
+        color: '',
+        stock: 22,
+        price: 50,
+      },
+    ],
+    totalItems: 2,
+    totalPrice: 500,
+    isReminded: true,
+    reminderDate: new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    customerId: '1',
+    isDeleted: false,
+    productId: '1',
+    productVariantId: '1',
+  };
 
   const result = [
     {
@@ -171,9 +169,11 @@ describe('CartController', () => {
 
   describe('findAll', () => {
     it('should return an array of carts', async () => {
-      jest.spyOn(controller, 'findAll').mockResolvedValue(result[0]);
+      jest
+        .spyOn(controller, 'findAll')
+        .mockImplementation(async () => returnUpdated);
 
-      expect(await controller.findAll(req)).toBe(result[0]);
+      expect(await controller.findAll(req)).toBe(returnUpdated);
 
       expect(controller.findAll).toHaveBeenCalled();
     });
@@ -181,9 +181,9 @@ describe('CartController', () => {
     it('should return an empty array when no carts are found', async () => {
       jest
         .spyOn(controller, 'findAll')
-        .mockImplementation(async () => result[0]);
+        .mockImplementation(async () => returnUpdated);
 
-      expect(await controller.findAll(req)).toEqual(result[0]);
+      expect(await controller.findAll(req)).toEqual(returnUpdated);
       expect(controller.findAll).toHaveBeenCalled();
     });
   });
@@ -192,9 +192,9 @@ describe('CartController', () => {
     it('should update a cart', async () => {
       jest
         .spyOn(controller, 'update')
-        .mockImplementation(async () => result[0]);
+        .mockImplementation(async () => returnUpdated);
 
-      expect(await controller.update('1', cart, req)).toBe(result[0]);
+      expect(await controller.update('1', cart, req)).toBe(returnUpdated);
 
       expect(controller.update).toHaveBeenCalled();
     });
