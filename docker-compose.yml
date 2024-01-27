@@ -26,5 +26,3 @@ services:
 
 volumes:
   mongo-data:
-  
-  
