@@ -14,6 +14,7 @@ export class PaymentService {
     @InjectRazorpay() private readonly razorpay: Razorpay,
     private prisma: PrismaService,
   ) {}
+  
 
   async buyNow(buyNowDto: BuyNowDto, req: any) {
     const { user } = req;

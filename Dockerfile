@@ -1,14 +1,22 @@
-FROM node:18
+FROM node:18.17.1
+# Create app directory
 
-WORKDIR /workspaces/e-commerce-project-using-nestjs
+WORKDIR /usr/src/app
 
-COPY package*.json ./
+# Install app dependencies
+COPY package*.json .
+
+# Copy Prisma files
+COPY prisma/ /usr/src/app/prisma/
 
 RUN npm install
 
+# Bundle app source
 COPY . .
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD [ "npm", "run","start" ]
+
+
 
