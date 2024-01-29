@@ -41,6 +41,7 @@
     "passport-jwt": "^4.0.1",
     "postmark": "^4.0.2",
     "prisma": "^5.7.1",
+    "qrcode": "^1.5.3",
     "razorpay": "^2.9.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",

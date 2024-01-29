@@ -12,6 +12,7 @@ import { ShipmentModule } from './shipment/shipment.module';
 import { SheduledMailModule } from './sheduled-mail/sheduled-mail.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { TestModule } from './test/test.module';
+import { QrCodeModule } from './qrcode/qrcode.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { TestModule } from './test/test.module';
     SheduledMailModule,
     ReviewsModule,
     TestModule,
+    QrCodeModule,
   ],
   controllers: [],
   providers: [PrismaModule],
