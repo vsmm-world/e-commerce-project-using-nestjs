@@ -31,10 +31,6 @@ export class QrCodeController {
     res.setHeader('Content-Disposition', 'inline; filename=qr-code.png');
     const buffer = Buffer.from(qrCodeDataURL.split(',')[1], 'base64');
 
-    // Convert binary image data to data URI
-    console.log(buffer);
-
-    // Send the data URI as the response
     return res.send(buffer);
   }
 }
