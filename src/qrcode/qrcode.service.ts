@@ -9,7 +9,6 @@ export class QrCodeService {
     try {
       const qrCodeDataURL = await qrcode.toDataURL(data);
 
-      const buffer = Buffer.from(qrCodeDataURL.split(',')[1], 'base64');
 
       return qrCodeDataURL;
     } catch (error) {
