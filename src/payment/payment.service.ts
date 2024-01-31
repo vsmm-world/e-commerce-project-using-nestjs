@@ -7,6 +7,12 @@ import { BuyNowDto } from './dto/buy-now.dto';
 import { PaymentKeys } from '../shared/keys/payment.keys';
 import { env } from 'process';
 import Stripe from 'stripe';
+import { createWriteStream } from 'fs';
+import { promisify } from 'util';
+import * as PDFDocument from 'pdfkit';
+import puppeteer from 'puppeteer';
+import handlebars from 'handlebars';
+import products from 'razorpay/dist/types/products';
 
 @Injectable()
 export class PaymentService {
@@ -14,7 +20,6 @@ export class PaymentService {
     @InjectRazorpay() private readonly razorpay: Razorpay,
     private prisma: PrismaService,
   ) {}
-  
 
   async buyNow(buyNowDto: BuyNowDto, req: any) {
     const { user } = req;
@@ -44,7 +49,7 @@ export class PaymentService {
       },
     });
     if (!productVariant) {
-    throw new NotFoundException(PaymentKeys.PRODUCT_NOT_FOUND);
+      throw new NotFoundException(PaymentKeys.PRODUCT_NOT_FOUND);
     }
     const product = await this.prisma.product.findUnique({
       where: {
@@ -180,7 +185,7 @@ export class PaymentService {
       },
     });
     if (!customer) {
-     throw new NotFoundException(PaymentKeys.CUSTOMER_NOT_FOUND);
+      throw new NotFoundException(PaymentKeys.CUSTOMER_NOT_FOUND);
     }
     const cart = await this.prisma.cart.findFirst({
       where: {
@@ -190,7 +195,7 @@ export class PaymentService {
     });
 
     if (!cart) {
-    throw new NotFoundException(PaymentKeys.CART_NOT_FOUND);
+      throw new NotFoundException(PaymentKeys.CART_NOT_FOUND);
     }
     const address = await this.prisma.address.findFirst({
       where: {
@@ -217,6 +222,10 @@ export class PaymentService {
       });
 
       const order = await this.createOrder(req);
+
+      // this.generatePDF(order);
+      this.generatePdf(order, customer, cart, address);
+
       return {
         statusCode: HttpStatus.OK,
         message: PaymentKeys.PAYMENT_CREATED + 'razorpay',
@@ -279,6 +288,9 @@ export class PaymentService {
       },
     });
     const order = await this.createOrder(req);
+    // this.generatePDF(order);
+    this.generatePdf(order, customer, cart, address);
+
     return {
       statusCode: HttpStatus.OK,
       message: PaymentKeys.PAYMENT_CREATED + 'stripe',
@@ -312,7 +324,7 @@ export class PaymentService {
     try {
       promises = await this.getProducts(productsfromCart);
     } catch (err) {
-   throw new NotFoundException(PaymentKeys.PRODUCT_NOT_FOUND);
+      throw new NotFoundException(PaymentKeys.PRODUCT_NOT_FOUND);
     }
 
     const products = await Promise.all(promises);
@@ -328,7 +340,7 @@ export class PaymentService {
     });
 
     if (!payment) {
-     throw new NotFoundException(PaymentKeys.PAYMENT_NOT_FOUND);
+      throw new NotFoundException(PaymentKeys.PAYMENT_NOT_FOUND);
     }
 
     let PaymentStatus = 'Pending';
@@ -344,7 +356,7 @@ export class PaymentService {
       },
     });
     if (!address) {
-     throw new NotFoundException(PaymentKeys.ADDRESS_NOT_FOUND);
+      throw new NotFoundException(PaymentKeys.ADDRESS_NOT_FOUND);
     }
 
     const order = await this.prisma.order.create({
@@ -377,7 +389,7 @@ export class PaymentService {
     });
 
     return {
-      data: order,
+      order,
       shippmentstatus,
       payment,
     };
@@ -411,5 +423,222 @@ export class PaymentService {
       totalPrice += products[i].price;
     }
     return totalPrice;
+  }
+  async savePDFToFile(pdfBuffer: Buffer, filePath: string): Promise<void> {
+    const writeFileAsync = promisify(require('fs').writeFile);
+
+    try {
+      await writeFileAsync(filePath, pdfBuffer);
+      console.log(`PDF saved to: ${filePath}`);
+    } catch (error) {
+      console.error('Error saving PDF:', error);
+      throw new Error('Failed to save PDF');
+    }
+  }
+
+  async generatePDF(flx) {
+    const pdfBuffer: Buffer = await new Promise((resolve) => {
+      const doc = new PDFDocument({
+        size: 'LETTER',
+        bufferPages: true,
+      });
+
+      // Customize your PDF document
+      flx.order.products.forEach((product) => {
+        doc.text('Product name : -' + product.name, 100, 100);
+        doc.text('Product price : -' + product.price.toString(), 100, 150);
+        doc.text('Product color : -' + product.color, 100, 200);
+      });
+
+      doc.text('Total Price : -' + flx.order.totalPrice.toString(), 100, 250);
+      doc.text('Order Pyment Method : -' + flx.order.paymentMethod, 100, 300);
+      doc.text('Payment Status : -' + flx.order.paymentStatus, 100, 350);
+      doc.text('Total Items : -' + flx.order.tatalItems.toString(), 100, 400);
+      doc.text(
+        'Order Time and Date : -' + flx.order.createdAt.toString(),
+        100,
+        450,
+      );
+
+      doc.text(
+        'Order Shipment Status : -' + flx.shippmentstatus.status,
+        100,
+        500,
+      );
+
+      doc.text('Cash on Dilevery : -' + flx.payment.COD.toString(), 100, 550);
+      doc.text('Payment id  : -' + flx.payment.id, 100, 600);
+      doc.text(
+        'Payment Time and Date : -' + flx.payment.createdAt.toString(),
+        100,
+        650,
+      );
+      doc.end();
+      const buffer = [];
+      doc.on('data', buffer.push.bind(buffer));
+      doc.on('end', () => {
+        const data = Buffer.concat(buffer);
+        resolve(data);
+      });
+    });
+
+    // Save the PDF to a file
+    await this.savePDFToFile(
+      pdfBuffer,
+      `./PDFfiles/${Date.now().toString()}.pdf`,
+    );
+  }
+  async generatePdf(
+    flx: any,
+    customer: any,
+    cart: any,
+    address: any,
+  ): Promise<void> {
+    // Load your HTML template
+    const template = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Invoice</title>
+      <style>
+        body {
+          font-family: 'Arial', sans-serif;
+          margin: 0;
+          padding: 0;
+          background-color: #f2f2f2;
+        }
+    
+        .container {
+          width: 60%;
+          margin: 20px auto;
+          background-color: #fff;
+          padding: 20px;
+          box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+          border-radius: 8px;
+        }
+    
+        h1 {
+          color: #333;
+          text-align: center;
+          border-bottom: 2px solid #3498db;
+          padding-bottom: 10px;
+        }
+    
+        h2 {
+          color: #3498db;
+          border-bottom: 1px solid #ccc;
+          padding-bottom: 5px;
+          margin-top: 20px;
+        }
+    
+        .product {
+          margin-bottom: 15px;
+          border-bottom: 1px solid #eee;
+          padding-bottom: 10px;
+        }
+    
+        p {
+          margin: 5px 0;
+        }
+    
+        .total {
+          margin-top: 20px;
+          font-weight: bold;
+          font-size: 18px;
+          color: #3498db;
+          text-align: right;
+        }
+    
+        .footer {
+          margin-top: 20px;
+          text-align: center;
+          color: #777;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>Invoice</h1>
+    
+        <h2>Products</h2>
+        {{#order.products}}
+          <div class="product">
+            <p><strong>Product Name:</strong> {{name}}</p>
+            <p><strong>Size:</strong> {{size}}</p>
+            <p><strong>Color:</strong> {{color}}</p>
+            <p><strong>Price:</strong> {{price}}</p>
+          </div>
+        {{/order.products}}
+    
+        <h2>Order Details</h2>
+        <p><strong>Total Price:</strong> {{order.totalPrice}}</p>
+        <p><strong>Payment Method:</strong> {{order.paymentMethod}}</p>
+        <p><strong>Payment Status:</strong> {{order.paymentStatus}}</p>
+        <p><strong>Total Items:</strong> {{order.totalItems}}</p>
+        <p><strong>Order Time and Date:</strong> {{order.createdAt}}</p>
+    
+        <h2>Shipment Status</h2>
+        <p><strong>Status:</strong> {{shippmentstatus.status}}</p>
+    
+        <h2>Payment Details</h2>
+        <p><strong>Cash on Delivery:</strong> {{payment.COD}}</p>
+        <p><strong>Payment ID:</strong> {{payment.id}}</p>
+        <p><strong>Payment Time and Date:</strong> {{payment.createdAt}}</p>
+    
+        <div class="total">
+          <p><strong>Total Amount:</strong> {{order.totalPrice}}</p>
+        </div>
+    
+        <div class="footer">
+          <p>Thank you for your purchase!</p>
+        </div>
+      </div>
+    </body>
+    </html>
+    
+    
+    
+  `;
+
+  const products = await this.getProducts(cart.products);
+    const data = {
+      order: flx.order,
+      shippmentstatus: flx.shippmentstatus,
+      payment: flx.payment,
+      products,
+      customer,
+      cart,
+      address,
+
+    };
+
+    // Compile the template
+    const compiledTemplate = handlebars.compile(template);
+
+    // Provide data to the template
+    const htmlContent = compiledTemplate(data);
+
+    // Launch a headless browser
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+
+    // Set the HTML content of the page
+    await page.setContent(htmlContent);
+
+    // Generate PDF buffer
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+    });
+
+    // Save the PDF to a file
+    await this.savePDFToFile(
+      pdfBuffer,
+      `./PDFfiles/${Date.now().toString()}.pdf`,
+    );
+
+    // Close the browser
+    await browser.close();
   }
 }

@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { TestService } from './test.service';
 import { CreateTestDto } from './dto/create-test.dto';
 import { UpdateTestDto } from './dto/update-test.dto';
@@ -13,22 +21,9 @@ export class TestController {
   }
 
   @Get()
-  findAll() {
-    return this.testService.findAll();
-  }
+  async generatePDF() {
+    const buffer = await this.testService.generatePDF();
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.testService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTestDto: UpdateTestDto) {
-    return this.testService.update(+id, updateTestDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.testService.remove(+id);
+    return buffer;
   }
 }

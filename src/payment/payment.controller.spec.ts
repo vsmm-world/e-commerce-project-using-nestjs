@@ -51,7 +51,7 @@ describe('PaymentController', () => {
       info: 'CashOnDelivery',
     },
     order: {
-      data: {
+      order: {
         id: '65af8676c26faea42148c2d5',
         productIds: ['65a8fb6141a6ba640657c8e0'],
         products: [],
