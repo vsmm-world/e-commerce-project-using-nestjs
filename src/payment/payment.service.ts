@@ -499,110 +499,164 @@ export class PaymentService {
     <!DOCTYPE html>
     <html lang="en">
     <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Invoice</title>
-      <style>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+      <meta http-equiv="Content-Style-Type" content="text/css" />
+      <title>E-commerce Invoice</title>
+      <style type="text/css">
         body {
           font-family: 'Arial', sans-serif;
+          font-size: 12pt;
           margin: 0;
           padding: 0;
-          background-color: #f2f2f2;
+          background-color: #f3ffe6; /* Lime Background */
         }
     
         .container {
-          width: 60%;
+          width: 80%;
           margin: 20px auto;
-          background-color: #fff;
+          background-color: #ffffff; /* White Container */
           padding: 20px;
           box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
           border-radius: 8px;
         }
     
         h1 {
-          color: #333;
+          color: #80ff80; /* Dark Lime */
           text-align: center;
-          border-bottom: 2px solid #3498db;
+          border-bottom: 2px solid #80ff80;
           padding-bottom: 10px;
         }
     
         h2 {
-          color: #3498db;
-          border-bottom: 1px solid #ccc;
+          color: #80ff80;
+          border-bottom: 1px solid #b3ffb3; /* Lighter Lime */
           padding-bottom: 5px;
           margin-top: 20px;
         }
     
-        .product {
-          margin-bottom: 15px;
-          border-bottom: 1px solid #eee;
-          padding-bottom: 10px;
-        }
-    
         p {
-          margin: 5px 0;
+          margin: 0;
+          line-height: 1.5;
         }
     
-        .total {
-          margin-top: 20px;
-          font-weight: bold;
-          font-size: 18px;
-          color: #3498db;
-          text-align: right;
+        span {
+          font-family: 'Calibri', sans-serif;
+          font-size: 9pt;
+          color: #333; /* Dark Text Color */
         }
     
-        .footer {
+        .lime-text {
+          color: #80ff80; /* Dark Lime */
+        }
+    
+        .lime-bg {
+          background-color: #e6ffcc; /* Light Lime Background */
+        }
+    
+        .lime-border {
+          border: 1px solid #80ff80; /* Dark Lime Border */
+        }
+    
+        .grey-logo {
+          fill: #666; /* Grey Color for SVG Logo */
+          width: 80px;
+          height: 80px;
+        }
+    
+        .user-details {
+          display: flex;
+          justify-content: space-between;
+        }
+    
+        .table-container {
           margin-top: 20px;
-          text-align: center;
-          color: #777;
+        }
+    
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 10px;
+        }
+    
+        table, th, td {
+          border: 1px solid #b3ffb3; /* Lighter Lime Border for Table */
+        }
+    
+        th, td {
+          padding: 10px;
+          text-align: left;
+        }
+    
+        .total-section {
+          margin-top: 20px;
+        }
+    
+        .payment-details {
+          margin-top: 20px;
         }
       </style>
     </head>
     <body>
-      <div class="container">
-        <h1>Invoice</h1>
+      <div class="container lime-bg">
+        <h1>E-commerce Invoice</h1>
     
-        <h2>Products</h2>
-        {{#order.products}}
-          <div class="product">
-            <p><strong>Product Name:</strong> {{name}}</p>
-            <p><strong>Size:</strong> {{size}}</p>
-            <p><strong>Color:</strong> {{color}}</p>
-            <p><strong>Price:</strong> {{price}}</p>
-          </div>
-        {{/order.products}}
-    
-        <h2>Order Details</h2>
-        <p><strong>Total Price:</strong> {{order.totalPrice}}</p>
-        <p><strong>Payment Method:</strong> {{order.paymentMethod}}</p>
-        <p><strong>Payment Status:</strong> {{order.paymentStatus}}</p>
-        <p><strong>Total Items:</strong> {{order.totalItems}}</p>
-        <p><strong>Order Time and Date:</strong> {{order.createdAt}}</p>
-    
-        <h2>Shipment Status</h2>
-        <p><strong>Status:</strong> {{shippmentstatus.status}}</p>
-    
-        <h2>Payment Details</h2>
-        <p><strong>Cash on Delivery:</strong> {{payment.COD}}</p>
-        <p><strong>Payment ID:</strong> {{payment.id}}</p>
-        <p><strong>Payment Time and Date:</strong> {{payment.createdAt}}</p>
-    
-        <div class="total">
-          <p><strong>Total Amount:</strong> {{order.totalPrice}}</p>
+        <div class="user-details">
+          <svg class="grey-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M7 2v11h10V2H7zm11 0v2h2V2h-2zm0 2v4h2V4h-2zm0 4v5h2V8h-2zm-2 8H8v2h8v-2zm2-3v1a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3v-1H2v6h20v-6h-2zm1-3v1h2V8h-2zm0-3v1h2V5h-2zM2 4v1h2V4H2zm0 2v1h2V6H2zm0 2v1h2V8H2zm0 2v1h2v-1H2zm0 2v1h2v-1H2z"/></svg>
+          <p class="lime-text">User Details:</p>
         </div>
     
-        <div class="footer">
-          <p>Thank you for your purchase!</p>
+        <div class="user-details">
+          <p><span>{{customer.name}}</span></p>
+          <br>
+          <p><span>Email:</span> {{customer.email}}</p>
+        </div>
+    
+        <div class="user-details">
+          <p><span>Shipping Address:</span></p>
+          <p>{{address.street}}, {{address.city}}, {{address.state}} {{address.zip}} {{address.phone}}</p>
+        </div>
+    
+        <div class="table-container">
+          <h2 class="lime-text">Purchased Products</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#cart.products}}
+                <tr>
+                  <td>{{size}}</td>
+                  <td>{{quantity}}</td>
+                  <td>{{price}}</td>
+                </tr>
+              {{/cart.products}}
+            </tbody>
+          </table>
+        </div>
+    
+        <div class="total-section lime-border">
+          <p><span>Total Items:</span> {{cart.totalItems}}</p>
+          <p><span>Total Price:</span> {{cart.totalPrice}}</p>
+        </div>
+    
+        <div class="payment-details">
+          <h2 class="lime-text">Payment Details</h2>
+          <p><span>Payment ID:</span> {{payment.id}}</p>
+          <p><span>Payment Method:</span> {{order.paymentMethod}}</p>
+          <p><span>Payment Status:</span> {{order.paymentStatus}}</p>
+          <p><span>Payment Date:</span> {{payment.createdAt}}</p>
         </div>
       </div>
     </body>
     </html>
     
-    
-    
   `;
 
-  const products = await this.getProducts(cart.products);
+    const products = await this.getProducts(cart.products);
     const data = {
       order: flx.order,
       shippmentstatus: flx.shippmentstatus,
@@ -611,7 +665,6 @@ export class PaymentService {
       customer,
       cart,
       address,
-
     };
 
     // Compile the template
