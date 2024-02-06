@@ -2,7 +2,7 @@ import {
   BadRequestException,
   HttpStatus,
   Injectable,
-  Session,
+
 } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { PrismaService } from '../prisma/prisma.service';

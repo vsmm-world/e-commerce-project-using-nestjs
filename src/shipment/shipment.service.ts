@@ -1,5 +1,4 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
-import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { UpdateShipmentDto } from './dto/update-shipment.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { ShipmentKeys } from '../shared/keys/shipment.keys';

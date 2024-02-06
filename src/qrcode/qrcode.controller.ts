@@ -6,7 +6,6 @@ import {
   ApiOperation,
   ApiProduces,
   ApiTags,
-  ApiBody,
 } from '@nestjs/swagger';
 
 @ApiTags('QR Code')

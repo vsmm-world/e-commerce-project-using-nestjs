@@ -7,7 +7,6 @@ import { BuyNowDto } from './dto/buy-now.dto';
 import { PaymentKeys } from '../shared/keys/payment.keys';
 import { env } from 'process';
 import Stripe from 'stripe';
-import { createWriteStream } from 'fs';
 import { promisify } from 'util';
 import * as PDFDocument from 'pdfkit';
 import puppeteer from 'puppeteer';

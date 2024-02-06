@@ -1,9 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, Validate } from 'class-validator';
-import {
-  CustomEmailValidator,
-  PasswordValidator,
-} from '../../validator/custom-validator';
+import { PasswordValidator } from '../../validator/custom-validator';
 
 export class ResetPasswordDto {
   @ApiProperty()

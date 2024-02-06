@@ -3,7 +3,6 @@ import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { ReviewKeys } from '../shared/keys/reviews.keys';
-import { env } from 'process';
 
 @Injectable()
 export class ReviewsService {

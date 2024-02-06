@@ -1,6 +1,5 @@
 import { CreateTestDto } from './dto/create-test.dto';
 import { Injectable } from '@nestjs/common';
-import { createWriteStream } from 'fs';
 import { promisify } from 'util';
 import * as PDFDocument from 'pdfkit';
 
