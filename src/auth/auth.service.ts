@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  HttpStatus,
-  Injectable,
-
-} from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
@@ -242,7 +237,7 @@ export class AuthService {
       };
     }
 
-  throw new BadRequestException(AuthKeys.NOT_REGISTERD);
+    throw new BadRequestException(AuthKeys.NOT_REGISTERD);
   }
 
   async login(createAuthDto: CreateAuthDto) {
@@ -367,7 +362,7 @@ export class AuthService {
 
     if (tempOtp) {
       if (tempOtp.otp === otp) {
-        const token = await this.generatejwtToken(tempOtp.tempId);
+        const token = this.generatejwtToken(tempOtp.tempId);
 
         const admin = await this.prisma.admin.findFirst({
           where: {
