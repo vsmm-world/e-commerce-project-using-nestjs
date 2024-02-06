@@ -85,45 +85,34 @@ export class CartService {
       };
     }
 
-    if (!cart) {
-      let Products = [];
-      let ProductIds = [];
-      Products.push(product);
-      ProductIds.push(product.id);
-      const totalItems = Products.length;
-      const newCart = await this.prisma.cart.create({
-        data: {
-          customer: {
-            connect: {
-              id: user.id,
-            },
-          },
-          productIds: ProductIds,
-          products: Products,
-          totalItems: totalItems,
-          totalPrice: product.price,
-        },
-      });
+    let Products = [];
+    let ProductIds = [];
+    Products.push(product);
+    ProductIds.push(product.id);
+    const totalItems = Products.length;
+    const newCart = await this.prisma.cart.create({
+      data: {
+        customerId: user.id,
+        productIds: ProductIds,
+        products: Products,
+        totalItems: totalItems,
+        totalPrice: product.price,
+      },
+    });
 
-      const newProduct = await this.prisma.productVariant.update({
-        where: {
-          id: productVariantId,
-          isDeleted: false,
-        },
-        data: {
-          stock: stock - quantity,
-        },
-      });
-      return {
-        statusCode: HttpStatus.OK,
-        message: CartKeys.PRODUCT_ADDED,
-        Products,
-      };
-    }
-
+    const newProduct = await this.prisma.productVariant.update({
+      where: {
+        id: productVariantId,
+        isDeleted: false,
+      },
+      data: {
+        stock: stock - quantity,
+      },
+    });
     return {
       statusCode: HttpStatus.OK,
       message: CartKeys.PRODUCT_ADDED,
+      Products,
     };
   }
 

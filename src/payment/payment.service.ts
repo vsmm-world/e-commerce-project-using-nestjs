@@ -12,7 +12,6 @@ import { promisify } from 'util';
 import * as PDFDocument from 'pdfkit';
 import puppeteer from 'puppeteer';
 import handlebars from 'handlebars';
-import products from 'razorpay/dist/types/products';
 
 @Injectable()
 export class PaymentService {
@@ -65,9 +64,7 @@ export class PaymentService {
     if (CashOnDelivery) {
       const payment = await this.prisma.payment.create({
         data: {
-          customer: {
-            connect: { id: customer.id },
-          },
+          customerId: customer.id,
           COD: CashOnDelivery,
         },
       });
@@ -112,7 +109,7 @@ export class PaymentService {
         data: {
           customerId: customer.id,
           paymentId: payment.id,
-          paymentStatus: 'Pending',
+          paymentStatus: 'done',
           paymentMethod: 'Online',
           productIds: [productVariant.id],
           products: [productVariant],
@@ -158,7 +155,7 @@ export class PaymentService {
       data: {
         customerId: customer.id,
         paymentId: payment.id,
-        paymentStatus: 'Pending',
+        paymentStatus: 'done',
         paymentMethod: 'Online',
         productIds: [productVariant.id],
         products: [productVariant],
@@ -214,13 +211,10 @@ export class PaymentService {
     if (CashOnDelivery) {
       const payment = await this.prisma.payment.create({
         data: {
-          customer: {
-            connect: { id: customer.id },
-          },
+          customerId: customer.id,
           COD: CashOnDelivery,
         },
       });
-
       const order = await this.createOrder(req);
 
       // this.generatePDF(order);
@@ -343,11 +337,11 @@ export class PaymentService {
       throw new NotFoundException(PaymentKeys.PAYMENT_NOT_FOUND);
     }
 
-    let PaymentStatus = 'Pending';
-    let PaymentMethod = 'CashOnDelivery';
-    if (payment.COD == false) {
-      PaymentMethod = 'Online';
-      PaymentStatus = 'Paid';
+    let PaymentStatus = 'Paid';
+    let PaymentMethod = 'Online';
+    if (payment.COD) {
+      PaymentMethod = 'CashOnDelivery';
+      PaymentStatus = 'pending';
     }
     const address = await this.prisma.address.findFirst({
       where: {
@@ -385,6 +379,14 @@ export class PaymentService {
         orderId: order.id,
         addressId: address.id,
         status: 'Pending',
+      },
+    });
+    const paymentUpdate = await this.prisma.payment.update({
+      where: {
+        id: payment.id,
+      },
+      data: {
+        isDeleted: true,
       },
     });
 

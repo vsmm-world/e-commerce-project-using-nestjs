@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { TestService } from './test.service';
 import { CreateTestDto } from './dto/create-test.dto';
-import { UpdateTestDto } from './dto/update-test.dto';
 
 @Controller('test')
 export class TestController {

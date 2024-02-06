@@ -22,31 +22,7 @@ describe('CartController', () => {
   const successMessage = {
     statusCode: 200,
     message: 'This action creates a cart',
-    cart: {
-      id: '1',
-      productIds: [
-        {
-          id: '1',
-          quantity: 1,
-        },
-      ],
-      products: [
-        {
-          id: '1',
-          quantity: 1,
-        },
-      ],
-      totalItems: 2,
-      totalPrice: 500,
-      isReminded: true,
-      reminderDate: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      customerId: '1',
-      isDeleted: false,
-      productId: '1',
-      ProductVariantId: '1',
-    },
+    Products:[]
   };
 
   const cart = {
