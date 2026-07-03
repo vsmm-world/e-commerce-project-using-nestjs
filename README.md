@@ -1,72 +1,120 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# E-Commerce API (NestJS)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A scalable, production-shaped e-commerce backend built with **NestJS**, **Prisma**, and **MongoDB** — built as a learning project to practice real-world e-commerce concerns: catalog, cart, checkout, payments, shipping, and reviews.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
+## Features
 
-## Description
+- **Auth** — JWT authentication with OTP-based verification and password reset
+- **Customer** — accounts, credentials, saved addresses
+- **Admin** — separate admin accounts/credentials for store management
+- **Products & Variants** — products with category and per-variant (size/color/price/stock) support
+- **Category** — hierarchical product categories
+- **Cart** — add/update/remove items, per-customer cart state
+- **Order & Order History** — order lifecycle tracking
+- **Payment** — Stripe and Razorpay integration, configurable via `PAYMENT_MODE`
+- **Shipment & Shipment Status** — order fulfillment/shipping status tracking
+- **Reviews** — customer product reviews
+- **QR Code** — QR code generation (e.g. for order/receipt lookup)
+- **PDF Invoices** — generated with `pdfkit`
+- **Scheduled Mail** — cron-based email jobs (`node-schedule` + Handlebars templates)
+- **Swagger** — interactive API docs generated from decorators
+- **Docker** — `Dockerfile` + `docker-compose.yml` for containerized runs
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Tech Stack
 
-## Installation
+- [NestJS 10](https://nestjs.com/) (TypeScript)
+- [Prisma](https://www.prisma.io/) ORM on **MongoDB**
+- Passport + `@nestjs/jwt` for authentication
+- Stripe & Razorpay for payments
+- Postmark for transactional email, Handlebars for templates, `node-schedule` for cron jobs
+- `pdfkit` for invoice/PDF generation, `qrcode` for QR generation
+- Docker & Docker Compose
+- Jest for unit/e2e testing
 
-```bash
-$ npm install
+## Project Structure
+
+```
+src/
+├── auth/               # login, JWT strategy, OTP verification, password reset
+├── user/               # customer accounts
+├── adress/             # customer addresses
+├── products/           # product CRUD
+├── product_variant/    # product variants (size/color/stock/price)
+├── category/           # product categories
+├── cart/               # shopping cart
+├── payment/            # Stripe / Razorpay integration
+├── shipment/           # shipment & shipment status
+├── reviews/            # customer product reviews
+├── qrcode/             # QR code generation
+├── sheduled-mail/      # cron email jobs
+├── shared/             # shared utilities/services
+├── validator/          # custom DTO validators
+└── prisma/             # Prisma service/module
+prisma/
+└── schema.prisma       # data model (MongoDB)
 ```
 
-## Running the app
+## Getting Started
+
+### Prerequisites
+- Node.js 18+
+- A MongoDB connection string (replica-set enabled, required by Prisma)
+- Stripe and/or Razorpay API keys
+- A Postmark API key (transactional email)
+
+### Setup
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+git clone https://github.com/vsmm-world/e-commerce-project-using-nestjs.git
+cd e-commerce-project-using-nestjs
+npm install
 ```
 
-## Test
+Create a `.env` file in the project root:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+DATABASE_URL="mongodb+srv://<user>:<password>@<cluster>/<db>?retryWrites=true&w=majority"
+POST_MARK_API_KEY="your-postmark-api-key"
+STRIPE_KEY="your-stripe-secret-key"
+PAYMENT_MODE="stripe"   # or "razorpay"
 ```
 
-## Support
+Generate the Prisma client and sync the schema:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+npm run prisma-all
+```
 
-## Stay in touch
+Run the app:
 
-- Author - [Ravindra Valand](https://github.com/vsmm-world)
-- Twitter - [@Mhz_144](https://twitter.com/Mhz_144)
-- Instagram - [Ravindra Valand](https://www.instagram.com/ravindra_valand/)
-- LinkedIn -[Ravindra Valand](https://in.linkedin.com/in/ravindra-valand)
-- You Tube -[Ravindra Valand]()https://www.youtube.com/@RavindraValand
+```bash
+npm run start:dev
+```
+
+The API will be available at `http://localhost:5000`, with Swagger docs at `http://localhost:5000/api`.
+
+### Run with Docker
+
+```bash
+docker-compose up --build
+```
+
+### Tests
+
+```bash
+npm run test        # unit tests
+npm run test:e2e     # e2e tests
+npm run test:cov     # coverage report
+```
+
+## Author
+
+**Ravindra Valand**
+- GitHub: [@vsmm-world](https://github.com/vsmm-world)
+- LinkedIn: [Ravindra Valand](https://in.linkedin.com/in/ravindra-valand)
+- Instagram: [@ravindra_valand](https://www.instagram.com/ravindra_valand/)
+- YouTube: [Ravindra Valand](https://www.youtube.com/@RavindraValand)
+
 ## License
 
-Nest is [MIT licensed](LICENSE).
+UNLICENSED — personal learning project, not intended for production use.
